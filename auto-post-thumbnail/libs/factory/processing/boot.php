@@ -19,26 +19,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( defined( 'FACTORY_PROCESSING_104_LOADED' ) || ( defined( 'FACTORY_PROCESSING_STOP' ) && FACTORY_PROCESSING_STOP ) ) {
+if ( defined( 'FACTORY_PROCESSING_109_LOADED' ) || ( defined( 'FACTORY_PROCESSING_STOP' ) && FACTORY_PROCESSING_STOP ) ) {
 	return;
 }
 
-define( 'FACTORY_PROCESSING_104_LOADED', true );
-define( 'FACTORY_PROCESSING_104_VERSION', '1.0.4' );
-define( 'FACTORY_PROCESSING_104_DIR', dirname( __FILE__ ) );
-define( 'FACTORY_PROCESSING_104_URL', plugins_url( null, __FILE__ ) );
+define( 'FACTORY_PROCESSING_109_LOADED', true );
+define( 'FACTORY_PROCESSING_109_VERSION', '1.0.9' );
+define( 'FACTORY_PROCESSING_109_DIR', dirname( __FILE__ ) );
+define( 'FACTORY_PROCESSING_109_URL', plugins_url( '', __FILE__ ) );
 
-//load_plugin_textdomain( 'wbcr_factory_processing_104', false, dirname( plugin_basename( __FILE__ ) ) . '/langs' );
+//load_plugin_textdomain( 'wbcr_factory_processing_109', false, dirname( plugin_basename( __FILE__ ) ) . '/langs' );
 
-require_once( FACTORY_PROCESSING_104_DIR . '/includes/classes/wp-async-request.php' );
-require_once( FACTORY_PROCESSING_104_DIR . '/includes/classes/wp-background-process.php' );
+require_once( FACTORY_PROCESSING_109_DIR . '/includes/classes/wp-async-request.php' );
+require_once( FACTORY_PROCESSING_109_DIR . '/includes/classes/wp-background-process.php' );
 
 
 /**
- * @param Wbcr_Factory466_Plugin $plugin
+ * @param Wbcr_Factory474_Plugin $plugin
  */
-add_action( 'wbcr_factory_processing_104_plugin_created', function ( $plugin ) {
-	/* @var Wbcr_Factory466_Plugin $plugin */
+add_action( 'wbcr_factory_processing_109_plugin_created', function ( $plugin ) {
+	/* @var Wbcr_Factory474_Plugin $plugin */
 
 	/* Settings of Processing
 	$settings = [
@@ -49,6 +49,6 @@ add_action( 'wbcr_factory_processing_104_plugin_created', function ( $plugin ) {
 		'rotate_limit' => 3,
 	];
 
-	$plugin->set_logger( "WBCR\Factory_Processing_104\Processing", $settings );
+	$plugin->set_logger( "WBCR\Factory_Processing_109\Processing", $settings );
 	*/
 } );

@@ -3,7 +3,8 @@
 Plugin Name: Auto Featured Image (Auto Post Thumbnail)
 Plugin URI: https://cm-wp.com/apt
 Description: Automatically generate the Featured Image from the first image in post or any custom post type only if Featured Image is not set manually. Featured Image Generation From Title. Native image search for Elementor, Gutenberg, Classic Editor.
-Version: 3.9.18
+Version: 4.0.0
+Requires PHP: 8.0
 Author: Creative Motion <support@cm-wp.com>
 Author URI: https://cm-wp.com
 Text Domain: apt
@@ -24,7 +25,6 @@ Domain Path: /languages
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
-
 /**
  * -----------------------------------------------------------------------------
  * CHECK REQUIREMENTS
@@ -89,24 +89,24 @@ $plugin_info = [
 	],
 
 	'load_factory_modules' => [
-		[ 'libs/factory/bootstrap', 'factory_bootstrap_467', 'admin' ],
-		[ 'libs/factory/forms', 'factory_forms_463', 'admin' ],
-		[ 'libs/factory/pages', 'factory_pages_466', 'admin' ],
-		[ 'libs/factory/templates', 'factory_templates_116', 'admin' ],
-		[ 'libs/factory/freemius', 'factory_freemius_154', 'all' ],
-		[ 'libs/factory/adverts', 'factory_adverts_143', 'admin' ],
-		[ 'libs/factory/feedback', 'factory_feedback_122', 'admin' ],
-		[ 'libs/factory/logger', 'factory_logger_130', 'all' ],
-		[ 'libs/factory/processing', 'factory_processing_104', 'all' ],
+		[ 'libs/factory/bootstrap', 'factory_bootstrap_476', 'admin' ],
+		[ 'libs/factory/forms', 'factory_forms_474', 'admin' ],
+		[ 'libs/factory/pages', 'factory_pages_474', 'admin' ],
+		[ 'libs/factory/templates', 'factory_templates_127', 'admin' ],
+		[ 'libs/factory/freemius', 'factory_freemius_164', 'all' ],
+		[ 'libs/factory/adverts', 'factory_adverts_152', 'admin' ],
+		[ 'libs/factory/feedback', 'factory_feedback_127', 'admin' ],
+		[ 'libs/factory/logger', 'factory_logger_140', 'all' ],
+		[ 'libs/factory/processing', 'factory_processing_109', 'all' ],
 	],
 ];
 
-$wapt_compatibility = new Wbcr_Factory466_Requirements( __FILE__, array_merge( $plugin_info, [
-			'plugin_already_activate' => defined( 'WAPT_PLUGIN_ACTIVE' ),
-			'required_php_version'    => '7.0',
-			'required_wp_version'     => '4.8.0',
-			// 'required_clearfy_check_component' => false
-		] ) );
+$wapt_compatibility = new Wbcr_Factory474_Requirements( __FILE__, array_merge( $plugin_info, [
+	'plugin_already_activate' => defined( 'WAPT_PLUGIN_ACTIVE' ),
+	'required_php_version'    => '8.0',
+	'required_wp_version'     => '5.6.0',
+	// 'required_clearfy_check_component' => false
+] ) );
 
 /**
  * If the plugin is compatible, then it will continue its work, otherwise it will be stopped,
@@ -123,7 +123,7 @@ define( 'WAPT_PLUGIN_FILE', __FILE__ );
 define( 'WAPT_ABSPATH', dirname( __FILE__ ) );
 define( 'WAPT_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 define( 'WAPT_PLUGIN_SLUG', dirname( plugin_basename( __FILE__ ) ) );
-define( 'WAPT_PLUGIN_URL', plugins_url( null, __FILE__ ) );
+define( 'WAPT_PLUGIN_URL', plugins_url( '', __FILE__ ) );
 define( 'WAPT_PLUGIN_DIR', dirname( __FILE__ ) );
 
 
@@ -143,9 +143,9 @@ require_once WAPT_PLUGIN_DIR . '/includes/image-search/boot.php';
 
 try {
 	new WAPT_Plugin( __FILE__, array_merge( $plugin_info, [
-				'plugin_version'     => WAPT_PLUGIN_VERSION,
-				'plugin_text_domain' => $wapt_compatibility->get_text_domain(),
-			] ) );
+		'plugin_version'     => WAPT_PLUGIN_VERSION,
+		'plugin_text_domain' => $wapt_compatibility->get_text_domain(),
+	] ) );
 } catch ( Exception $e ) {
 	global $wapt_exception;
 

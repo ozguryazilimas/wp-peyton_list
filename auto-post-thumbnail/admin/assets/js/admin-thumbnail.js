@@ -67,7 +67,7 @@
 						thumbnail_id: attachment.id,
 						_ajax_nonce: $el.data('nonce'),
 					}).done(function (thumb_url) {
-						window.location.reload();
+						//window.location.reload();
 					});
 				});
 

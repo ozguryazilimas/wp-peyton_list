@@ -63,17 +63,17 @@ class AutoPostThumbnails {
 		$this->plugin         = \WAPT_Plugin::app();
 
 		$this->sources = [
-				'google'    => WAPT_PLUGIN_SLUG,
-				'recommend' => '',
-				'pixabay'   => '',
-				'unsplash'  => '',
+			'google'    => WAPT_PLUGIN_SLUG,
+			'recommend' => '',
+			'pixabay'   => '',
+			'unsplash'  => '',
 		];
 		if ( $this->plugin->is_premium() ) {
 			$this->sources = [
-					'recommend' => '',
-					'google'    => WAPT_PLUGIN_SLUG,
-					'pixabay'   => '',
-					'unsplash'  => '',
+				'recommend' => '',
+				'google'    => WAPT_PLUGIN_SLUG,
+				'pixabay'   => '',
+				'unsplash'  => '',
 			];
 		}
 
@@ -206,18 +206,18 @@ class AutoPostThumbnails {
 			// Get id's of the posts that satisfy the filters
 			//$query = $this->get_posts_query( $has_thumb, $type, $status, $category, $date_start, $date_end );
 			$query = $this->get_posts_query( [
-					'has_thumb'  => $has_thumb,
-					'type'       => $type,
-					'status'     => $status,
-					'category'   => $category,
-					'date_start' => $date_start,
-					'date_end'   => $date_end,
+				'has_thumb'  => $has_thumb,
+				'type'       => $type,
+				'status'     => $status,
+				'category'   => $category,
+				'date_start' => $date_start,
+				'date_end'   => $date_end,
 			] );
 		} else {
 			// Get id's of all the published posts for which post thumbnails exist or does not exist
 			$query = $this->get_posts_query( [
-					'has_thumb' => $has_thumb,
-					'type'      => $type,
+				'has_thumb' => $has_thumb,
+				'type'      => $type,
 			] );
 		}
 
@@ -302,13 +302,13 @@ class AutoPostThumbnails {
 	 */
 	public function notice_auto_generation() {
 		?>
-		<div class="notice notice-warning is-dismissible" id="notice_auto_generation">
-			<p><b>Auto Featured Image:</b> Do you want to enable automatic post thumbnail generation? Enable this option
-				in
-				<a href="<?php echo esc_url_raw( admin_url( 'admin.php?page=wapt_settings-wbcr_apt&tab=general' ) ); ?>">settings</a><br>
-				<a href="#" id="hide_notice_auto_generation">Don't ask again</a>
-			</p>
-		</div>
+        <div class="notice notice-warning is-dismissible" id="notice_auto_generation">
+            <p><b>Auto Featured Image:</b> Do you want to enable automatic post thumbnail generation? Enable this option
+                in
+                <a href="<?php echo esc_url_raw( admin_url( 'admin.php?page=wapt_settings-wbcr_apt&tab=general' ) ); ?>">settings</a><br>
+                <a href="#" id="hide_notice_auto_generation">Don't ask again</a>
+            </p>
+        </div>
 		<?php
 	}
 
@@ -346,27 +346,27 @@ class AutoPostThumbnails {
 	 */
 	public function get_posts_query( $params ) {
 		$default_params = [
-				'has_thumb'  => false,
-				'type'       => 'post',
-				'status'     => 'publish',
-				'category'   => 0,
-				'date_start' => 0,
-				'date_end'   => 0,
-				'is_log'     => true,
-				'count'      => 0,
+			'has_thumb'  => false,
+			'type'       => 'post',
+			'status'     => 'publish',
+			'category'   => 0,
+			'date_start' => 0,
+			'date_end'   => 0,
+			'is_log'     => true,
+			'count'      => 0,
 		];
 
 		$params = wp_parse_args( $params, $default_params );
 		// phpcs:disable WordPress.PHP.DevelopmentFunctions
 		if ( $params['is_log'] ) {
 			$this->plugin->logger->info( 'Posts query: ' . var_export( [
-							'has_thumb'  => $params['has_thumb'],
-							'type'       => $params['is_log'],
-							'status'     => $params['type'],
-							'category'   => $params['category'],
-							'date_start' => $params['date_start'],
-							'date_end'   => $params['date_end'],
-					], true ) );
+					'has_thumb'  => $params['has_thumb'],
+					'type'       => $params['is_log'],
+					'status'     => $params['type'],
+					'category'   => $params['category'],
+					'date_start' => $params['date_start'],
+					'date_end'   => $params['date_end'],
+				], true ) );
 		}
 		// phpcs:enable
 
@@ -375,31 +375,31 @@ class AutoPostThumbnails {
 		$q_has_thumb = $params['has_thumb'] ? 'EXISTS' : 'NOT EXISTS';
 
 		$args = [
-				'posts_per_page'   => $params['count'] ? $params['count'] : - 1,
-				'post_status'      => $q_status,
-				'post_type'        => $q_type,
-				'suppress_filters' => true,
-				'fields'           => 'ids',
-				'meta_query'       => [
-						'relation' => ' and ',
-						[
-								'key'     => '_thumbnail_id',
-								'compare' => $q_has_thumb,
-						],
-						[
-								'key'     => 'skip_post_thumb',
-								'compare' => 'NOT EXISTS',
-						],
+			'posts_per_page'   => $params['count'] ? $params['count'] : - 1,
+			'post_status'      => $q_status,
+			'post_type'        => $q_type,
+			'suppress_filters' => true,
+			'fields'           => 'ids',
+			'meta_query'       => [
+				'relation' => ' and ',
+				[
+					'key'     => '_thumbnail_id',
+					'compare' => $q_has_thumb,
 				],
+				[
+					'key'     => 'skip_post_thumb',
+					'compare' => 'NOT EXISTS',
+				],
+			],
 		];
 		if ( $params['category'] ) {
 			$args['cat'] = $params['category'];
 		}
 		if ( $params['date_start'] && $params['date_end'] ) {
 			$args['date_query'][] = [
-					'after'     => $params['date_start'],
-					'before'    => $params['date_end'],
-					'inclusive' => true,
+				'after'     => $params['date_start'],
+				'before'    => $params['date_end'],
+				'inclusive' => true,
 			];
 		}
 		$query = new WP_Query( $args );
@@ -416,8 +416,8 @@ class AutoPostThumbnails {
 	 */
 	public function get_posts_count( $has_thumb = false, $type = 'post' ) {
 		$query = $this->get_posts_query( [
-				'has_thumb' => $has_thumb,
-				'type'      => $type,
+			'has_thumb' => $has_thumb,
+			'type'      => $type,
 		] );
 
 		return $query->post_count ?? 0;
@@ -705,15 +705,33 @@ class AutoPostThumbnails {
 			$new_file .= ".{$ext}";
 		}
 
+		$wp_filetype = wp_check_filetype( $filename );
+
+		$allow_mime_types = [
+			'image/jpeg',
+			'image/png',
+			'image/gif',
+			'image/bmp',
+			'image/tiff',
+			'image/webp',
+			'image/avif'
+		];
+
+
+		if ( ( ! $wp_filetype['ext'] || ! in_array( $wp_filetype['type'], $allow_mime_types, true ) ) ) {
+			$this->plugin->logger->debug( "File type ({$wp_filetype['type']}) is not allowed for upload." );
+			return null;
+		}
+
 		// Move the file to the uploads dir
 		if ( ! ini_get( 'allow_url_fopen' ) ) {
 			$file_data = $this->get_file_contents( $imageUrl );
 		} else {
 			$arrContextOptions = [
-					'ssl' => [
-							'verify_peer'      => false,
-							'verify_peer_name' => false,
-					],
+				'ssl' => [
+					'verify_peer'      => false,
+					'verify_peer_name' => false,
+				],
 			];
 
 			$file_data = file_get_contents( $imageUrl, false, stream_context_create( $arrContextOptions ) );
@@ -725,46 +743,30 @@ class AutoPostThumbnails {
 			return null;
 		}
 
-		// Fix for checking file extensions
-		$exts = explode( '.', $filename );
-		if ( count( $exts ) > 2 ) {
-			// return null;
-		}
-
-		$allowed = get_allowed_mime_types();
-		if ( ! $this->array_contains_key( $allowed, $ext ) ) {
-			$this->plugin->logger->debug( "File type ({$ext}) is not allowed for upload" );
-
-			return null;
-		}
-
 		file_put_contents( $new_file, $file_data );
+
+		$file_mime = mime_content_type( $new_file );
+
+        if(! in_array( $wp_filetype['type'], $allow_mime_types, true )) {
+            unlink($new_file);
+            return null;
+        }
 
 		// Set correct file permissions
 		$stat  = stat( dirname( $new_file ) );
 		$perms = $stat['mode'] & 0000666;
 		@ chmod( $new_file, $perms );
 
-		// Get the file type. Must to use it as a post thumbnail.
-		$wp_filetype = wp_check_filetype( $filename );
-
-		extract( $wp_filetype );
-
-		// No file type! No point to proceed further
-		if ( ( ! $type || ! $ext ) && ! current_user_can( 'unfiltered_upload' ) ) {
-			return null;
-		}
-
 		// Compute the URL
 		$url = $uploads['url'] . "/$filename";
 
 		// Construct the attachment array
 		$attachment = [
-				'post_mime_type' => $type,
-				'guid'           => $url,
-				'post_parent'    => null,
-				'post_title'     => $imageTitle,
-				'post_content'   => '',
+			'post_mime_type' => $file_mime,
+			'guid'           => $url,
+			'post_parent'    => null,
+			'post_title'     => $imageTitle,
+			'post_content'   => '',
 		];
 
 		$thumb_id = wp_insert_attachment( $attachment, $new_file, $post_id );
@@ -858,18 +860,18 @@ class AutoPostThumbnails {
 				check_ajax_referer( 'set_post_thumbnail-' . $post_id );
 				$nonce = $_POST['_ajax_nonce'];
 				?>
-				<div class='apt_thumbs' id='wapt_thumbs'>
-					<div class='wapt-grid-item'>
-						<div class="wapt-image-box-library"
-						     data-choose='<?php echo __( 'Choose featured image', 'apt' ); ?>'
-						     data-update='<?php echo __( 'Select image', 'apt' ); ?>'
-						     data-postid='<?php echo $post_id; ?>'
-						     data-nonce='<?php echo $nonce; ?>'
-						     style="background-color: #a3d2ff;">
-							<div class="wapt-item-generated"><?php echo __( 'Set featured image from medialibrary', 'apt' ); ?></div>
-						</div>
-					</div>
-				</div>
+                <div class='apt_thumbs' id='wapt_thumbs'>
+                    <div class='wapt-grid-item'>
+                        <div class="wapt-image-box-library"
+                             data-choose='<?php echo __( 'Choose featured image', 'apt' ); ?>'
+                             data-update='<?php echo __( 'Select image', 'apt' ); ?>'
+                             data-postid='<?php echo $post_id; ?>'
+                             data-nonce='<?php echo $nonce; ?>'
+                             style="background-color: #a3d2ff;">
+                            <div class="wapt-item-generated"><?php echo __( 'Set featured image from medialibrary', 'apt' ); ?></div>
+                        </div>
+                    </div>
+                </div>
 				<?php
 			}
 		}
@@ -1033,10 +1035,10 @@ class AutoPostThumbnails {
 			// insert attachment
 			$wp_filetype = wp_check_filetype( basename( $target_file_name ), null );
 			$attachment  = [
-					'guid'           => $wp_upload_dir['url'] . '/' . basename( $target_file_name ),
-					'post_mime_type' => $wp_filetype['type'],
-					'post_title'     => preg_replace( '/\.[^.]+$/', '', $image_title ),
-					'post_status'    => 'inherit',
+				'guid'           => $wp_upload_dir['url'] . '/' . basename( $target_file_name ),
+				'post_mime_type' => $wp_filetype['type'],
+				'post_title'     => preg_replace( '/\.[^.]+$/', '', $image_title ),
+				'post_status'    => 'inherit',
 			];
 
 			$attach_id = wp_insert_attachment( $attachment, $target_file_name, $postid );
@@ -1228,16 +1230,16 @@ class AutoPostThumbnails {
 
 			// Задаем настройки уведомления
 			$notices[] = [
-					'id'              => 'apt_check_api',
+				'id'              => 'apt_check_api',
 				// error, success, warning
-					'type'            => 'warning',
-					'dismissible'     => true,
+				'type'            => 'warning',
+				'dismissible'     => true,
 				// На каких страницах показывать уведомление ('plugins', 'dashboard', 'edit')
-					'where'           => [ 'plugins', 'dashboard', 'edit' ],
+				'where'           => [ 'plugins', 'dashboard', 'edit' ],
 				// Через какое время уведомление снова появится?
-					'dismiss_expires' => 0,
-					'text'            => $notice_text,
-					'classes'         => [],
+				'dismiss_expires' => 0,
+				'text'            => $notice_text,
+				'classes'         => [],
 			];
 		}
 
@@ -1256,8 +1258,8 @@ class AutoPostThumbnails {
 		$fonts            = [];
 
 		$fonts[] = [
-				'title' => __( 'Standard', 'apt' ),
-				'type'  => 'group',
+			'title' => __( 'Standard', 'apt' ),
+			'type'  => 'group',
 		];
 		$files   = scandir( $plugin_dir_fonts );
 		foreach ( $files as $file ) {
@@ -1267,8 +1269,8 @@ class AutoPostThumbnails {
 			$name    = pathinfo( $plugin_dir_fonts . '/' . $file );
 			$name    = $name['filename'];
 			$fonts[] = [
-					'value' => $file,
-					'title' => $name,
+				'value' => $file,
+				'title' => $name,
 			];
 		}
 
@@ -1277,8 +1279,8 @@ class AutoPostThumbnails {
 		}
 		if ( count( $files ) && \WAPT_Plugin::app()->is_premium() ) {
 			$fonts[] = [
-					'title' => __( 'Uploaded', 'apt' ),
-					'type'  => 'group',
+				'title' => __( 'Uploaded', 'apt' ),
+				'type'  => 'group',
 			];
 			foreach ( $files as $file ) {
 				if ( $file === '.' || $file === '..' ) {
@@ -1287,8 +1289,8 @@ class AutoPostThumbnails {
 				$name    = pathinfo( $upload_dir_fonts . '/' . $file );
 				$name    = $name['filename'];
 				$fonts[] = [
-						'value' => $file,
-						'title' => $name,
+					'value' => $file,
+					'title' => $name,
 				];
 			}
 		}
@@ -1355,11 +1357,11 @@ class AutoPostThumbnails {
 		$line_spacing = \WAPT_Plugin::app()->getPopulateOption( 'text-line-spacing', 1.5 );
 
 		$params        = [
-				'text'       => $text,
-				'pathToSave' => $pathToSave,
-				'format'     => $format,
-				'width'      => $width,
-				'height'     => $height,
+			'text'       => $text,
+			'pathToSave' => $pathToSave,
+			'format'     => $format,
+			'width'      => $width,
+			'height'     => $height,
 		];
 		$image         = new Image( $width, $height, $background, $font, $font_size, $font_color );
 		$image->params = $params;
@@ -1477,11 +1479,11 @@ class AutoPostThumbnails {
 		$file_url = str_replace( wp_get_upload_dir()['basedir'], wp_get_upload_dir()['baseurl'], $file_path );
 		if ( file_exists( $file_path ) ) {
 			$attachment = [
-					'post_mime_type' => $mime_type,
-					'guid'           => $file_url,
-					'post_parent'    => $post->ID,
-					'post_title'     => $post->post_title,
-					'post_content'   => '',
+				'post_mime_type' => $mime_type,
+				'guid'           => $file_url,
+				'post_parent'    => $post->ID,
+				'post_title'     => $post->post_title,
+				'post_content'   => '',
 			];
 
 			$thumb_id = wp_insert_attachment( $attachment, $file_path, $post->ID );

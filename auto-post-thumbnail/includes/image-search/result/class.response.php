@@ -52,7 +52,7 @@ class SearchResponse implements \JsonSerializable {
 		return ! is_null( $this->error );
 	}
 
-	public function jsonSerialize() {
+	public function jsonSerialize():mixed {
 		if ( $this->is_error() ) {
 			return [
 				'error' => $this->error,
