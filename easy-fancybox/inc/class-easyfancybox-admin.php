@@ -96,6 +96,7 @@ class easyFancyBox_Admin {
 	 * Show request for plugin review on options page
 	 */
 	public static function show_review_request() {
+		return;
 		// Don't show if not on options screen, or if already rated
 		$screen = get_current_screen();
 		$is_options_screen = self::$screen_id === $screen->id;
