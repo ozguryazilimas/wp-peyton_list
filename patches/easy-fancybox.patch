@@ -1,0 +1,44 @@
+diff --git a/easy-fancybox/inc/admin.js b/easy-fancybox/inc/admin.js
+index 3ef640e1..7a3f51a7 100644
+--- a/easy-fancybox/inc/admin.js
++++ b/easy-fancybox/inc/admin.js
+@@ -92,27 +92,4 @@ wp.domReady( function () {
+ 	}));
+ } );
+ 
+-(function($) {
+-	$( document ).ready( function() {
+-		var container = $('.efb-review-notice');
+-		if ( container.length ) {
+-			container.find( 'a' ).click(function() {
+-				container.remove();
+-				var rateAction = $( this ).attr( 'data-rate-action' );
+-				$.post(
+-					ajaxurl,
+-					{
+-						action: 'efb-review-action',
+-						rate_action: rateAction,
+-						_n: container.find( 'ul:first' ).attr( 'data-nonce' )
+-					},
+-					function( result ) {}
+-				);
+ 
+-				if ( 'do-rate' !== rateAction ) {
+-					return false;
+-				}
+-			});
+-		}
+-	});
+-})( jQuery );
+diff --git a/easy-fancybox/inc/class-easyfancybox-admin.php b/easy-fancybox/inc/class-easyfancybox-admin.php
+index e1f1fe94..c6de0fd7 100644
+--- a/easy-fancybox/inc/class-easyfancybox-admin.php
++++ b/easy-fancybox/inc/class-easyfancybox-admin.php
+@@ -96,6 +96,7 @@ class easyFancyBox_Admin {
+ 	 * Show request for plugin review on options page
+ 	 */
+ 	public static function show_review_request() {
++		return;
+ 		// Don't show if not on options screen, or if already rated
+ 		$screen = get_current_screen();
+ 		$is_options_screen = self::$screen_id === $screen->id;
