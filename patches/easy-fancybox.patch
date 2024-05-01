@@ -31,14 +31,14 @@ index 3ef640e1..7a3f51a7 100644
 -	});
 -})( jQuery );
 diff --git a/easy-fancybox/inc/class-easyfancybox-admin.php b/easy-fancybox/inc/class-easyfancybox-admin.php
-index e1f1fe94..c6de0fd7 100644
+index ed1a1fd9..dd6fee37 100644
 --- a/easy-fancybox/inc/class-easyfancybox-admin.php
 +++ b/easy-fancybox/inc/class-easyfancybox-admin.php
-@@ -96,6 +96,7 @@ class easyFancyBox_Admin {
+@@ -98,6 +98,7 @@ class easyFancyBox_Admin {
  	 * Show request for plugin review on options page
  	 */
  	public static function show_review_request() {
 +		return;
- 		// Don't show if not on options screen, or if already rated
+ 		// Don't show if not on options screen or dashboard, or if already rated
  		$screen = get_current_screen();
- 		$is_options_screen = self::$screen_id === $screen->id;
+ 		$is_dashboard_or_efb_options = 'dashboard' === $screen->id || self::$screen_id === $screen->id;
