@@ -1,8 +1,8 @@
 diff --git a/easy-fancybox/inc/admin.js b/easy-fancybox/inc/admin.js
-index 3ef640e1..7a3f51a7 100644
+index 253457e8..3ad223a5 100644
 --- a/easy-fancybox/inc/admin.js
 +++ b/easy-fancybox/inc/admin.js
-@@ -92,27 +92,4 @@ wp.domReady( function () {
+@@ -92,27 +92,3 @@ wp.domReady( function () {
  	}));
  } );
  
@@ -10,7 +10,7 @@ index 3ef640e1..7a3f51a7 100644
 -	$( document ).ready( function() {
 -		var container = $('.efb-review-notice');
 -		if ( container.length ) {
--			container.find( 'a' ).click(function() {
+-			container.find( '.efb-review-actions a' ).click(function() {
 -				container.remove();
 -				var rateAction = $( this ).attr( 'data-rate-action' );
 -				$.post(
@@ -22,7 +22,7 @@ index 3ef640e1..7a3f51a7 100644
 -					},
 -					function( result ) {}
 -				);
- 
+-
 -				if ( 'do-rate' !== rateAction ) {
 -					return false;
 -				}
@@ -31,7 +31,7 @@ index 3ef640e1..7a3f51a7 100644
 -	});
 -})( jQuery );
 diff --git a/easy-fancybox/inc/class-easyfancybox-admin.php b/easy-fancybox/inc/class-easyfancybox-admin.php
-index ed1a1fd9..dd6fee37 100644
+index 545554c5..0a899275 100644
 --- a/easy-fancybox/inc/class-easyfancybox-admin.php
 +++ b/easy-fancybox/inc/class-easyfancybox-admin.php
 @@ -98,6 +98,7 @@ class easyFancyBox_Admin {
