@@ -98,7 +98,6 @@ class easyFancyBox_Admin {
 	 * Show request for plugin review on options page
 	 */
 	public static function show_review_request() {
-		return;
 		// Don't show if not on options screen or dashboard, or if already rated
 		$screen = get_current_screen();
 		$is_dashboard_or_efb_options = 'dashboard' === $screen->id || self::$screen_id === $screen->id;
@@ -113,7 +112,7 @@ class easyFancyBox_Admin {
 			$user_review_number = rand(1, 10);
 			update_option( 'efb_user_review_number', $user_review_number );
 		}
-		$selected = $user_review_number === '1' || $user_review_number === '2';
+		$selected = $user_review_number === '1' || $user_review_number === '2'  || $user_review_number === '3'  || $user_review_number === '4'  || $user_review_number === '5';
 		if ( ! $selected ) {
 			return;
 		}
