@@ -573,7 +573,8 @@ $efb_options = array (
 				'input' => 'select',
 				'sanitize_callback' => 'sanitize_text_field',
 				'options' => array(
-					'' => __('All image links', 'easy-fancybox')
+					'' => __('All images', 'easy-fancybox'),
+					'3' => __('All image links', 'easy-fancybox')
 				),
 				'default' => '',
 				'description' => efb_pro_button( true )
@@ -833,8 +834,10 @@ $efb_options = array (
 				'title' => __( 'Image css selectors'),
 				'hide' => true,
 				'input' => 'text',
+				'sanitize_callback' => 'sanitize_text_field',
 				'status' => 'disabled',
-				'default' => '.gallery,.wp-block-gallery,.tiled-gallery,.wp-block-jetpack-tiled-gallery'
+				'default' => '.gallery,.wp-block-gallery,.tiled-gallery,.wp-block-jetpack-tiled-gallery',
+				'description' => efb_pro_button()
 			),
 			'autoPlay' => array (
 				'id' => 'fancybox_autoPlay',
