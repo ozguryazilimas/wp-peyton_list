@@ -277,6 +277,22 @@ class AmeActorSelector {
         });
         return publicObservable;
     }
+    /**
+     * Select an actor based on the "selected_actor" URL parameter.
+     *
+     * Does nothing if the parameter is not set or the actor ID is invalid.
+     */
+    setSelectedActorFromUrl() {
+        if (!URLSearchParams) {
+            return;
+        }
+        //Select an actor based on the "selected_actor" URL parameter.
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedActor = urlParams.get('selected_actor');
+        if (selectedActor !== null) {
+            this.setSelectedActor(selectedActor);
+        }
+    }
 }
 AmeActorSelector._ = wsAmeLodash;
 //# sourceMappingURL=actor-selector.js.map

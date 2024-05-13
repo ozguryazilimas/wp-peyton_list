@@ -357,6 +357,8 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 			'admin.php?page=email-builder' => true,
 			//Email Marketing Automation - Mail Mint 1.2.5
 			'admin.php?page=mint-mail-automation-editor' => true,
+			//Enable Media Replace 4.1.5
+			'upload.php?page=enable-media-replace/enable-media-replace.php' => true,
 		);
 
 		//AJAXify screen options
@@ -726,9 +728,20 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 			}
 
 			//Replace the admin menu just before it is displayed and restore it afterwards.
-			//The fact that replace_wp_menu() is attached to the 'parent_file' hook is incidental;
+			//The fact that replace_wp_menu() is attached to the 'submenu_file' hook is incidental;
 			//there just wasn't any other, more suitable hook available.
-			add_filter('parent_file', array($this, 'replace_wp_menu'), 1001);
+			$replacementFilter = 'submenu_file';
+			/* Compatibility workaround for UIPress 3.3.100.
+			 *
+			 * UIPress also replaces the admin menu, but it does so using the 'parent_file' filter
+			 * (conditionally, requires at least one active UIPress template, etc). If we want our
+			 * menu settings to be applied, we need to replace the admin menu *before* UIPress does.
+			 * So let's use the 'parent_file' filter when UIPress is active.
+			 */
+			if ( defined('uip_plugin_path_name') && (uip_plugin_path_name === 'uipress-lite') ) {
+				$replacementFilter = 'parent_file';
+			}
+			add_filter($replacementFilter, array($this, 'replace_wp_menu'), 1001);
 			add_action('adminmenu', array($this, 'restore_wp_menu'));
 
 			//A compatibility hack for Ozh's Admin Drop Down Menu. Make sure it also sees the modified menu.
@@ -759,10 +772,10 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 	/**
 	 * Replace the current WP menu with our custom one.
 	 *
-	 * @param string $parent_file Ignored. Required because this method is a hook for the 'parent_file' filter.
-	 * @return string Returns the $parent_file argument.
+	 * @param string $submenu_file Unused. Required because this method is a hook for the 'submenu_file' filter.
+	 * @return string Returns the $submenu_file argument.
 	 */
-	public function replace_wp_menu($parent_file = '') {
+	public function replace_wp_menu($submenu_file = '') {
 		global $menu, $submenu;
 
 		$this->old_wp_menu = $menu;
@@ -778,7 +791,7 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 		$this->user_cap_cache_enabled = false;
 
 		do_action('admin_menu_editor-menu_replaced');
-		return $parent_file;
+		return $submenu_file;
 	}
 
 	/**
@@ -3030,11 +3043,27 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 		$default_menu = $this->get_default_menu();
 
 		//Is there a custom menu?
-		if (!empty($this->merged_custom_menu)){
+		$custom_menu = null;
+		if ( !empty($this->merged_custom_menu) ) {
 			$custom_menu = $this->merged_custom_menu;
 		} else {
-			//Start out with the default menu if there is no user-created one
-			$custom_menu = $default_menu;
+			if ( $this->loaded_menu_config_id ) {
+				//It's possible that we might have a custom configuration that just doesn't have
+				//a menu tree, so the merged config would be uninitialized. In that case, keep
+				//the custom config but take the default menu tree.
+				$stored_custom_config = $this->load_custom_menu($this->loaded_menu_config_id);
+				if ( $stored_custom_config ) {
+					if ( empty($stored_custom_config['tree']) ) {
+						$stored_custom_config['tree'] = $default_menu['tree'] ?: [];
+					}
+					$custom_menu = $stored_custom_config;
+				}
+			}
+
+			if ( $custom_menu === null ) {
+				//Start out with the default menu if there is no user-created one.
+				$custom_menu = $default_menu;
+			}
 		}
 
 		//Encode both menus as JSON
@@ -3094,16 +3123,17 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 	 *
 	 * @return array
 	 */
-	public function get_active_admin_menu() {
+	public function get_active_admin_menu_tree() {
 		if ( !did_action('admin_menu') && !did_action('network_admin_menu') ) {
 			throw new LogicException(__METHOD__ . ' was called too early. You must only call it after the admin menu is ready.');
 		}
 
 		if (!empty($this->merged_custom_menu)){
-			return $this->merged_custom_menu;
+			$config = $this->merged_custom_menu;
 		} else {
-			return $this->get_default_menu();
+			$config = $this->get_default_menu();
 		}
+		return $config['tree'] ?: array();
 	}
 
 	/**
@@ -4218,7 +4248,7 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 	 * @return array Associative array of strings that can be translated, indexed by unique name.
 	 */
 	private function get_wpml_strings($custom_menu) {
-		if ( empty($custom_menu) ) {
+		if ( empty($custom_menu) || empty($custom_menu['tree']) ) {
 			return array();
 		}
 
@@ -4423,7 +4453,7 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 	}
 
 	/**
-	 * Compatibility fix for MailPoet 3. Last tested with MailPoet 3.44.0.
+	 * Compatibility fix for MailPoet 3 and 4. Last tested with MailPoet 4.49.1.
 	 *
 	 * MailPoet deliberately removes all third-party stylesheets from its admin pages.
 	 * As a result, some AME features that use stylesheets - like custom menu icons and admin
@@ -4439,7 +4469,8 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 	 * @return array
 	 */
 	public function _whitelist_ame_styles_for_mailpoet($styles) {
-		$styles[] = 'ame_output_menu_color_css';
+		$styles[] = 'ame-custom-menu-colors';
+		$styles[] = 'ame-menu-style-bundle';
 		$styles[] = 'font-awesome\.css';
 		$styles[] = 'force-dashicons\.css';
 		return $styles;
@@ -4659,6 +4690,11 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 
 		//Did this update change user capabilities or roles? If so, refresh virtual caps.
 		$user = $this->get_user_by_id($user_id);
+		if ( empty($user) ) {
+			//This should never happen for a non-empty ID, but a user reported that it does
+			//on their site. Not clear why, did not investigate in detail.
+			return;
+		}
 		if ( $meta_key === $user->cap_key ) {
 			$this->update_virtual_cap_cache($user);
 		}
@@ -5040,8 +5076,8 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 	 */
 	public function register_hideable_items($store) {
 		try {
-			$menu = $this->get_active_admin_menu();
-			if ( empty($menu['tree']) ) {
+			$tree = $this->get_active_admin_menu_tree();
+			if ( empty($tree) ) {
 				return;
 			}
 		} catch (LogicException $ex) {
@@ -5057,11 +5093,12 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 			true
 		);
 
-		$this->register_menus_as_hideable($store, $menu['tree'], null, 1, $cat);
+		$this->register_menus_as_hideable($store, $tree, null, 1, $cat);
 
 		//Also, register visible components.
 		//The word "component" is used in at least two distinct senses here, which is not ideal.
 		$componentsByItemId = apply_filters('admin_menu_editor-hideable_vis_components', array());
+		$menuConfig = $this->load_custom_menu($this->loaded_menu_config_id);
 		foreach($componentsByItemId as $itemId => $properties) {
 			$store->addItem(
 				$itemId,
@@ -5073,7 +5110,7 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 					true
 				)->setSortPriority(1)),
 				null,
-				ameUtils::get($menu, array('component_visibility', $properties['component']), array()),
+				ameUtils::get($menuConfig, array('component_visibility', $properties['component']), array()),
 				'admin-menu'
 			);
 		}
@@ -5128,8 +5165,8 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 	 */
 	public function save_hideable_items($errors, $items) {
 		try {
-			$menu = $this->get_active_admin_menu();
-			if ( empty($menu['tree']) ) {
+			$tree = $this->get_active_admin_menu_tree();
+			if ( empty($tree) ) {
 				return $errors;
 			}
 		} catch (LogicException $ex) {
@@ -5137,12 +5174,20 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 			return $errors;
 		}
 
-		$hasChanged = $this->update_hideable_menu_items($items, $menu['tree'], 1);
+		$hasChanged = $this->update_hideable_menu_items($items, $tree, 1);
+
+		$menuConfig = $this->load_custom_menu($this->loaded_menu_config_id);
+		if ( empty($menuConfig) ) {
+			$menuConfig = ameMenu::new_empty_config();
+		}
+		if ( $hasChanged ) {
+			$menuConfig['tree'] = $tree;
+		}
 
 		//Update component visibility. It's more efficient to do it here because we
 		//don't need to re-save the whole menu configuration multiple times.
-		if ( !isset($menu['component_visibility']) ) {
-			$menu['component_visibility'] = array();
+		if ( !isset($menuConfig['component_visibility']) ) {
+			$menuConfig['component_visibility'] = array();
 		}
 		$componentsByItemId = apply_filters('admin_menu_editor-hideable_vis_components', array());
 
@@ -5150,16 +5195,16 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 			$component = $properties['component'];
 			if ( isset($items[$itemId]) ) {
 				$enabled = ameUtils::get($items[$itemId], 'enabled', array());
-				$oldAccess = ameUtils::get($menu, array('component_visibility', $component), array());
+				$oldAccess = ameUtils::get($menuConfig, array('component_visibility', $component), array());
 				if ( !ameUtils::areAssocArraysEqual($enabled, $oldAccess) ) {
-					$menu['component_visibility'][$component] = $enabled;
+					$menuConfig['component_visibility'][$component] = $enabled;
 					$hasChanged = true;
 				}
 			}
 		}
 
 		if ( $hasChanged ) {
-			if ( !$this->set_custom_menu($menu) ) {
+			if ( !$this->set_custom_menu($menuConfig) ) {
 				$errors[] = new WP_Error('menu_update_failed', 'Failed to save the admin menu.');
 			}
 		}
