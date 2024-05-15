@@ -276,7 +276,12 @@ class Simple_Local_Avatars {
 
 		// Local only mode
 		if ( ! $simple_local_avatar_url ) {
-			$args['url'] = $this->get_default_avatar_url( $args['size'] );
+			$default_url = $this->get_default_avatar_url( $args['size'] );
+			if ( ! empty( $this->options['only'] ) ) {
+				$args['url'] = $default_url;
+			} else {
+				$args['default'] = $default_url;
+			}
 		}
 
 		if ( ! empty( $args['url'] ) ) {
@@ -301,7 +306,6 @@ class Simple_Local_Avatars {
 	 * @return int|false
 	 */
 	public function get_user_id( $id_or_email ) {
-		global $wpdb;
 		$user_id = false;
 
 		if ( is_numeric( $id_or_email ) ) {
@@ -315,8 +319,6 @@ class Simple_Local_Avatars {
 		} elseif ( is_string( $id_or_email ) ) {
 			$user    = get_user_by( 'email', $id_or_email );
 			$user_id = $user ? $user->ID : '';
-		} else {
-			$user_id = $wpdb->get_var("SELECT user_id FROM wp_comments WHERE comment_author_email = '" . $id_or_email . "' LIMIT 1");
 		}
 
 		return $user_id;
@@ -1473,6 +1475,7 @@ class Simple_Local_Avatars {
 		<input type="hidden" name="simple-local-avatar-file-id" id="simple-local-avatar-file-id" value="<?php echo ! empty( $default_avatar_file_id ) ? esc_attr( $default_avatar_file_id ) : ''; ?>"/>
 		<input type="hidden" name="simple-local-avatar-file-url" id="simple-local-avatar-file-url" value="<?php echo ! empty( $default_avatar_file_url ) ? esc_url( $default_avatar_file_url ) : ''; ?>"/>
 		<input type="button" name="simple-local-avatar" id="simple-local-avatar-default" class="button-secondary" value="<?php esc_attr_e( 'Choose Default Avatar', 'simple-local-avatar' ); ?>"/>
+		<p class="description" style="margin-left: 23px;"><?php esc_html_e( 'Note that this avatar needs to be publicly available or a broken image will be shown.', 'simple-local-avatar' ); ?></p>
 		<?php
 		$defaults['simple_local_avatar'] = ob_get_clean();
 
