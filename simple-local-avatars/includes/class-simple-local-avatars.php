@@ -276,10 +276,12 @@ class Simple_Local_Avatars {
 
 		// Local only mode
 		if ( ! $simple_local_avatar_url ) {
-			$default_url = $this->get_default_avatar_url( $args['size'] );
+			$default_url    = $this->get_default_avatar_url( $args['size'] );
+			$avatar_default = get_option( 'avatar_default' );
+
 			if ( ! empty( $this->options['only'] ) ) {
 				$args['url'] = $default_url;
-			} else {
+			} elseif ( 'simple_local_avatar' === $avatar_default ) {
 				$args['default'] = $default_url;
 			}
 		}
@@ -306,7 +308,6 @@ class Simple_Local_Avatars {
 	 * @return int|false
 	 */
 	public function get_user_id( $id_or_email ) {
-		global $wpdb;
 		$user_id = false;
 
 		if ( is_numeric( $id_or_email ) ) {
@@ -320,8 +321,6 @@ class Simple_Local_Avatars {
 		} elseif ( is_string( $id_or_email ) ) {
 			$user    = get_user_by( 'email', $id_or_email );
 			$user_id = $user ? $user->ID : '';
-		} else {
-			$user_id = $wpdb->get_var("SELECT user_id FROM wp_comments WHERE comment_author_email = '" . $id_or_email . "' LIMIT 1");
 		}
 
 		return $user_id;
