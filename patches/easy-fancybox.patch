@@ -1,11 +1,8 @@
-diff --git a/easy-fancybox/inc/admin.js b/easy-fancybox/inc/admin.js
-index 253457e8..3ad223a5 100644
---- a/easy-fancybox/inc/admin.js
-+++ b/easy-fancybox/inc/admin.js
-@@ -92,27 +92,3 @@ wp.domReady( function () {
- 	}));
- } );
- 
+diff --git a/easy-fancybox/inc/admin-notice.js b/easy-fancybox/inc/admin-notice.js
+index 57f45b29..8b137891 100644
+--- a/easy-fancybox/inc/admin-notice.js
++++ b/easy-fancybox/inc/admin-notice.js
+@@ -1,24 +1 @@
 -(function($) {
 -	$( document ).ready( function() {
 -		var container = $('.efb-review-notice');
@@ -22,7 +19,7 @@ index 253457e8..3ad223a5 100644
 -					},
 -					function( result ) {}
 -				);
--
+ 
 -				if ( 'do-rate' !== rateAction ) {
 -					return false;
 -				}
@@ -31,14 +28,14 @@ index 253457e8..3ad223a5 100644
 -	});
 -})( jQuery );
 diff --git a/easy-fancybox/inc/class-easyfancybox-admin.php b/easy-fancybox/inc/class-easyfancybox-admin.php
-index 545554c5..0a899275 100644
+index 889f1509..dc2635b8 100644
 --- a/easy-fancybox/inc/class-easyfancybox-admin.php
 +++ b/easy-fancybox/inc/class-easyfancybox-admin.php
-@@ -98,6 +98,7 @@ class easyFancyBox_Admin {
- 	 * Show request for plugin review on options page
+@@ -131,6 +131,7 @@ class easyFancyBox_Admin {
  	 */
  	public static function show_review_request() {
-+		return;
  		// Don't show if not on options screen or dashboard, or if already rated
++		return;
  		$screen = get_current_screen();
  		$is_dashboard_or_efb_options = 'dashboard' === $screen->id || self::$screen_id === $screen->id;
+ 		$already_rated = get_option( 'efb_plugin_rated' ) && get_option( 'efb_plugin_rated' ) === 'true';
