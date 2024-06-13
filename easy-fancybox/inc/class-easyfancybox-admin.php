@@ -131,6 +131,7 @@ class easyFancyBox_Admin {
 	 */
 	public static function show_review_request() {
 		// Don't show if not on options screen or dashboard, or if already rated
+		return;
 		$screen = get_current_screen();
 		$is_dashboard_or_efb_options = 'dashboard' === $screen->id || self::$screen_id === $screen->id;
 		$already_rated = get_option( 'efb_plugin_rated' ) && get_option( 'efb_plugin_rated' ) === 'true';
