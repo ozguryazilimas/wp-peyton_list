@@ -1,41 +1,22 @@
 diff --git a/easy-fancybox/inc/admin-notice.js b/easy-fancybox/inc/admin-notice.js
-index 57f45b29..8b137891 100644
+index 57f45b29..306b2c57 100644
 --- a/easy-fancybox/inc/admin-notice.js
 +++ b/easy-fancybox/inc/admin-notice.js
-@@ -1,24 +1 @@
--(function($) {
--	$( document ).ready( function() {
--		var container = $('.efb-review-notice');
--		if ( container.length ) {
--			container.find( '.efb-review-actions a' ).click(function() {
--				container.remove();
--				var rateAction = $( this ).attr( 'data-rate-action' );
--				$.post(
--					ajaxurl,
--					{
--						action: 'efb-review-action',
--						rate_action: rateAction,
--						_n: container.find( 'ul:first' ).attr( 'data-nonce' )
--					},
--					function( result ) {}
--				);
- 
--				if ( 'do-rate' !== rateAction ) {
--					return false;
--				}
--			});
--		}
--	});
--})( jQuery );
+@@ -1,4 +1,5 @@
+ (function($) {
++	return;
+ 	$( document ).ready( function() {
+ 		var container = $('.efb-review-notice');
+ 		if ( container.length ) {
 diff --git a/easy-fancybox/inc/class-easyfancybox-admin.php b/easy-fancybox/inc/class-easyfancybox-admin.php
-index 889f1509..dc2635b8 100644
+index 95660a97..b58bdcf5 100644
 --- a/easy-fancybox/inc/class-easyfancybox-admin.php
 +++ b/easy-fancybox/inc/class-easyfancybox-admin.php
-@@ -131,6 +131,7 @@ class easyFancyBox_Admin {
+@@ -173,6 +173,7 @@ class easyFancyBox_Admin {
  	 */
- 	public static function show_review_request() {
- 		// Don't show if not on options screen or dashboard, or if already rated
-+		return;
- 		$screen = get_current_screen();
+ 	public static function should_show_review_request() {
+ 		// Don't show if not on options screen or dashboard, or if already rated.
++		return false;
+ 		$screen                      = get_current_screen();
  		$is_dashboard_or_efb_options = 'dashboard' === $screen->id || self::$screen_id === $screen->id;
- 		$already_rated = get_option( 'efb_plugin_rated' ) && get_option( 'efb_plugin_rated' ) === 'true';
+ 		$already_rated               = get_option( 'efb_plugin_rated' ) && get_option( 'efb_plugin_rated' ) === 'true';
