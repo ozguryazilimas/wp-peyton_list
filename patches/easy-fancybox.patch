@@ -9,10 +9,10 @@ index 57f45b29..306b2c57 100644
  		var container = $('.efb-review-notice');
  		if ( container.length ) {
 diff --git a/easy-fancybox/inc/class-easyfancybox-admin.php b/easy-fancybox/inc/class-easyfancybox-admin.php
-index a7a4d6eb..e170a86b 100644
+index bb6aa9d0..2a80bd1e 100644
 --- a/easy-fancybox/inc/class-easyfancybox-admin.php
 +++ b/easy-fancybox/inc/class-easyfancybox-admin.php
-@@ -175,6 +175,7 @@ class easyFancyBox_Admin {
+@@ -217,6 +217,7 @@ class easyFancyBox_Admin { // phpcs:ignore
  	 */
  	public static function should_show_review_request() {
  		// Don't show if not on options screen or dashboard, or if already rated.
