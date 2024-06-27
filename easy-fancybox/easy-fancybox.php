@@ -5,7 +5,7 @@
  * Description: Most popular WordPress lightbox plugin. Easily add a lightbox for viewing images and other media.
  * Text Domain: easy-fancybox
  * Domain Path: languages
- * Version: 2.2.3
+ * Version: 2.2.5
  * Author: FirelightWP
  * Author URI: https://firelightwp.com
  *
@@ -29,12 +29,12 @@
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
-};
+}
 
 /**
  * CONSTANTS
  */
-define( 'EASY_FANCYBOX_VERSION', '2.2.3' );
+define( 'EASY_FANCYBOX_VERSION', '2.2.5' );
 define(
 	'FANCYBOX_VERSIONS',
 	array(

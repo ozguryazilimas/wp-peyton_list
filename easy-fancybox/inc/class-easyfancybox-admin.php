@@ -217,7 +217,6 @@ class easyFancyBox_Admin { // phpcs:ignore
 	 */
 	public static function should_show_review_request() {
 		// Don't show if not on options screen or dashboard, or if already rated.
-		return false;
 		$screen                      = get_current_screen();
 		$is_dashboard_or_efb_options = 'dashboard' === $screen->id || self::$screen_id === $screen->id;
 		$already_rated               = get_option( 'efb_plugin_rated' ) && get_option( 'efb_plugin_rated' ) === 'true';
@@ -720,6 +719,13 @@ class easyFancyBox_Admin { // phpcs:ignore
 	 * Enqueue block JavaScript and CSS for the editor
 	 */
 	public static function block_editor_scripts() {
+		$enable_block_controls = '1' === get_option( 'fancybox_enableBlockControls', '1' );
+		$lightbox_panel_open   = '1' === get_option( 'fancybox_openBlockControls', '1' );
+
+		if ( ! $enable_block_controls ) {
+			return;
+		}
+
 		$block_js  = easyFancyBox::$plugin_url . 'build/index.js';
 		$block_css = easyFancyBox::$plugin_url . 'build/index.css';
 		$version   = defined( 'WP_DEBUG' ) ? time() : EASY_FANCYBOX_PRO_VERSION;
@@ -745,15 +751,16 @@ class easyFancyBox_Admin { // phpcs:ignore
 			$block_js,
 			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-components', 'wp-editor', 'wp-hooks' ),
 			$version,
-			array( 'in_footer' => true ),
+			true
 		);
 		wp_localize_script(
 			'firelight-block-js',
 			'firelight',
 			array(
-				'activeLightbox' => $active_lightbox,
-				'settingsUrl'    => esc_url( admin_url( 'admin.php?page=firelight-settings' ) ),
-				'isProUser'      => $is_pro_user,
+				'activeLightbox'    => $active_lightbox,
+				'settingsUrl'       => esc_url( admin_url( 'admin.php?page=firelight-settings' ) ),
+				'isProUser'         => $is_pro_user,
+				'lightboxPanelOpen' => $lightbox_panel_open,
 			)
 		);
 	}
