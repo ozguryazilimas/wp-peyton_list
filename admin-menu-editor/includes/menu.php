@@ -552,7 +552,7 @@ abstract class ameMenu {
 	 * @param array|null $extra_params Optional. An array of additional parameters to pass to the callback.
 	 * @return array
 	 */
-	protected static function map_items($items, $callback, $extra_params = null) {
+	public static function map_items($items, $callback, $extra_params = null) {
 		if ( $extra_params === null ) {
 			$extra_params = array();
 		}
