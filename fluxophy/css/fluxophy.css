@@ -78,12 +78,12 @@ div.fluxophy_entry_data {
 }
 
 #fluxophy_button_show_fb {
-  width: 50%;
+  // width: 50%;
 }
 
 #fluxophy_button_show_twitter {
-  width: 50%;
-  float: right;
+  // width: 50%;
+  // float: right;
 }
 
 #fluxophy_widget_twitter {
