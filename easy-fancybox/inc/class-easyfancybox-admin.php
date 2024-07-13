@@ -161,7 +161,7 @@ class easyFancyBox_Admin { // phpcs:ignore
 		if ( ! class_exists( 'easyFancyBox_Advanced' ) ) {
 			add_submenu_page(
 				'firelight-settings',
-				'My Custom Page',
+				'Easy Fancybox Settings',
 				'Settings',
 				'manage_options',
 				'firelight-settings'
@@ -203,6 +203,8 @@ class easyFancyBox_Admin { // phpcs:ignore
 				<img class="firelight-logo" src="' . esc_url( easyFancyBox::$plugin_url ) . 'images/firelight-logo.png">'
 				. $opt_in_link // phpcs:ignore
 			. '</div>';
+
+		settings_errors();
 
 		echo '<form method="post" action="options.php">';
 
@@ -249,7 +251,6 @@ class easyFancyBox_Admin { // phpcs:ignore
 	 */
 	public static function should_show_review_request() {
 		// Don't show if not on options screen or dashboard, or if already rated.
-		return false;
 		$screen                      = get_current_screen();
 		$is_dashboard_or_efb_options = 'dashboard' === $screen->id || self::$screen_id === $screen->id;
 		$already_rated               = get_option( 'efb_plugin_rated' ) && get_option( 'efb_plugin_rated' ) === 'true';
@@ -258,15 +259,16 @@ class easyFancyBox_Admin { // phpcs:ignore
 		}
 
 		// Limit review notices to 10% of users initially.
-		$user_review_number = get_option( 'efb_user_review_number' );
-		if ( ! $user_review_number ) {
-			$user_review_number = rand( 1, 10 ); // phpcs:ignore
-			update_option( 'efb_user_review_number', $user_review_number );
-		}
-		$selected = '1' === $user_review_number || '2' === $user_review_number || '3' === $user_review_number || '4' === $user_review_number || '5' === $user_review_number || '6' === $user_review_number;
-		if ( ! $selected ) {
-			return false;
-		}
+		// Comment out to show to all users.
+		// $user_review_number = get_option( 'efb_user_review_number' );
+		// if ( ! $user_review_number ) {
+		// 	$user_review_number = rand( 1, 10 ); // phpcs:ignore
+		// 	update_option( 'efb_user_review_number', $user_review_number );
+		// }
+		// $selected = '1' === $user_review_number || '2' === $user_review_number || '3' === $user_review_number || '4' === $user_review_number || '5' === $user_review_number || '6' === $user_review_number;
+		// if ( ! $selected ) {
+		// 	return false;
+		// }
 
 		// Only show if user has been using plugin for more than 60 days.
 		$current_date      = new DateTimeImmutable( gmdate( 'Y-m-d' ) );
@@ -984,7 +986,6 @@ class easyFancyBox_Admin { // phpcs:ignore
 	 * @return bool Returns true if the email optin should be shown.
 	 */
 	public static function should_show_email_optin() {
-		return false;
 		// Only show on settings screen.
 		$screen         = get_current_screen();
 		$is_efb_options = self::$screen_id === $screen->id;
@@ -1020,15 +1021,16 @@ class easyFancyBox_Admin { // phpcs:ignore
 		}
 
 		// Limit optin request to 20% of users initially.
-		$user_review_number = get_option( 'efb_user_review_number' );
-		if ( ! $user_review_number ) {
-			$user_review_number = rand( 1, 10 ); // phpcs:ignore
-			update_option( 'efb_user_review_number', $user_review_number );
-		}
-		$selected = '9' === $user_review_number || '10' === $user_review_number;
-		if ( ! $selected ) {
-			return false;
-		}
+		// Commenting this out to try rolling out 100%.
+		// $user_review_number = get_option( 'efb_user_review_number' );
+		// if ( ! $user_review_number ) {
+		// 	$user_review_number = rand( 1, 10 ); // phpcs:ignore
+		// 	update_option( 'efb_user_review_number', $user_review_number );
+		// }
+		// $selected = '7' === $user_review_number || '8' === $user_review_number || '9' === $user_review_number || '10' === $user_review_number;
+		// if ( ! $selected ) {
+		// 	return false;
+		// }
 
 		return true;
 	}

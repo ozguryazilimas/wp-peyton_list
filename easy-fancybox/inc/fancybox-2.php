@@ -137,7 +137,7 @@ jQuery('.$value['options']['autoAttribute']['selector'].').not(\'.nofancybox,li.
 			} else {
 				// First wrap unlinked image blocks depending on settings
 				$autoAttributeLimit = \get_option( $value['options']['autoAttributeLimit']['id'], $value['options']['autoAttributeLimit']['default'] );
-				if ( 'IMG' === $key && '' === $autoAttributeLimit ) {
+				if ( 'IMG' === $key && ( 'all' === $autoAttributeLimit || '' === $autoAttributeLimit ) ) {
 					$fb_handler .= '
 						var unlinkedImageBlocks=jQuery(".wp-block-image > img:not(.nofancybox)");
 						unlinkedImageBlocks.wrap(function() {
@@ -160,13 +160,21 @@ var fb_'.$key.'_select=jQuery(\'';
 				}
 				$fb_handler .= '\');';
 
-				$autoselector = class_exists('easyFancyBox_Advanced') ? \get_option($value['options']['autoSelector']['id'],$value['options']['autoSelector']['default']) : $value['options']['autoSelector']['default'];
+				// Gallery Groups/Sections/Selectors
+				$nextgen_selectors = '.ngg-galleryoverview,.ngg-imagebrowser,.nextgen_pro_blog_gallery,.nextgen_pro_film,.nextgen_pro_horizontal_filmstrip,.ngg-pro-masonry-wrapper,.ngg-pro-mosaic-container,.nextgen_pro_sidescroll,.nextgen_pro_slideshow,.nextgen_pro_thumbnail_grid,.tiled-gallery';
+				$default_autoselector = $value['options']['autoSelector']['default'] . ',' . $nextgen_selectors;
+				$custom_autoselector = \get_option( $value['options']['autoSelector']['id'], $value['options']['autoSelector']['default'] );
 
 				// Class and rel depending on settings.
-				if( '1' == $autoAttributeLimit ) {
+				if( '1' === $autoAttributeLimit || 'sections' === $autoAttributeLimit ) {
+					// Only apply fancybox class to images within specific containers.
+					$autoselector_for_applying_classes = '' === $custom_autoselector
+						? $default_autoselector
+						: $custom_autoselector;
+
 					// Add class.
 					$fb_handler .= '
-var fb_'.$key.'_sections=jQuery(\''.$autoselector.'\');
+var fb_'.$key.'_sections=jQuery(\''.$autoselector_for_applying_classes.'\');
 fb_'.$key.'_sections.each(function(){jQuery(this).find(fb_'.$key.'_select).addClass(\''.$value['options']['class']['default'].'\')';
 					// Set rel.
 					switch( \get_option($value['options']['autoGallery']['id'],$value['options']['autoGallery']['default']) ) {
@@ -188,7 +196,7 @@ fb_'.$key.'_sections.each(function(){jQuery(this).find(fb_'.$key.'_select).addCl
 							break;
 					}
 				} else {
-					// Add class.
+					// Apply fancybox class to all images.
 					$fb_handler .= '
 fb_'.$key.'_select.addClass(\''.$value['options']['class']['default'].'\')';
 					// Set rel.
@@ -200,10 +208,19 @@ fb_'.$key.'_select.addClass(\''.$value['options']['class']['default'].'\')';
 
 						case '1':
 						case 'galleries':
-						case 'custom':
 						default:
 							$fb_handler .= ';
-var fb_'.$key.'_sections=jQuery(\''.$autoselector.'\');
+var fb_'.$key.'_sections=jQuery(\''.$default_autoselector.'\');
+fb_'.$key.'_sections.each(function(){jQuery(this).find(fb_'.$key.'_select).attr(\'data-fancybox-group\',\'gallery-\'+fb_'.$key.'_sections.index(this));});';
+							break;
+
+						case 'custom':
+							// Group galleries based on custom containers.
+							$autoselectors_to_group_galleries = '' === $custom_autoselector
+								? $default_autoselector
+								: $custom_autoselector;
+							$fb_handler .= ';
+var fb_'.$key.'_sections=jQuery(\''.$autoselectors_to_group_galleries.'\');
 fb_'.$key.'_sections.each(function(){jQuery(this).find(fb_'.$key.'_select).attr(\'data-fancybox-group\',\'gallery-\'+fb_'.$key.'_sections.index(this));});';
 							break;
 
@@ -348,7 +365,6 @@ fb_'.$key.'_sections.each(function(){jQuery(this).find(fb_'.$key.'_select).attr(
 	if ( \easyFancyBox::$onready_auto ) {
 		$script .= \apply_filters( 'easy_fancybox_onready_auto', 'jQuery(easy_fancybox_auto);' );
 	}
-
 	$script = \apply_filters( 'easy_fancybox_inline_script', $script );
 
 	\easyFancyBox::$inline_scripts['jquery-fancybox'] = array(
