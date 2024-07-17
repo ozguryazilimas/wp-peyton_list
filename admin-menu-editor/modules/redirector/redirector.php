@@ -353,6 +353,10 @@ class Module extends amePersistentModule {
 			$flattenedRedirects = array_filter($flattenedRedirects, function ($details) use ($cleaner) {
 				return $cleaner->tryActorExists($details['actorId'], true);
 			});
+
+			//Reindex the array. If filtering removed some elements, the array keys can be sparse,
+			//which would cause it to be serialized as an object instead of an array.
+			$flattenedRedirects = array_values($flattenedRedirects);
 		}
 
 		$scriptData = [

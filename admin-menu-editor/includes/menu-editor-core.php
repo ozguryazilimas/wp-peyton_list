@@ -4393,24 +4393,32 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 		 * order storage types. WooCommerce removes the redundant item, but that doesn't work when AME
 		 * is active because it happens in the admin_init hook.
 		 *
-		 * Let's check if there are two "Orders" items and remove the one that uses custom post types.
+		 * According to user reports, when the WooCommerce Subscriptions extension is active, the same
+		 * problem happens with the "WooCommerce -> Subscriptions" item.
+		 *
+		 * Let's check if there are duplicate items and remove the ones that use custom post types.
 		 */
-		$goodOrdersItemIndex = null;
-		$redundantOrdersItemIndex = null;
-		foreach($this->default_wp_submenu['woocommerce'] as $index => $menu) {
-			//Skip menu items without a slug/URL in case someone adds a custom separator or something.
-			if ( !isset($menu[2]) ) {
-				continue;
+		$potentialDuplicateItems = [
+			'edit.php?post_type=shop_order'        => 'wc-orders',
+			'edit.php?post_type=shop_subscription' => 'wc-orders--shop_subscription',
+		];
+		foreach ($potentialDuplicateItems as $redundantSlug => $goodSlug) {
+			$redundantItemIndex = null;
+			$goodItemIndex = null;
+			foreach ($this->default_wp_submenu['woocommerce'] as $index => $menu) {
+				//Skip menu items without a slug/URL in case someone adds a custom separator or something.
+				if ( !isset($menu[2]) ) {
+					continue;
+				}
+				if ( $menu[2] === $redundantSlug ) {
+					$redundantItemIndex = $index;
+				} elseif ( $menu[2] === $goodSlug ) {
+					$goodItemIndex = $index;
+				}
 			}
-			if ( $menu[2] === 'edit.php?post_type=shop_order' ) {
-				$redundantOrdersItemIndex = $index;
-			} elseif ( $menu[2] === 'wc-orders' ) {
-				$goodOrdersItemIndex = $index;
+			if ( ($goodItemIndex !== null) && ($redundantItemIndex !== null) ) {
+				unset($this->default_wp_submenu['woocommerce'][$redundantItemIndex]);
 			}
-		}
-
-		if ( ($goodOrdersItemIndex !== null) && ($redundantOrdersItemIndex !== null) ) {
-			unset($this->default_wp_submenu['woocommerce'][$redundantOrdersItemIndex]);
 		}
 	}
 
@@ -5017,6 +5025,11 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 				'className' => 'ameWidgetEditor',
 				'requiredPhpVersion' => '5.3',
 				'title' => 'Dashboard Widgets',
+			),
+			'nav-menu-visibility' => array(
+				'relativePath' => 'extras/modules/nav-menu-visibility/nav-menu-visibility.php',
+				'className' => '\\YahnisElsts\\AdminMenuEditor\\NavMenuVisibility\\NavMenuModule',
+				'title' => 'Navigation Menu Visibility',
 			),
 			'redirector' => array(
 				'relativePath' => 'modules/redirector/redirector.php',

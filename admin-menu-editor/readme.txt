@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, dashboard, menu, security, wpmu
 License: GPLv3
 Requires at least: 4.7
-Tested up to: 6.5.5
-Stable tag: 1.12.3
+Tested up to: 6.6
+Stable tag: 1.12.4
 
 Lets you edit the WordPress admin menu. You can re-order, hide or rename menus, add custom menus and more. 
 
@@ -75,6 +75,11 @@ Plugins installed in the `mu-plugins` directory are treated as "always on", so y
 3. Re-ordering menu items via drag and drop
 
 == Changelog ==
+
+= 1.12.4 =
+* Fixed a bug introduced in version 1.12.3 that could cause the "Redirects" tab to be blank in some configurations. The bug also triggered this JS error: "settings.redirects.map is not a function".
+* Fixed a WooCommerce conflict where two "Subscriptions" menu items would appear when AME was active.
+* Tested with WP 6.6-RC3 and WP 6.7-alpha.
 
 = 1.12.3 =
 * Improved menu drag & drop. You can now drag top level menu items to the active submenu. You can also move submenu items to the top level by dragging them to the bottom of the top level menu list (you can move them to a different position after that).
