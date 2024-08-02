@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 2.7.4 =
+* Improved: Plugin security. Thanks to Krzysztof Zając and Wordfence
+
 = 2.7.3 =
 * Bug fix
 
