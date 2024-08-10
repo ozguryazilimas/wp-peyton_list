@@ -3,8 +3,8 @@ Contributors: firelightwp
 Tags: lightbox, gallery, image, photo, modal
 Requires at least: 5.0
 Requires PHP: 7.0
-Tested up to: 6.6.0
-Stable tag: 2.2.8
+Tested up to: 6.6.1
+Stable tag: 2.2.9
 License: GPLv3
 
 The most popular lightbox plugin for WordPress. Adds a simple, fast lightbox for viewing images, videos, and other media.
@@ -47,16 +47,25 @@ Links:
 **PRO LIGHTBOX FEATURES**
 
 Easy Fancybox Pro is an extension for this lightbox plugin that offers:
-- Priority support via email directly from devs
-- Pro features for free lightboxes (Fancybox Legacy, Classic, V2)
-- *Powerful Pro Lighbox based on Fancybox 5*
+- Dozens of Pro features for free lightboxes (Fancybox Legacy, Classic, V2)
+- *Priority support direct from developers*
+- *New and Powerful Pro Lighbox based on Fancybox 5, including:*
 - Beautiful, modern full-browser and full-screen ligthbox
-- Dozens of customizations options
+- 100+ customizations options
 - Thumbnails within the lightbox
-- Toolbar with controls for thumbs, zoom, slideshow, and more
-- Support for videos, pdfs, modals/popups, inline content, iframes, maps, and more
-- Flawless mobile interaction
-- Hyper fast performance
+- Social sharing for images
+- Link direct to images in the lightbox
+- "Download image" button
+- Toolbar with controls for thumbnails, social sharing, zoom, slideshow, etc
+- Open videos
+- Open PDFs
+- Open popups
+- Open inline content and iframes
+- Open Google maps
+- NextGEN Gallery integration
+- Elementor integration
+- Perfect on mobile devices
+- Optimized lightbox speed
 
 -> **[VIEW PRO LIGHTBOX DEMOS](https://firelightwp.com/pro-lightbox)**  
 -> **[GET PRO SUPPORT](https://firelightwp.com/contact)**  
@@ -92,6 +101,10 @@ When activated network wide with **Network Activate**, each sub-site will _not_ 
 2. Example of a YouTube movie in overlay.
 
 == Changelog ==
+
+= 2.2.9 =
+* Update: Pro landing page
+* Update: Small code cleanup
 
 = 2.2.8 =
 * Update: Settings screen title
