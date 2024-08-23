@@ -43,9 +43,27 @@ class easyFancyBox_Admin { // phpcs:ignore
 	private static $do_compat_warning = false;
 
 	/**
+	 * Stores whether current user is paying or on trial.
+	 *
+	 * @var bool
+	 */
+	private static $is_paying_user = false;
+
+	/**
+	 * Stores whether current user is paying or on trial
+	 * for Pro plan specifically.
+	 *
+	 * @var bool
+	 */
+	private static $is_pro_user = false;
+
+	/**
 	 * Constructor for the EasyFancyBox Admin class.
 	 */
 	public function __construct() {
+		self::$is_paying_user = class_exists( 'easyFancyBox_Advanced' ) && easyFancyBox_Advanced::has_valid_license();
+		self::$is_pro_user    = class_exists( 'easyFancyBox_Advanced' ) && easyFancyBox_Advanced::has_valid_pro_license();
+
 		// Text domain.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_textdomain' ) );
 
@@ -85,7 +103,7 @@ class easyFancyBox_Admin { // phpcs:ignore
 	public static function add_media_settings_section() {
 		add_settings_section(
 			'fancybox_section',
-			'<a name="fancybox"></a>' . __( 'Easy FancyBox', 'easy-fancybox' ),
+			'<a name="fancybox"></a>' . __( 'Firelight Lightbox', 'easy-fancybox' ),
 			function () {
 				include EASY_FANCYBOX_DIR . '/views/settings-section-intro.php';
 			},
@@ -150,7 +168,7 @@ class easyFancyBox_Admin { // phpcs:ignore
 	 */
 	public static function add_options_page() {
 		add_menu_page(
-			__( 'Lightbox Settings - Easy Fancybox', 'easy-fancybox' ),
+			__( 'Lightbox Settings - Firelight', 'easy-fancybox' ),
 			'Lightbox',
 			'manage_options',
 			'firelight-settings',
@@ -158,10 +176,10 @@ class easyFancyBox_Admin { // phpcs:ignore
 			'dashicons-format-image',
 			85
 		);
-		if ( ! class_exists( 'easyFancyBox_Advanced' ) ) {
+		if ( ! self::$is_pro_user ) {
 			add_submenu_page(
 				'firelight-settings',
-				'Easy Fancybox Settings',
+				'Firelight Settings',
 				'Settings',
 				'manage_options',
 				'firelight-settings'
@@ -191,10 +209,11 @@ class easyFancyBox_Admin { // phpcs:ignore
 			? ''
 			: '<a id="fancybox-open-modal" href="#TB_inline?width=600&height=550&inlineId=fancybox-optin-modal" class="thickbox">Get email updates</a>';
 
-		if ( ! class_exists( 'easyFancyBox_Advanced' ) && ! self::should_show_review_request() ) {
+		if ( ! self::$is_paying_user && ! self::should_show_review_request() ) {
 			echo '<div class="sale-banner"><p>';
-			esc_html_e( 'Easy Fancybox Pro is launched! Take 30% off this week - use code PRO at checkout.', 'easy-fancybox' );
-			echo ' <a href="https://firelightwp.com/pro-lightbox" target="_blank">' . esc_html__( 'LEARN MORE', 'easy-fancybox' ) . '</a>';
+			esc_html_e( 'BIG NEWS: Easy Fancybox is now Firelight. Plus try Firelight Pro completely free!', 'easy-fancybox' );
+			echo ' <a href="https://firelightwp.com/pro-lightbox?utm_source=pro-settings&utm_medium=referral&utm_campaign=easy-fancybox" target="_blank" class="banner-button">' . esc_html__( 'Demos', 'easy-fancybox' ) . '</a>';
+			echo ' <a href="https://firelightwp.com/pro-lightbox/pricing?utm_source=pro-settings&utm_medium=referral&utm_campaign=easy-fancybox" target="_blank" class="banner-button">' . esc_html__( 'Try Pro Free', 'easy-fancybox' ) . '</a>';
 			echo '</p></div>';
 		}
 
@@ -220,7 +239,7 @@ class easyFancyBox_Admin { // phpcs:ignore
 			?>
 				<div id="fancybox-optin-modal" style="display:none;">
 					<div class="fancybox-optin-modal-content">
-						<h2>Welcome to Easy Fancybox!</h2>
+						<h2>Welcome to Firelight!</h2>
 						<h3>Never miss an important update.</h3>
 						<p>Opt in to receive emails about security & feature updates.</p>
 						<div class="hero-section-actions efb-optin-actions" data-nonce="<?php echo esc_attr( wp_create_nonce( 'efb_optin_action_nonce' ) ); ?>">
@@ -251,7 +270,6 @@ class easyFancyBox_Admin { // phpcs:ignore
 	 */
 	public static function should_show_review_request() {
 		// Don't show if not on options screen or dashboard, or if already rated.
-		return false;
 		$screen                      = get_current_screen();
 		$is_dashboard_or_efb_options = 'dashboard' === $screen->id || self::$screen_id === $screen->id;
 		$already_rated               = get_option( 'efb_plugin_rated' ) && get_option( 'efb_plugin_rated' ) === 'true';
@@ -310,7 +328,7 @@ class easyFancyBox_Admin { // phpcs:ignore
 		if ( self::should_show_review_request() ) {
 			?>
 				<div class="notice notice-success is-dismissible efb-review-notice">
-					<p><?php esc_html_e( 'You\'ve been using Easy Fancybox for a long time! Awesome and thanks!', 'easy-fancybox' ); ?></p>
+					<p><?php esc_html_e( 'You\'ve been using Firelight (Easy Fancybox) for a long time! Awesome and thanks!', 'easy-fancybox' ); ?></p>
 					<p>
 						<?php
 						printf(
@@ -425,7 +443,7 @@ class easyFancyBox_Admin { // phpcs:ignore
 	public static function add_settings_sections() {
 		add_settings_section(
 			'lightbox-general-settings-section', // Section ID.
-			'Easy Fancybox General Settings', // Section title.
+			'General Settings', // Section title.
 			null, // Callback for top-of-section content.
 			'firelight-settings', // Page ID.
 			array(
@@ -466,7 +484,7 @@ class easyFancyBox_Admin { // phpcs:ignore
 		// Add general settings fields.
 		add_settings_field(
 			'fancybox_version',
-			__( 'Choose Lighbox Version', 'easy-fancybox' ),
+			__( 'Choose Your Lighbox', 'easy-fancybox' ),
 			function () {
 				include EASY_FANCYBOX_DIR . '/views/settings-field-version.php';
 			},
@@ -773,7 +791,7 @@ class easyFancyBox_Admin { // phpcs:ignore
 		$script_version  = get_option( 'fancybox_scriptVersion', 'classic' );
 		$active_lightbox = isset( $lightboxes[ $script_version ] )
 			? $lightboxes[ $script_version ]
-			: esc_html__( 'Easy Fancybox', 'easy-fancybo' );
+			: esc_html__( 'Fancybox', 'easy-fancybox' );
 		$is_pro_user     = class_exists( 'easyFancyBox_Advanced' ) && easyFancyBox_Advanced::has_valid_pro_license();
 
 		// Enqueue block editor CSS.
@@ -975,7 +993,6 @@ class easyFancyBox_Admin { // phpcs:ignore
 	 * @return bool Returns true if the email optin should be shown.
 	 */
 	public static function should_show_email_optin() {
-		return false;
 		// Only show on settings screen.
 		$screen         = get_current_screen();
 		$is_efb_options = self::$screen_id === $screen->id;

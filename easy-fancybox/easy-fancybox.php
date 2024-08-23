@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: Easy FancyBox - WordPress Lightbox Plugin
+ * Plugin Name: Firelight Lightbox
  * Plugin URI: https://firelightwp.com
- * Description: Most popular WordPress lightbox plugin. Easily add a lightbox for viewing images and other media.
+ * Description: Formerly Easy Fancybox. The most popular WordPress lightbox plugin. Simple, fast, and responsive. Opens images, videos, PDFs, and custom popups.
  * Text Domain: easy-fancybox
  * Domain Path: languages
- * Version: 2.2.10
+ * Version: 2.3.0
  * Author: FirelightWP
  * Author URI: https://firelightwp.com
  *
@@ -34,7 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * CONSTANTS
  */
-define( 'EASY_FANCYBOX_VERSION', '2.2.10' );
+define( 'EASY_FANCYBOX_VERSION', '2.3.0' );
 define(
 	'FANCYBOX_VERSIONS',
 	array(

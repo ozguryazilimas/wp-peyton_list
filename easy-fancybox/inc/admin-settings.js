@@ -1,8 +1,9 @@
 wp.domReady( function () {
 	const lightboxVersionSelect = document.getElementById( 'fancybox_scriptVersion' );
 	lightboxVersionSelect.addEventListener( 'change', () => showActiveLightboxSettings() );
-	let storedActiveSections = JSON.parse( sessionStorage.getItem( 'efbActiveSections' ) ) || [];
+	// let storedActiveSections = JSON.parse( sessionStorage.getItem( 'efbActiveSections' ) ) || [];
 	showActiveLightboxSettings();
+	sessionStorage.removeItem( 'efbActiveSections' );
 
 	/**
 	 * Show settings UI for active lightobx.
@@ -39,22 +40,22 @@ wp.domReady( function () {
 		const inactiveLightboxSections = document.querySelectorAll( '.sub-settings-section:not(.' + activeLightbox + ')' );
 		activeLightboxSections.length && activeLightboxSections.forEach( el => el.classList.remove( 'hide' ) );
 		inactiveLightboxSections.length && inactiveLightboxSections.forEach( el => el.classList.add( 'hide' ) );
-		sessionStorage.removeItem( 'efbActiveSections' );
+		// sessionStorage.removeItem( 'efbActiveSections' );
 
 		// Re-open previously open setting sections
-		storedActiveSections.forEach( storedActiveSection => {
-			const sectionOnPage = document.getElementById( storedActiveSection );
-			// Need extra check in case invalid section name
-			if ( sectionOnPage ) {
-				sectionOnPage.classList.add( 'active' );
-			}
-		});
+		// storedActiveSections.forEach( storedActiveSection => {
+		// 	const sectionOnPage = document.getElementById( storedActiveSection );
+		// 	// Need extra check in case invalid section name
+		// 	if ( sectionOnPage ) {
+		// 		sectionOnPage.classList.add( 'active' );
+		// 	}
+		// });
 
 		// If no settings sections are open, open the first one
-		const activeAndOpenLightboxSections = document.querySelectorAll( '.active.sub-settings-section.' + activeLightbox );
-		if ( ! isProPromo && activeAndOpenLightboxSections.length === 0 ) {
-			activeLightboxSections[0].classList.add( 'active' );
-		}
+		// const activeAndOpenLightboxSections = document.querySelectorAll( '.active.sub-settings-section.' + activeLightbox );
+		// if ( ! isProPromo && activeAndOpenLightboxSections.length === 0 ) {
+		// 	activeLightboxSections[0].classList.add( 'active' );
+		// }
 
 		if ( isProPromo ) {
 			renderProLightboxPromo();
@@ -68,12 +69,12 @@ wp.domReady( function () {
 	sectionHeadings.forEach( el => el.addEventListener( 'click', ( event ) => {
 		currentSection = event.target.parentElement;
 		currentSection.classList.toggle( 'active' );
-		if ( currentSection.classList.contains( 'active' ) ) {
-			storedActiveSections.push( currentSection.id );
-		} else {
-			storedActiveSections = storedActiveSections.filter( item => item !== currentSection.id );
-		}
-		sessionStorage.setItem( 'efbActiveSections', JSON.stringify( storedActiveSections ) );
+		// if ( currentSection.classList.contains( 'active' ) ) {
+		// 	storedActiveSections.push( currentSection.id );
+		// } else {
+		// 	storedActiveSections = storedActiveSections.filter( item => item !== currentSection.id );
+		// }
+		// sessionStorage.setItem( 'efbActiveSections', JSON.stringify( storedActiveSections ) );
 	} ) );
 
 	/**
@@ -114,17 +115,16 @@ wp.domReady( function () {
 		promoSection.classList.add( 'pro-lightbox-promo' );
 		proUrl = settings.proLandingUrl; // via wp_localize_script
 		promoSection.innerHTML = `
-			<p>The Pro Lightbox is a brilliant, modern lighbox built on Fancybox 5. It is a Pro feature.</p>
-			<a class="pro-action-button" href="https://firelightwp.com/pro-lightbox" target="_blank">Learn More</a>
-			<a class="pro-action-button" href="https://firelightwp.com/pro-lightbox" target="_blank">See Demos</a>
-			<p>You can buy directly from your WordPress dashboard <a href="${ proUrl }">here</a>.
+			<p>The Firelight Pro Lightbox is a fast, modern, responsive lightbox with rich features.</p>
+			<a class="pro-action-button" href="https://firelightwp.com/pro-lightbox?utm_source=pro-settings-lightbox&utm_medium=referral&utm_campaign=easy-fancybox" target="_blank">See Demos</a>
+			<a class="pro-action-button" href="https://firelightwp.com/pro-lightbox/pricing?utm_source=pro-settings-lightbox&utm_medium=referral&utm_campaign=easy-fancybox" target="_blank">Try It for Free!</a>
+			<p>You can start your trial directly from your WordPress dashboard <a href="${ proUrl }">here</a>.
 		`;
 		document.querySelector( '.active-lightbox-heading' ).after( promoSection );
 	}
 } );
 
 (function($) {
-	return;
 	$( document ).ready( function() {
 		window.onload = () => {
 			if ( '1' === settings.openModal ) {
