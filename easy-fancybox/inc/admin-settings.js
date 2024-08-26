@@ -125,6 +125,7 @@ wp.domReady( function () {
 } );
 
 (function($) {
+	return;
 	$( document ).ready( function() {
 		window.onload = () => {
 			if ( '1' === settings.openModal ) {
