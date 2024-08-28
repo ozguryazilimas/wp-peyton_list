@@ -9,10 +9,10 @@ index 57f45b29..306b2c57 100644
  		var container = $('.efb-review-notice');
  		if ( container.length ) {
 diff --git a/easy-fancybox/inc/admin-settings.js b/easy-fancybox/inc/admin-settings.js
-index 4ac0f12e..868d7816 100644
+index 55f8c7bf..e02819a3 100644
 --- a/easy-fancybox/inc/admin-settings.js
 +++ b/easy-fancybox/inc/admin-settings.js
-@@ -125,6 +125,7 @@ wp.domReady( function () {
+@@ -124,6 +124,7 @@ wp.domReady( function () {
  } );
  
  (function($) {
@@ -21,10 +21,10 @@ index 4ac0f12e..868d7816 100644
  		window.onload = () => {
  			if ( '1' === settings.openModal ) {
 diff --git a/easy-fancybox/inc/class-easyfancybox-admin.php b/easy-fancybox/inc/class-easyfancybox-admin.php
-index 79acc3f9..6a967a49 100644
+index 2a3a6760..3609f03e 100644
 --- a/easy-fancybox/inc/class-easyfancybox-admin.php
 +++ b/easy-fancybox/inc/class-easyfancybox-admin.php
-@@ -270,6 +270,7 @@ class easyFancyBox_Admin { // phpcs:ignore
+@@ -261,6 +261,7 @@ class easyFancyBox_Admin { // phpcs:ignore
  	 */
  	public static function should_show_review_request() {
  		// Don't show if not on options screen or dashboard, or if already rated.
@@ -32,7 +32,7 @@ index 79acc3f9..6a967a49 100644
  		$screen                      = get_current_screen();
  		$is_dashboard_or_efb_options = 'dashboard' === $screen->id || self::$screen_id === $screen->id;
  		$already_rated               = get_option( 'efb_plugin_rated' ) && get_option( 'efb_plugin_rated' ) === 'true';
-@@ -993,6 +994,7 @@ class easyFancyBox_Admin { // phpcs:ignore
+@@ -985,6 +986,7 @@ class easyFancyBox_Admin { // phpcs:ignore
  	 * @return bool Returns true if the email optin should be shown.
  	 */
  	public static function should_show_email_optin() {
