@@ -14,12 +14,19 @@ require_once WAPT_PLUGIN_DIR . '/admin/class-page-logger.php';
  * @copyright (c) 2018, Webcraftic
  * @version       1.0
  */
-class WAPT_Log extends WAPT_Page_Logger {
+class WAPT_Log extends Wbcr_FactoryLogger147_PageBase {
 
 	/**
-	 * {@inheritdoc}
+	 * The id of the page in the admin menu.
+	 *
+	 * Mainly used to navigate between pages.
+	 *
+	 * @since 1.0.0
+	 * @see   FactoryPages479_AdminPage
+	 *
+	 * @var string
 	 */
-	public $id;
+	public $id = "log";
 
 	/**
 	 * Тип страницы
@@ -33,20 +40,12 @@ class WAPT_Log extends WAPT_Page_Logger {
 	/**
 	 * @var string
 	 */
-	public $page_menu_dashicon = 'dashicons-list-view';
+	public $custom_target = 'admin.php';
 
 	/**
-	 * Menu position (only if a page is placed as a main menu).
-	 *
-	 * @link http://codex.wordpress.org/Function_Reference/add_menu_page
 	 * @var string
 	 */
-	public $menu_position = 58;
-
-	/**
-	 * @var bool
-	 */
-	public $internal = false;
+	public $page_menu_dashicon = 'dashicons-list-view';
 
 	/**
 	 * Заголовок страницы, также использует в меню, как название закладки
@@ -58,7 +57,7 @@ class WAPT_Log extends WAPT_Page_Logger {
 	/**
 	 * @var int
 	 */
-	public $page_menu_position = 300;
+	public $page_menu_position = 20;
 
 	/**
 	 * {@inheritdoc}

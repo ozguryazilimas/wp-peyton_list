@@ -1,6 +1,6 @@
 <?php
 
-namespace WBCR\Factory_474\Components;
+namespace WBCR\Factory_479\Components;
 
 /**
  * This file groups the settings for quick setup

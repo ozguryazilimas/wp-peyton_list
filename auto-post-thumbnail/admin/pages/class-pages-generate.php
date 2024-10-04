@@ -20,11 +20,11 @@ class WAPT_Generate extends WAPT_Page {
 	 * Mainly used to navigate between pages.
 	 *
 	 * @since 1.0.0
-	 * @see   FactoryPages474_AdminPage
+	 * @see   FactoryPages479_AdminPage
 	 *
 	 * @var string
 	 */
-	public $id;
+	public $id = "generate";
 
 	/**
 	 * Тип страницы
@@ -55,7 +55,7 @@ class WAPT_Generate extends WAPT_Page {
 	 * @link http://codex.wordpress.org/Function_Reference/add_menu_page
 	 * @var string
 	 */
-	public $menu_position = 58;
+	public $menu_position = 5;
 
 	/**
 	 * @var bool
@@ -86,6 +86,8 @@ class WAPT_Generate extends WAPT_Page {
 	 */
 	public $menu_title;
 
+	public $menu_tab_title;
+
 	/**
 	 *
 	 */
@@ -103,6 +105,9 @@ class WAPT_Generate extends WAPT_Page {
 	 */
 	public $page_menu_position = 100;
 
+	public $template_name;
+
+
 
 	/**
 	 * @param WAPT_Plugin $plugin
@@ -110,6 +115,7 @@ class WAPT_Generate extends WAPT_Page {
 	public function __construct( $plugin ) {
 		$this->id         = $plugin->getPrefix() . 'generate';
 		$this->menu_title = __( 'Auto Featured Image', 'apt' );
+		$this->page_menu_short_description = __( 'Generate thumbs', 'apt' );
 
 		$this->menu_sub_title = __( 'Generate images', 'apt' );
 		$this->menu_tab_title = __( 'Generate images', 'apt' );
@@ -130,7 +136,7 @@ class WAPT_Generate extends WAPT_Page {
 	 *
 	 * @return void
 	 * @since 1.0.0
-	 * @see   FactoryPages474_AdminPage
+	 * @see   FactoryPages479_AdminPage
 	 */
 	public function assets( $scripts, $styles ) {
 		parent::assets( $scripts, $styles );

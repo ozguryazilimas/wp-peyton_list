@@ -9,7 +9,7 @@ $generate_option = $data['generate_option'];
 ?>
 
 <div class="wrap" id="wapt-generate-page">
-	<div class="factory-bootstrap-476 factory-fontawesome-000">
+	<div class="factory-bootstrap-481 factory-fontawesome-000">
 		<div class="row wapt-statistic-row">
 			<div class="wapt-generate-statistic">
 				<div class="wapt-chart-container">
@@ -74,11 +74,11 @@ $generate_option = $data['generate_option'];
 							] );
 							?>
 							<div class="row wapt-filter-row">
-								<div class="col-md-2">
+								<div class="col-md-3">
 									<label for="filter_posttype"
 									       class="apt-filter-label"><?php esc_html_e( 'Post type', 'apt' ); ?></label>
 								</div>
-								<div class="col-md-10">
+								<div class="col-md-9">
 									<select name="filter_posttype" id="filter_posttype" class="apt-filter-input">
 										<option value="post"><?php echo esc_html__( 'Posts', 'apt' ); ?></option>
 										<option value="page"><?php echo esc_html__( 'Pages', 'apt' ); ?></option>
@@ -87,11 +87,11 @@ $generate_option = $data['generate_option'];
 							</div>
 
 							<div class="row wapt-filter-row wapt-pro-row">
-								<div class="col-md-2">
+								<div class="col-md-3">
 									<label for="filter_poststatus"
 									       class="apt-filter-label"><?php esc_html_e( 'Post status', 'aptp' ); ?></label>
 								</div>
-								<div class="col-md-10">
+								<div class="col-md-9">
 									<select name="filter_poststatus" id="filter_poststatus" class="apt-filter-input"
 									        tabindex="-1">
 										<option value="">&nbsp;</option>
@@ -105,11 +105,11 @@ $generate_option = $data['generate_option'];
 							</div>
 
 							<div class="row wapt-filter-row wapt-pro-row">
-								<div class="col-md-2">
+								<div class="col-md-3">
 									<label for="filter_postcategory"
 									       class="apt-filter-label"><?php esc_html_e( 'Post category', 'aptp' ); ?></label>
 								</div>
-								<div class="col-md-10">
+								<div class="col-md-9">
 									<select name="filter_postcategory" id="filter_postcategory" class="apt-filter-input"
 									        tabindex="-1">
 										<option value="">&nbsp;</option>
@@ -123,11 +123,11 @@ $generate_option = $data['generate_option'];
 							</div>
 
 							<div class="row wapt-filter-row wapt-pro-row">
-								<div class="col-md-2">
+								<div class="col-md-3">
 									<label for="filter_startdate"
 									       class="apt-filter-label"><?php esc_html_e( 'Date from', 'aptp' ); ?></label>
 								</div>
-								<div class="col-md-10">
+								<div class="col-md-9">
 									<input type="text" name="filter_startdate" id="filter_startdate"
 									       class="apt-filter-input datepicker" tabindex="-1"><span>&nbsp;</span>
 									<label for="filter_enddate"
@@ -139,12 +139,12 @@ $generate_option = $data['generate_option'];
 						<?php } ?>
 
 						<div class="row wapt-filter-row">
-							<div class="col-md-2">
+							<div class="col-md-5">
 								<label for="filter_posttype" class="apt-filter-label">
 									<?php echo esc_html__( 'Generation method', 'apt' ); ?>
 								</label>
 							</div>
-							<div class="col-md-10">
+							<div class="col-md-7">
 								<?php echo "<strong>{$generate_option['title']}</strong> <br> {$generate_option['hint']}"; ?>
 								<br>
 								<a href="<?php echo esc_url_raw( admin_url( 'admin.php?page=wapt_settings-wbcr_apt' ) ); ?>">

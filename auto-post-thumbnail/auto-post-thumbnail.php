@@ -3,8 +3,8 @@
 Plugin Name: Auto Featured Image (Auto Post Thumbnail)
 Plugin URI: https://cm-wp.com/apt
 Description: Automatically generate the Featured Image from the first image in post or any custom post type only if Featured Image is not set manually. Featured Image Generation From Title. Native image search for Elementor, Gutenberg, Classic Editor.
-Version: 4.0.0
-Requires PHP: 8.0
+Version: 4.1.4
+Requires PHP: 7.4
 Author: Creative Motion <support@cm-wp.com>
 Author URI: https://cm-wp.com
 Text Domain: apt
@@ -89,21 +89,21 @@ $plugin_info = [
 	],
 
 	'load_factory_modules' => [
-		[ 'libs/factory/bootstrap', 'factory_bootstrap_476', 'admin' ],
-		[ 'libs/factory/forms', 'factory_forms_474', 'admin' ],
-		[ 'libs/factory/pages', 'factory_pages_474', 'admin' ],
-		[ 'libs/factory/templates', 'factory_templates_127', 'admin' ],
-		[ 'libs/factory/freemius', 'factory_freemius_164', 'all' ],
-		[ 'libs/factory/adverts', 'factory_adverts_152', 'admin' ],
-		[ 'libs/factory/feedback', 'factory_feedback_127', 'admin' ],
-		[ 'libs/factory/logger', 'factory_logger_140', 'all' ],
-		[ 'libs/factory/processing', 'factory_processing_109', 'all' ],
+		[ 'libs/factory/bootstrap', 'factory_bootstrap_481', 'admin' ],
+		[ 'libs/factory/forms', 'factory_forms_479', 'admin' ],
+		[ 'libs/factory/pages', 'factory_pages_479', 'admin' ],
+		[ 'libs/factory/templates', 'factory_templates_132', 'admin' ],
+		[ 'libs/factory/freemius', 'factory_freemius_169', 'all' ],
+		[ 'libs/factory/adverts', 'factory_adverts_158', 'admin' ],
+		[ 'libs/factory/feedback', 'factory_feedback_131', 'admin' ],
+		[ 'libs/factory/logger', 'factory_logger_147', 'all' ],
+		[ 'libs/factory/processing', 'factory_processing_113', 'all' ],
 	],
 ];
 
-$wapt_compatibility = new Wbcr_Factory474_Requirements( __FILE__, array_merge( $plugin_info, [
+$wapt_compatibility = new Wbcr_Factory479_Requirements( __FILE__, array_merge( $plugin_info, [
 	'plugin_already_activate' => defined( 'WAPT_PLUGIN_ACTIVE' ),
-	'required_php_version'    => '8.0',
+	'required_php_version'    => '7.4',
 	'required_wp_version'     => '5.6.0',
 	// 'required_clearfy_check_component' => false
 ] ) );

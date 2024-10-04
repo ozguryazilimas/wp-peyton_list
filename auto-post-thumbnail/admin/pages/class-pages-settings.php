@@ -17,6 +17,18 @@ require_once WAPT_PLUGIN_DIR . '/admin/class-page.php';
 class WAPT_Settings extends WAPT_Page {
 
 	/**
+	 * The id of the page in the admin menu.
+	 *
+	 * Mainly used to navigate between pages.
+	 *
+	 * @since 1.0.0
+	 * @see   FactoryPages479_AdminPage
+	 *
+	 * @var string
+	 */
+	public $id;
+
+	/**
 	 * Тип страницы
 	 * options - предназначена для создании страниц с набором опций и настроек.
 	 * page - произвольный контент, любой html код
@@ -25,15 +37,16 @@ class WAPT_Settings extends WAPT_Page {
 	 */
 	public $type = 'options';
 
+
 	/**
-	 * @var bool
+	 * @var string
 	 */
-	public $internal = false;
+	public $custom_target = 'admin.php';
 
 	/**
 	 * @var int
 	 */
-	public $page_menu_position = 200;
+	public $page_menu_position = 30;
 
 	/**
 	 * Menu icon (only if a page is placed as a main menu).
@@ -50,14 +63,11 @@ class WAPT_Settings extends WAPT_Page {
 	public $page_menu_dashicon = 'dashicons-admin-settings';
 
 	/**
-	 * {@inheritdoc}
-	 */
-	public $show_menu_tab = true;
-
-	/**
 	 * @var array
 	 */
 	public $post_types;
+
+	public $template_name;
 
 	/**
 	 * @param WAPT_Plugin $plugin
@@ -65,8 +75,7 @@ class WAPT_Settings extends WAPT_Page {
 	public function __construct( $plugin ) {
 		$this->id                          = $plugin->getPrefix() . 'settings';
 		$this->menu_target                 = $plugin->getPrefix() . 'generate-' . $plugin->getPluginName();
-		$this->page_title                  = __( 'Settings of APT', 'apt' );
-		$this->menu_title                  = __( 'Settings', 'apt' );
+		$this->page_title                  = __( 'Settings', 'apt' );
 		$this->page_menu_short_description = __( 'General settings', 'apt' );
 		$this->capabilitiy                 = 'manage_options';
 		$this->template_name               = 'settings';
@@ -82,7 +91,7 @@ class WAPT_Settings extends WAPT_Page {
 	 *
 	 * @return void
 	 * @since 3.8.1
-	 * @see   Wbcr_FactoryPages474_AdminPage
+	 * @see   Wbcr_FactoryPages479_AdminPage
 	 */
 	public function assets( $scripts, $styles ) {
 		parent::assets( $scripts, $styles );
@@ -117,9 +126,10 @@ class WAPT_Settings extends WAPT_Page {
 
 		$options = [];
 
+
 		$options[] = [
 			'type' => 'html',
-			'html' => $this->group_header( __( 'General', 'apt' ), __( 'Basic plugin settings', 'apt' ) ),
+			'html' => '<div class="wbcr-factory-page-group-header">' . '<strong>' . __( 'General', 'apt' ) . '</strong>' . '<p>' . __( 'Basic plugin settings', 'apt' ) . '</p>' . '</div>'
 		];
 
 		$options[] = [
@@ -209,9 +219,10 @@ class WAPT_Settings extends WAPT_Page {
 		];
 
 		/* ------------------ IMPORT SETTINGS -----------------------*/
+
 		$options[] = [
 			'type' => 'html',
-			'html' => $this->group_header( __( 'Import', 'apt' ), __( 'Images import settings', 'apt' ) ),
+			'html' => '<div class="wbcr-factory-page-group-header">' . '<strong>' . __( 'Import', 'apt' ) . '</strong>' . '<p>' . __( 'Images import settings', 'apt' ) . '</p>' . '</div>'
 		];
 
 		$options[] = [
@@ -237,16 +248,12 @@ class WAPT_Settings extends WAPT_Page {
 		];
 
 		/* ------------------ API SETTINGS -----------------------*/
+
 		$options[] = [
 			'type' => 'html',
-			'html' => $this->group_header( __( 'Google API', 'apt' ), __( 'Settings connecting to the Google API service', 'apt' ) ),
+			'html' => '<div class="wbcr-factory-page-group-header">' . '<strong>' . __( 'Google API', 'apt' ) . '</strong>' . '<p>' . __( 'Settings connecting to the Google API service', 'apt' ) . '<br><a href="https://www.youtube.com/watch?v=Bxy8Yqp5XX0" target="_blank" rel="noopener">' . __( 'How to get google api key & custom search engine id?', 'apt' ) . '</a></p>' . '</div>'
 		];
 
-		/* GOOGLE */
-		$options[] = [
-			'type' => 'html',
-			'html' => $this->instruction( __( 'Google API', 'apt' ), '<a href="https://www.youtube.com/watch?v=Bxy8Yqp5XX0" target="_blank" rel="noopener">' . __( 'How to get google api key & custom search engine id', 'apt' ) . '</a>' ),
-		];
 
 		$options[] = [
 			'type'  => 'hidden',
@@ -271,7 +278,7 @@ class WAPT_Settings extends WAPT_Page {
 			'default' => '',
 		];
 
-		$options = apply_filters( 'wapt/settings/form_options', $options );
+		$options = apply_filters( 'wapt/settings/form_options', $options, $this );
 
 		$form_options[] = [
 			'type'  => 'form-group',
@@ -313,6 +320,11 @@ class WAPT_Settings extends WAPT_Page {
 				'title' => __( 'Find or use default image', 'apt' ),
 				'value' => 'use_default',
 				'hint'  => __( 'Find an image in the post text, if it is not present, use default image for posts', 'apt' ),
+			],
+			'ai_generate'        => [
+				'title' => __( 'Ai image generation', 'apt' ),
+				'value' => 'ai_generate',
+				'hint'  => __( 'The neural network will generate an image based on the text of the article', 'apt' ),
 			],
 		];
 	}

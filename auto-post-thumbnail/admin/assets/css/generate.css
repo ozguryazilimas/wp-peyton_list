@@ -3,10 +3,12 @@
 }
 #wapt-generate-page .wapt-generate-statistic {
   display: flex;
-  justify-content: space-between;
+  /*justify-content: space-between;*/
 }
 #wapt-generate-page .wapt-chart-container {
   position: relative;
+  width: 200px;
+  float:left;
 }
 #wapt-generate-page .wapt-chart-wrapper {
   position: relative;
@@ -16,11 +18,12 @@
 #wapt-generate-page .wapt-chart-percent {
   color: #afafaf;
   position: absolute;
-  font-size: 45px;
+  font-size: 35px;
   font-weight: 600;
   left: 50%;
   bottom: 215px;
   z-index: 100;
+  top: 90px;
   transform: translateX(-45%);
   -webkit-transform: translateX(-45%);
   -ms-transform: translateX(-45%);
@@ -126,8 +129,7 @@
   border: 0;
 }
 #wapt-generate-page .wapt-fillters-form {
-  width: 100%;
-  padding: 0 20px;
+  padding: 0 20px 0 50px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

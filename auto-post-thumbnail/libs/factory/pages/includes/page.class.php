@@ -14,9 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! class_exists( 'Wbcr_FactoryPages474_Page' ) ) {
+if ( ! class_exists( 'Wbcr_FactoryPages479_Page' ) ) {
 
-	class Wbcr_FactoryPages474_Page {
+	class Wbcr_FactoryPages479_Page {
 
 
 		/**
@@ -30,7 +30,7 @@ if ( ! class_exists( 'Wbcr_FactoryPages474_Page' ) ) {
 		 * Чтобы не было конфликтов с другими плагинами, используйте префиксы.
 		 *
 		 * @since 1.0.0
-		 * @see   FactoryPages474_AdminPage
+		 * @see   FactoryPages479_AdminPage
 		 *
 		 * @var string
 		 */
@@ -39,7 +39,7 @@ if ( ! class_exists( 'Wbcr_FactoryPages474_Page' ) ) {
 		/**
 		 * Current Factory Plugin.
 		 *
-		 * @var Wbcr_Factory474_Plugin
+		 * @var Wbcr_Factory479_Plugin
 		 */
 		public $plugin;
 		protected $scripts;
@@ -54,11 +54,11 @@ if ( ! class_exists( 'Wbcr_FactoryPages474_Page' ) ) {
 		//private $default_actions = array();
 
 		/**
-		 * @param Wbcr_Factory474_Plugin $plugin
+		 * @param Wbcr_Factory479_Plugin $plugin
 		 *
 		 * @throws Exception
 		 */
-		public function __construct( Wbcr_Factory474_Plugin $plugin ) {
+		public function __construct( Wbcr_Factory479_Plugin $plugin ) {
 			$this->plugin = $plugin;
 
 			if ( $plugin ) {
@@ -114,7 +114,7 @@ if ( ! class_exists( 'Wbcr_FactoryPages474_Page' ) ) {
 
 			if ( ! method_exists( $this, $actionFunction ) ) {
 				// todo: продумать и доработать выполнение произвольных и глобальных дейтсвия для всех страниц
-				/*$custom_actions = apply_filters('wbcr/factory_pages_474/custom_actions', array(), $raw_action_name);
+				/*$custom_actions = apply_filters('wbcr/factory_pages_479/custom_actions', array(), $raw_action_name);
 
 				if(isset($custom_actions[$raw_action_name])) {
 					$custom_actions[$raw_action_name]();
