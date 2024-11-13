@@ -70,8 +70,40 @@ class YARPP_Admin {
 			add_action( 'wp_ajax_yarpp_optin_disable', array( $this, 'ajax_optin_disable' ) );
 			add_action( 'wp_ajax_yarpp_switch', array( $this, 'ajax_switch' ) );
 			add_action( 'wp_ajax_yarpp_clear_cache', array( $this, 'ajax_clear_cache' ) );
+			add_action( 'wp_ajax_yarpp_pro_set_display_types', array( $this, 'ajax_pro_set_display_types' ) );
 		}
 	}
+
+	/**
+	 * Handle AJAX request to update YARPP Pro display types
+	 *
+	 * @since 5.30.11
+	 */
+	function ajax_pro_set_display_types() {
+		// Verify nonce
+		if ( ! isset($_REQUEST['_wpnonce']) || ! wp_verify_nonce($_REQUEST['_wpnonce'], 'yarpp_pro_set_display_types') ) {
+			wp_send_json_error(array( 'message' => 'Invalid nonce' ), 403);
+		}
+
+		// Verify user capabilities
+		if ( ! current_user_can('manage_options') ) {
+			wp_send_json_error(array( 'message' => 'Access denied' ), 403);
+		}
+
+		// Sanitize the 'types' parameter
+		$types = ( isset($_REQUEST['types']) && is_array($_REQUEST['types']) )
+			? array_map('sanitize_text_field', $_REQUEST['types'])
+			: array();
+
+		// Update the option
+		$yarpp_pro                            = get_option('yarpp_pro');
+		$yarpp_pro['auto_display_post_types'] = $types;
+		update_option('yarpp_pro', $yarpp_pro);
+
+		wp_send_json_success('ok');
+	}
+
+
 	/**
 	 * Ajax callback for clearing the YARPP cache
 	 *

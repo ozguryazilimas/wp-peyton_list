@@ -134,8 +134,8 @@
 							'heading' in instance.raw
 								? instance.raw.heading
 								: template === 'thumbnails'
-								? instance.raw.thumbnails_heading
-								: instance.raw.title;
+								  ? instance.raw.thumbnails_heading
+								  : instance.raw.title;
 						return createBlock('yarpp/yarpp-block', {
 							name: 'yarpp_widget',
 							template: template,

@@ -65,7 +65,7 @@ class YARPP_Cache_Demo_Bypass extends YARPP_Cache {
 	 * @return array
 	 */
 	public function demo_image_downsize_filter() {
-		return [false, false, false];
+		return array( false, false, false );
 	}
 
 
@@ -95,7 +95,7 @@ class YARPP_Cache_Demo_Bypass extends YARPP_Cache {
 			'height' => $size['height'],
 			'file' => '/images/preview_thumbnail_example.png',
 			'sizes' => yarpp_get_image_sizes(),
-			'image_meta' => []
+			'image_meta' => array(),
 		);
 	}
 
@@ -110,7 +110,7 @@ class YARPP_Cache_Demo_Bypass extends YARPP_Cache {
 		return array(
 			plugins_url('/images/preview_thumbnail_example.png', YARPP_MAIN_FILE),
 			$size['width'],
-			$size['height']
+			$size['height'],
 		);
 	}
 
@@ -138,7 +138,7 @@ class YARPP_Cache_Demo_Bypass extends YARPP_Cache {
 		$order_direction = ( isset( $order[1] ) && 'ASC' === trim( $order[1]) ) ? 'ASC' : 'DESC';
 		$order_column    = isset( $order[0] ) ? $order[0] : 'score';
 
-		if ( ! in_array($order_column, array('score', 'post_date', 'post_title')) ) {
+		if ( ! in_array($order_column, array( 'score', 'post_date', 'post_title' )) ) {
 			$order_column = 'score';
 		}
 
@@ -210,8 +210,8 @@ class YARPP_Cache_Demo_Bypass extends YARPP_Cache {
 		add_filter( 'post_thumbnail_id', array( &$this, 'demo_post_thumbnail_id' ) );
 		add_filter( 'image_downsize', array( &$this, 'demo_image_downsize_filter' ) );
 		add_filter( 'post_thumbnail_size', array( &$this, 'demo_thumbnails_size_filter' ) );
-		add_filter( 'wp_get_attachment_image_src', array(&$this, 'demo_thumbnails_src_filter') );
-		add_filter( 'post_thumbnail_html', array(&$this, 'demo_post_thumbnail_html'), 10 , 5 );
+		add_filter( 'wp_get_attachment_image_src', array( &$this, 'demo_thumbnails_src_filter' ) );
+		add_filter( 'post_thumbnail_html', array( &$this, 'demo_post_thumbnail_html' ), 10 , 5 );
 		add_filter( 'wp_get_attachment_metadata', array( &$this, 'demo_image_metadata_filter' ) );
 	}
 
@@ -229,8 +229,8 @@ class YARPP_Cache_Demo_Bypass extends YARPP_Cache {
 		remove_filter( 'post_thumbnail_id', array( &$this, 'demo_post_thumbnail_id' ) );
 		remove_filter( 'image_downsize', array( &$this, 'demo_image_downsize_filter' ) );
 		remove_filter( 'post_thumbnail_size', array( &$this, 'demo_thumbnails_size_filter' ) );
-		remove_filter( 'wp_get_attachment_image_src', array(&$this, 'demo_thumbnails_src_filter') );
-		remove_filter( 'post_thumbnail_html', array(&$this, 'demo_post_thumbnail_html') );
+		remove_filter( 'wp_get_attachment_image_src', array( &$this, 'demo_thumbnails_src_filter' ) );
+		remove_filter( 'post_thumbnail_html', array( &$this, 'demo_post_thumbnail_html' ) );
 		remove_filter( 'wp_get_attachment_metadata', array( &$this, 'demo_image_metadata_filter' ) );
 	}
 
