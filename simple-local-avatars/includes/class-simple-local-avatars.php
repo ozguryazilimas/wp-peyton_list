@@ -308,7 +308,6 @@ class Simple_Local_Avatars {
 	 * @return int|false
 	 */
 	public function get_user_id( $id_or_email ) {
-		global $wpdb;
 		$user_id = false;
 
 		if ( is_numeric( $id_or_email ) ) {
@@ -322,8 +321,6 @@ class Simple_Local_Avatars {
 		} elseif ( is_string( $id_or_email ) ) {
 			$user    = get_user_by( 'email', $id_or_email );
 			$user_id = $user ? $user->ID : '';
-		} else {
-			$user_id = $wpdb->get_var("SELECT user_id FROM wp_comments WHERE comment_author_email = '" . $id_or_email . "' LIMIT 1");
 		}
 
 		return $user_id;
@@ -1327,9 +1324,20 @@ class Simple_Local_Avatars {
 			return new \WP_Error( 'invalid_media_id', esc_html__( 'Request did not contain a valid media_id field.', 'simple-local-avatars' ) );
 		}
 
+		$attachment = get_post( (int) $input['media_id'] );
+
 		// Ensure this media_id is a valid attachment.
-		if ( ! wp_get_attachment_url( (int) $input['media_id'] ) ) {
+		if (
+			! $attachment ||
+			'attachment' !== $attachment->post_type ||
+			! wp_attachment_is_image( $attachment )
+		) {
 			return new \WP_Error( 'invalid_media_id', esc_html__( 'Media ID did not match a valid attachment.', 'simple-local-avatars' ) );
+		}
+
+		// Ensure this attachment is associated with this user.
+		if ( (int) $attachment->post_author !== (int) $user->ID ) {
+			return new \WP_Error( 'invalid_media_id', esc_html__( 'This attachment was not uploaded by this user.', 'simple-local-avatars' ) );
 		}
 
 		$this->assign_new_user_avatar( (int) $input['media_id'], $user->ID );
