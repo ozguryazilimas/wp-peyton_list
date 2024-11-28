@@ -202,9 +202,9 @@ class easyFancyBox_Admin { // phpcs:ignore
 
 		if ( ! self::has_valid_license() && ! self::should_show_review_request() ) {
 			echo '<div class="sale-banner"><p>';
-			esc_html_e( 'DOUBLE PROMOTIONS! Try Firelight Pro free + lock in 20% off with PRO20 coupon!', 'easy-fancybox' );
+			esc_html_e( 'BLACK FRIDAY SALE! 40% OFF Firelight Pro. Use coupon BF2024 at checkout!', 'easy-fancybox' );
 			echo ' <a href="https://firelightwp.com/pro-lightbox?utm_source=pro-settings&utm_medium=referral&utm_campaign=easy-fancybox" target="_blank" class="banner-button">' . esc_html__( 'Demos', 'easy-fancybox' ) . '</a>';
-			echo ' <a href="https://firelightwp.com/pro-lightbox/pricing?utm_source=pro-settings&utm_medium=referral&utm_campaign=easy-fancybox" target="_blank" class="banner-button">' . esc_html__( 'Try Pro Free', 'easy-fancybox' ) . '</a>';
+			echo ' <a href="https://firelightwp.com/pro-lightbox/pricing?utm_source=pro-settings&utm_medium=referral&utm_campaign=easy-fancybox" target="_blank" class="banner-button">' . esc_html__( 'See Pricing', 'easy-fancybox' ) . '</a>';
 			echo '</p></div>';
 		}
 
@@ -261,7 +261,6 @@ class easyFancyBox_Admin { // phpcs:ignore
 	 */
 	public static function should_show_review_request() {
 		// Don't show if not on options screen or dashboard, or if already rated.
-		return false;
 		$screen                      = get_current_screen();
 		$is_dashboard_or_efb_options = 'dashboard' === $screen->id || self::$screen_id === $screen->id;
 		$already_rated               = get_option( 'efb_plugin_rated' ) && get_option( 'efb_plugin_rated' ) === 'true';
@@ -798,7 +797,7 @@ class easyFancyBox_Admin { // phpcs:ignore
 		wp_enqueue_script(
 			'firelight-block-js',
 			$block_js,
-			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-components', 'wp-editor', 'wp-hooks' ),
+			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-components', 'wp-block-editor', 'wp-hooks' ),
 			$version,
 			true
 		);
@@ -986,7 +985,6 @@ class easyFancyBox_Admin { // phpcs:ignore
 	 * @return bool Returns true if the email optin should be shown.
 	 */
 	public static function should_show_email_optin() {
-		return false;
 		// Only show on settings screen.
 		$screen         = get_current_screen();
 		$is_efb_options = self::$screen_id === $screen->id;
