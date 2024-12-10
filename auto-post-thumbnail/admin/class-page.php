@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class WAPT_Page extends WBCR\Factory_Templates_132\Pages\PageBase {
+class WAPT_Page extends WBCR\Factory_Templates_134\Pages\PageBase {
 
 	/**
 	 * Show on the page a search form for search options of plugin?
@@ -68,6 +68,9 @@ class WAPT_Page extends WBCR\Factory_Templates_132\Pages\PageBase {
 
 		return $widgets;
 	}
+
+	// todo: For compatibility with the old version of the premium plugin
+	public static function group_header() {}
 }
 
 
