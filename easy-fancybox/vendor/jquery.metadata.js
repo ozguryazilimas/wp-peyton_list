@@ -92,8 +92,21 @@ $.extend({
 
 			if ( data.indexOf( '{' ) <0 ) { data = "{" + data + "}"; }
 
-			/*jshint evil:true */
-			data = eval("(" + data + ")");
+			try {
+				// First try parsing as JSON
+				data = JSON.parse(data);
+			} catch(e) {
+				try {
+					// If JSON parsing fails, try to convert to valid JSON
+					// Handle unquoted keys and convert single quotes to double quotes
+					data = data.replace(/([{,]\s*)(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '$1"$3":')
+						.replace(/'/g, '"');  // Convert all single quotes to double quotes
+					data = JSON.parse(data);
+				} catch(e2) {
+					// If both parsing attempts fail, return empty object
+					data = {};
+				}
+			}
 
 			$.data( elem, settings.single, data );
 			return data;
