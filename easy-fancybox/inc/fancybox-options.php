@@ -401,10 +401,10 @@ $efb_options = array(
 						'hide'              => true,
 						'input'             => 'select',
 						'options'           => array(
-							''  => __( 'None' ),
-							'1' => __( 'Link with ID "fancybox-auto"', 'easy-fancybox' ),
+							'none'  => __( 'None' ),
+							'link' => __( 'Link with ID "fancybox-auto"', 'easy-fancybox' ),
 						),
-						'sanitize_callback' => 'wp_validate_boolean',
+						'sanitize_callback' => 'sanitize_text_field',
 						'default'           => '1',
 						'description'       => __( 'Open lightbox automatically on page load' ),
 					),

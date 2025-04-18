@@ -225,20 +225,20 @@ jQuery(\'' . $value['options']['tag']['default'] . '\')';
 	if ( empty( $delayClick ) ) $delayClick = '0';
 
 	switch ( $autoClick ) {
-		case '':
+		case 'none':
 			break;
 
-		case '1':
+		case 'link':
 			$script .= PHP_EOL . 'var easy_fancybox_auto=function(){setTimeout(function(){jQuery(\'a#fancybox-auto,#fancybox-auto>a\').first().trigger(\'click\')},'.$delayClick.');};';
 			\easyFancyBox::$onready_auto = true;
 			break;
 
-		case '2':
+		case 'hash':
 			$script .= PHP_EOL . 'var easy_fancybox_auto=function(){setTimeout(function(){if(location.hash){jQuery(location.hash).trigger(\'click\');}},'.$delayClick.');};';
 			\easyFancyBox::$onready_auto = true;
 			break;
 
-		case '99':
+		case 'first':
 			$script .= PHP_EOL . 'var easy_fancybox_auto=function(){setTimeout(function(){jQuery(\'a[class|="fancybox"]\').filter(\':first\').trigger(\'click\')},'.$delayClick.');};';
 			\easyFancyBox::$onready_auto = true;
 			break;

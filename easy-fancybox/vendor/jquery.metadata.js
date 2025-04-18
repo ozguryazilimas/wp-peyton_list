@@ -62,10 +62,41 @@ $.extend({
 			cre: /(\{.*\})/,
 			single: 'metadata'
 		},
+
+		// Helper function to recursively sanitize object values
+		sanitizeObject: function(obj) {
+			if (!obj || typeof obj !== 'object') return obj;
+			
+			const result = Array.isArray(obj) ? [] : {};
+			
+			for (let key in obj) {
+				const value = obj[key];
+				
+				// Skip functions entirely - prevent callback injection
+				if (typeof value === 'function') continue;
+				
+				// Recursively sanitize nested objects/arrays
+				if (value && typeof value === 'object') {
+					result[key] = this.sanitizeObject(value);
+				}
+				// Sanitize all strings with DOMPurify
+				else if (typeof value === 'string') {
+					result[key] = DOMPurify.sanitize(value);
+				}
+				// Keep other primitive values as is
+				else {
+					result[key] = value;
+				}
+			}
+			
+			return result;
+		},
+
 		setType: function( type, name ){
 			this.defaults.type = type;
 			this.defaults.name = name;
 		},
+
 		get: function( elem, opts ){
 			var data, m, e, attr,
 				settings = $.extend({},this.defaults,opts);
@@ -107,6 +138,9 @@ $.extend({
 					data = {};
 				}
 			}
+
+			// Sanitize the parsed data before storing
+			data = this.sanitizeObject(data);
 
 			$.data( elem, settings.single, data );
 			return data;
