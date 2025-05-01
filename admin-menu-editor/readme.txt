@@ -5,7 +5,7 @@ Tags: admin, dashboard, menu, security, wpmu
 License: GPLv3
 Requires at least: 5.4
 Tested up to: 6.8
-Stable tag: 1.13
+Stable tag: 1.13.1
 
 Lets you edit the WordPress admin menu. You can re-order, hide or rename menus, add custom menus and more. 
 
@@ -83,6 +83,11 @@ Plugins installed in the `mu-plugins` directory are treated as "always on", so y
 3. Re-ordering menu items via drag and drop
 
 == Changelog ==
+
+= 1.13.1 =
+* Fixed a minor conflict with "Advanced Flat Rate Shipping For WooCommerce" that caused several of its submenu items that are supposed to be hidden to become visible.
+* Fixed a potential "access denied" error caused by misidentification of the current menu item when the current URL represents a hidden menu item that's no longer part of the admin menu.
+* Added a new filter: "admin_menu_editor-menu_url_blacklist". Other plugins that create hidden menu items can use this filter to prevent those hidden items from showing up when Admin Menu Editor is activated. The filter receives an associative array. The array keys are relative admin menu URLs and the values can be either `true` (always hide the menu item) or "submenu" (hide only if it's a submenu item).
 
 = 1.13 =
 * Added a way to control access to specific posts and pages. The new "Content Permissions" box in the post editor lets you choose which roles will be able to see a post. It also has an "Advanced" tab where you can enable or disable individual permissions like read/edit/delete for each role. Finally, you can control what happens when someone who doesn't have permission tries to view a post: you can replace the post content with something else, show a custom error, simulate a "404 Not Found" error, or redirect the user to a custom URL.

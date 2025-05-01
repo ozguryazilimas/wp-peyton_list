@@ -355,7 +355,12 @@ abstract class ameMenu {
 				empty($tree_item['items'])
 				&& isset($tree_item['defaults']['url'], $blacklist[$tree_item['defaults']['url']])
 			) {
-				continue;
+				$filter = $blacklist[$tree_item['defaults']['url']];
+				//The filter value can also be "submenu", which doesn't apply to top level menus.
+				//Skip only if the URL is generally blacklisted (`true`).
+				if ( $filter === true ) {
+					continue;
+				}
 			}
 
 			$tree[$parent] = $tree_item;
