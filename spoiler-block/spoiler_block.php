@@ -56,7 +56,12 @@ if (!defined('SPOILERBLOCK_CONFIG_PAGE')) {
 // add_action('wp_print_styles', 'add_sb_style');
 // add_action('wp_enqueue_scripts', 'add_sb_scripts');
 
-load_plugin_textdomain( SPOILERBLOCK_TEXTDOMAIN, false, "/spoiler-block/languages" );
+add_action('plugins_loaded', 'spoiler_block_load_textdomain');
+
+function spoiler_block_load_textdomain() {
+  load_plugin_textdomain( SPOILERBLOCK_TEXTDOMAIN, false, "/spoiler-block/languages" );
+  add_option("spoiler_alert", __("Warning! Spoiler area! To read click here!", SPOILERBLOCK_TEXTDOMAIN));
+}
 
 /* enfileirando os marotos */
 
@@ -139,7 +144,6 @@ function spoiler_render_config(){
 
 add_action('wp_head', "spoiler_selected_message");
 
-add_option("spoiler_alert", __("Warning! Spoiler area! To read click here!",SPOILERBLOCK_TEXTDOMAIN));
 
 function spoiler_selected_message(){
 	echo '<script type="text/javascript"> var spoiler_message = "' .get_option("spoiler_alert"). '"</script>';

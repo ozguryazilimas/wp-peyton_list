@@ -12,7 +12,7 @@ jQuery(document).ready(function($){
 			});
 		}
 	});
-	$(document).on('click', ".spoiler-open", function(){
+	$(document).on('click', ".spoiler-open", function() {
 		if($(this).hasClass("spoiler-open")){
 			$(this).fadeIn("slow", function(){
 				$(this).removeClass("spoiler-open").addClass("spoiler");
