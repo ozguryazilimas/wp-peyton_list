@@ -3,7 +3,7 @@
 Plugin Name: Peyton List
 Plugin URI: http://www.ozguryazilim.com.tr
 Description: This plugin lists whatever you like with ability to make a list with catgories and links. This is dedicated to the lovely Peyton List (the more beautiful one, with black hair).
-Version: 1.1.3
+Version: 1.2.0
 Author: Onur Küçük
 Author URI: http://www.delipenguen.net
 License: GPL2
@@ -25,10 +25,6 @@ License: GPL2
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-require_once(dirname(__FILE__) . '/includes/peyton_list_common.php');
-require_once(dirname(__FILE__) . '/includes/daisy_fortune_common.php');
-require_once(dirname(__FILE__) . '/includes/mantar_common.php');
-
 $peyton_list_db_version = '1.2';
 global $peyton_list_db_version;
 
@@ -46,97 +42,102 @@ global $mantar_db_categories;
 $installed_version = get_option('peyton_list_db_version');
 global $installed_version;
 
-$peyton_list_category = array(
-  1 => 'Drama',
-  2 => 'Komedi',
-  3 => 'Komedi Drama',
-  4 => 'Animasyon',
-  5 => 'Anime',
-  6 => 'Reality',
-  7 => 'Belgesel',
-  8 => 'Yerli Dizi'
-);
-global $peyton_list_category;
-
-$peyton_list_category_color = array(
-  1 => 'peyton_list_category_color_drama',
-  2 => 'peyton_list_category_color_komedi',
-  3 => 'peyton_list_category_color_komedi_drama',
-  4 => 'peyton_list_category_color_animasyon',
-  5 => 'peyton_list_category_color_anime',
-  6 => 'peyton_list_category_color_reality',
-  7 => 'peyton_list_category_color_belgesel',
-  8 => 'peyton_list_category_color_yerli_dizi'
-);
-global $peyton_list_category_color;
-
-$peyton_list_status = array(
-  1 => 'Tanıtım',
-  2 => 'Mini Tanıtım',
-  3 => 'Tanıtımsız'
-);
-global $peyton_list_status;
-
-$peyton_list_status_editor = array(
-  1 => 'Tanıtımı Var',
-  2 => 'Mini Tanıtım',
-  3 => 'Tanıtımı Yok'
-);
-global $peyton_list_status_editor;
-
-$peyton_list_status_image = array(
-  1 => 'thumbs_up.svg',
-  2 => 'thumbs_side.svg',
-  3 => 'thumbs_down.svg'
-);
-global $peyton_list_status_image;
+require_once(dirname(__FILE__) . '/includes/peyton_list_common.php');
+require_once(dirname(__FILE__) . '/includes/daisy_fortune_common.php');
+require_once(dirname(__FILE__) . '/includes/mantar_common.php');
 
 
-$daisy_fortune_onair = array(
-  1 => 'Running',
-  2 => 'Mini',
-  3 => 'Canceled',
-  4 => 'Unclear',
-  0 => 'Missing'
-);
-global $daisy_fortune_onair;
+function peyton_list_init_enumerations() {
+  global $peyton_list_category;
+  $peyton_list_category = array(
+    1 => 'Drama',
+    2 => 'Komedi',
+    3 => 'Komedi Drama',
+    4 => 'Animasyon',
+    5 => 'Anime',
+    6 => 'Reality',
+    7 => 'Belgesel',
+    8 => 'Yerli Dizi'
+  );
 
-$daisy_fortune_onair_translated = array(
-  1 => __('Running', 'peyton_list'),
-  2 => __('Mini', 'peyton_list'),
-  3 => __('Canceled', 'peyton_list'),
-  4 => __('Unclear', 'peyton_list'),
-  5 => __('Missing', 'peyton_list')
-);
-global $daisy_fortune_onair_translated;
+  global $peyton_list_category_color;
+  $peyton_list_category_color = array(
+    1 => 'peyton_list_category_color_drama',
+    2 => 'peyton_list_category_color_komedi',
+    3 => 'peyton_list_category_color_komedi_drama',
+    4 => 'peyton_list_category_color_animasyon',
+    5 => 'peyton_list_category_color_anime',
+    6 => 'peyton_list_category_color_reality',
+    7 => 'peyton_list_category_color_belgesel',
+    8 => 'peyton_list_category_color_yerli_dizi'
+  );
 
-$daisy_fortune_onair_image = array(
-  0 => 'daisy_fortune_missing.png',
-  1 => 'daisy_fortune_check.png',
-  2 => 'daisy_fortune_mini.png',
-  3 => 'daisy_fortune_cross.png',
-  4 => 'daisy_fortune_question.png'
-);
-global $daisy_fortune_onair_image;
+  global $peyton_list_status;
+  $peyton_list_status = array(
+    1 => 'Tanıtım',
+    2 => 'Mini Tanıtım',
+    3 => 'Tanıtımsız'
+  );
 
-$mantar_month_names = array(
-  1 => 'Ocak',
-  2 => 'Şubat',
-  3 => 'Mart',
-  4 => 'Nisan',
-  5 => 'Mayıs',
-  6 => 'Haziran',
-  7 => 'Temmuz',
-  8 => 'Ağustos',
-  9 => 'Eylül',
-  10 => 'Ekim',
-  11 => 'Kasım',
-  12 => 'Aralık'
-);
-global $mantar_month_names;
+  global $peyton_list_status_editor;
+  $peyton_list_status_editor = array(
+    1 => 'Tanıtımı Var',
+    2 => 'Mini Tanıtım',
+    3 => 'Tanıtımı Yok'
+  );
 
-// add css
-add_action('init', 'peyton_list_init');
+  global $peyton_list_status_image;
+  $peyton_list_status_image = array(
+    1 => 'thumbs_up.svg',
+    2 => 'thumbs_side.svg',
+    3 => 'thumbs_down.svg'
+  );
+
+  global $daisy_fortune_onair;
+  $daisy_fortune_onair = array(
+    1 => 'Running',
+    2 => 'Mini',
+    3 => 'Canceled',
+    4 => 'Unclear',
+    0 => 'Missing'
+  );
+
+  global $daisy_fortune_onair_translated;
+  $daisy_fortune_onair_translated = array(
+    1 => __('Running', 'peyton_list'),
+    2 => __('Mini', 'peyton_list'),
+    3 => __('Canceled', 'peyton_list'),
+    4 => __('Unclear', 'peyton_list'),
+    5 => __('Missing', 'peyton_list')
+  );
+
+  global $daisy_fortune_onair_image;
+  $daisy_fortune_onair_image = array(
+    0 => 'daisy_fortune_missing.png',
+    1 => 'daisy_fortune_check.png',
+    2 => 'daisy_fortune_mini.png',
+    3 => 'daisy_fortune_cross.png',
+    4 => 'daisy_fortune_question.png'
+  );
+
+  global $mantar_month_names;
+  $mantar_month_names = array(
+    1 => 'Ocak',
+    2 => 'Şubat',
+    3 => 'Mart',
+    4 => 'Nisan',
+    5 => 'Mayıs',
+    6 => 'Haziran',
+    7 => 'Temmuz',
+    8 => 'Ağustos',
+    9 => 'Eylül',
+    10 => 'Ekim',
+    11 => 'Kasım',
+    12 => 'Aralık'
+  );
+}
+
+add_action('plugins_loaded', 'peyton_list_init');
 
 register_activation_hook(__FILE__, 'peyton_list_init_db');
 add_action('plugins_loaded', 'peyton_list_update_db_check');
@@ -249,6 +250,8 @@ function mantar_add_custom_assets() {
 
 function peyton_list_init() {
   load_plugin_textdomain('peyton_list', false, basename(dirname(__FILE__)) . '/languages' );
+  peyton_list_init_enumerations();
+
 }
 
 function peyton_list_get_main_data() {

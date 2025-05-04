@@ -2,9 +2,9 @@
 Contributors:
 Donate link:
 Tags: Peyton, List, Peyton List, series, list, television, link
-Requires at least: 3.7.0
-Tested up to: 5.8.1
-Stable tag: 1.1.3
+Requires at least: 6.2.0
+Tested up to: 6.8.1
+Stable tag: 1.2.0
 
 This plugin lists whatever you like with ability to make a list with catgories
 and links. This is dedicated to the lovely Peyton List (the more beautiful
