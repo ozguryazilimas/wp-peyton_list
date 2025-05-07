@@ -988,7 +988,7 @@ function relevanssi_compile_search_args( $query, $q ) {
 			$cat = get_option( 'relevanssi_cat' );
 		}
 		if ( $cat ) {
-			$cat         = explode( ',', $cat );
+			$cat         = array_map( 'absint', explode( ',', $cat ) ); // Only integer values allowed.
 			$tax_query[] = array(
 				'taxonomy' => 'category',
 				'field'    => 'term_id',
@@ -1018,10 +1018,10 @@ function relevanssi_compile_search_args( $query, $q ) {
 				$tag = implode( ',', $tag );
 			}
 			if ( false !== strpos( $tag, '+' ) ) {
-				$tag      = explode( '+', $tag );
+				$tag      = array_map( 'absint', explode( '+', $tag ) ); // Only integer values allowed.
 				$operator = 'AND';
 			} else {
-				$tag      = explode( ',', $tag );
+				$tag      = array_map( 'absint', explode( ',', $tag ) ); // Only integer values allowed.
 				$operator = 'OR';
 			}
 			$tax_query[] = array(
@@ -1352,13 +1352,13 @@ function relevanssi_calculate_tf( $match_object, $post_type_weights ) {
 		relevanssi_taxonomy_score( $match_object, $post_type_weights );
 	} else {
 		$tag_weight = 1;
-		if ( isset( $post_type_weights['post_tag'] ) && is_numeric( $post_type_weights['post_tag'] ) ) {
-			$tag_weight = $post_type_weights['post_tag'];
+		if ( isset( $post_type_weights['post_tagged_with_post_tag'] ) && is_numeric( $post_type_weights['post_tagged_with_post_tag'] ) ) {
+			$tag_weight = $post_type_weights['post_tagged_with_post_tag'];
 		}
 
 		$category_weight = 1;
-		if ( isset( $post_type_weights['category'] ) && is_numeric( $post_type_weights['category'] ) ) {
-			$category_weight = $post_type_weights['category'];
+		if ( isset( $post_type_weights['post_tagged_with_category'] ) && is_numeric( $post_type_weights['post_tagged_with_category'] ) ) {
+			$category_weight = $post_type_weights['post_tagged_with_category'];
 		}
 
 		$taxonomy_weight = 1;
@@ -1694,8 +1694,8 @@ function relevanssi_generate_search_query(
 		$comment_boost     = floatval( get_option( 'relevanssi_comment_boost' ) );
 		$post_type_weights = get_option( 'relevanssi_post_type_weights' );
 
-		$tag = ! empty( $post_type_weights['post_tag'] ) ? $post_type_weights['post_tag'] : $relevanssi_variables['post_type_weight_defaults']['post_tag'];
-		$cat = ! empty( $post_type_weights['category'] ) ? $post_type_weights['category'] : $relevanssi_variables['post_type_weight_defaults']['category'];
+		$tag = ! empty( $post_type_weights['post_tagged_with_post_tag'] ) ? $post_type_weights['post_tagged_with_post_tag'] : $relevanssi_variables['post_type_weight_defaults']['post_tag'];
+		$cat = ! empty( $post_type_weights['post_tagged_with_category'] ) ? $post_type_weights['post_tagged_with_category'] : $relevanssi_variables['post_type_weight_defaults']['category'];
 
 		// Clean: $term is escaped, as are $query_restrictions.
 		$query = "SELECT DISTINCT(relevanssi.doc), relevanssi.*, relevanssi.title * $title_boost +
@@ -1818,6 +1818,8 @@ function relevanssi_add_include_matches( array &$matches, array $included_posts,
 	$comment_boost = floatval( get_option( 'relevanssi_comment_boost' ) );
 	$tag           = $relevanssi_variables['post_type_weight_defaults']['post_tag'];
 	$cat           = $relevanssi_variables['post_type_weight_defaults']['category'];
+
+	$post_type_weights = get_option( 'relevanssi_post_type_weights', array() );
 
 	if ( ! empty( $post_type_weights['post_tagged_with_post_tag'] ) ) {
 		$tag = $post_type_weights['post_tagged_with_post_tag'];
