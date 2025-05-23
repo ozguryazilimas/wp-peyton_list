@@ -4,8 +4,8 @@ Donate link: https://www.relevanssi.com/buy-premium/
 Tags: search, relevance, better search, product search, woocommerce search
 Requires at least: 4.9
 Tested up to: 6.8
-Requires PHP: 7.0
-Stable tag: 4.24.5
+Requires PHP: 7.1
+Stable tag: 4.24.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -128,6 +128,12 @@ Each document database is full of useless words. All the little words that appea
 * John Calahan for extensive 4.0 beta testing.
 
 == Changelog ==
+
+= 4.24.6 =
+* Security: Relevanssi will now strip tags from excerpt text (keeping only the whitelisted tags) to avoid XSS attacks. An attack was possible if you used comments for excerpts or if you had a malicious contributor.
+* Minor fix: Improve performance by enabling caching for password protection check.
+* Minor fix: Relevanssi's removal of page builder shortcodes is less greedy and won't cause missed content anymore.
+
 = 4.24.5 =
 * Security: Exporting logs now checks for user capability. The default setting is 'manage_options', but it can be adjusted with the `relevanssi_options_capability` filter hook.
 * Security: Certain query parameters allowed SQL injection attacks. Thanks to Jack Taylor.
@@ -173,4 +179,4 @@ Each document database is full of useless words. All the little words that appea
 
 == Upgrade notice ==
 = 4.24.5 =
-* Security fix to stop SQL injections and log export.
+* Security fix to stop XSS attacks from comment excerpts.
