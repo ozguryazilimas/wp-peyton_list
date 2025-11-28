@@ -1,3 +1,8 @@
+#####   Version 4.2.1 (2025-11-27)
+
+- Fixes issue with post type checkboxes not appearing on the settings page
+- Fixes error when used with PRO version
+
 ####   Version 4.2.0 (2025-10-20)
 
 Auto Featured Image plugin has been acquired by Themeisle 🎉

@@ -717,6 +717,140 @@ class AutoPostThumbnails {
 		die();
 	}
 
+		/**
+	 * Fetch image from URL and generate required thumbnails.
+	 *
+	 * @param string $image
+	 * @param string $title
+	 * @param int $post_id
+	 *
+	 * @return int|WP_Error|null
+	 */
+	public function generate_post_thumb( $image, $title, $post_id ) {
+		// Get the URL now for further processing
+		$imageUrl = $image;
+		if ( $imageUrl === wp_make_link_relative( $imageUrl ) ) {
+			$imageUrl = home_url( $imageUrl );
+		}
+		$imageTitle = $title;
+
+		// Get the file name
+		$filename = substr( $imageUrl, ( strrpos( $imageUrl, '/' ) ) + 1 );
+		// Ð¸ÑÐºÐ»ÑŽÑ‡Ð°ÐµÐ¼ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ñ‹ Ð¿Ð¾ÑÐ»Ðµ Ð¸Ð¼ÐµÐ½Ð¸ Ñ„Ð°Ð¹Ð»Ð°
+		if ( strrpos( $filename, '?' ) ) {
+			$filename = substr( $filename, 0, strrpos( $filename, '?' ) );
+		}
+
+		if ( ! ( ( $uploads = wp_upload_dir( current_time( 'mysql' ) ) ) && false === $uploads['error'] ) ) {
+			return null;
+		}
+
+		// Generate unique file name
+		$filename = wp_unique_filename( $uploads['path'], $filename );
+
+		$new_file = $uploads['path'] . "/$filename";
+		$ext      = pathinfo( $new_file, PATHINFO_EXTENSION );
+		if ( empty( $ext ) ) {
+			$ext      = 'jpg';
+			$filename .= ".{$ext}";
+			$new_file .= ".{$ext}";
+		}
+
+		$wp_filetype = wp_check_filetype( $filename );
+
+		$allow_mime_types = [
+			'image/jpeg',
+			'image/png',
+			'image/gif',
+			'image/bmp',
+			'image/tiff',
+			'image/webp',
+			'image/avif'
+		];
+
+
+		if ( ( ! $wp_filetype['ext'] || ! in_array( $wp_filetype['type'], $allow_mime_types, true ) ) ) {
+			$this->plugin->logger->debug( "File type ({$wp_filetype['type']}) is not allowed for upload." );
+
+			return null;
+		}
+
+		// Move the file to the uploads dir
+		if ( ! ini_get( 'allow_url_fopen' ) ) {
+			$file_data = $this->get_file_contents( $imageUrl );
+		} else {
+			$arrContextOptions = [
+				'ssl' => [
+					'verify_peer'      => false,
+					'verify_peer_name' => false,
+				],
+			];
+
+			$file_data = file_get_contents( $imageUrl, false, stream_context_create( $arrContextOptions ) );
+		}
+
+		if ( ! $file_data ) {
+			$this->plugin->logger->debug( "Failed to download the file from the link {$imageUrl}" );
+
+			return null;
+		}
+
+		file_put_contents( $new_file, $file_data );
+
+		$file_mime = mime_content_type( $new_file );
+
+		if ( ! in_array( $wp_filetype['type'], $allow_mime_types, true ) ) {
+			unlink( $new_file );
+
+			return null;
+		}
+
+		// Set correct file permissions
+		$stat  = stat( dirname( $new_file ) );
+		$perms = $stat['mode'] & 0000666;
+		@ chmod( $new_file, $perms );
+
+		// Compute the URL
+		$url = $uploads['url'] . "/$filename";
+
+		// Construct the attachment array
+		$attachment = [
+			'post_mime_type' => $file_mime,
+			'guid'           => $url,
+			'post_parent'    => null,
+			'post_title'     => $imageTitle,
+			'post_content'   => '',
+		];
+
+		$thumb_id = wp_insert_attachment( $attachment, $new_file, $post_id );
+		if ( ! is_wp_error( $thumb_id ) ) {
+			require_once ABSPATH . '/wp-admin/includes/image.php';
+
+			// Added fix by misthero as suggested
+			wp_update_attachment_metadata( $thumb_id, wp_generate_attachment_metadata( $thumb_id, $new_file ) );
+			update_attached_file( $thumb_id, $new_file );
+
+			return $thumb_id;
+		} else {
+			$this->plugin->logger->error( "Failed to add an attachment ({$new_file}) " . var_export( $attachment ) );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Function to fetch the contents of URL using HTTP API in absence of allow_url_fopen.
+	 */
+	public function get_file_contents( $URL ) {
+		$response = wp_remote_get( $URL );
+		$contents = '';
+		if ( wp_remote_retrieve_response_code( $response ) === 200 ) {
+			$contents = wp_remote_retrieve_body( $response );
+		}
+
+		return $contents ? $contents : false;
+	}
+
 	/**
 	 * Используется для динамической загрузки изображений поста в окно выбора
 	 *

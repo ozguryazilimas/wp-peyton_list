@@ -4,7 +4,7 @@ Tags: post thumbnails, featured image, elementor, thumbnails, featured image fro
 Requires at least: 5.6
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 4.2.0
+Stable tag: 4.2.1
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,6 +112,14 @@ This section describes how to install the plugin and get it working.
 11. Text settings
 
 == Changelog ==
+
+#####   Version 4.2.1 (2025-11-27)
+
+- Fixes issue with post type checkboxes not appearing on the settings page
+- Fixes error when used with PRO version
+
+
+
 
 ####   Version 4.2.0 (2025-10-20)
 
