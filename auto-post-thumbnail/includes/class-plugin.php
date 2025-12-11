@@ -425,6 +425,10 @@ class WAPT_Plugin extends Wbcr_Factory480_Plugin {
 	public function bulk_action_generate_handler( $redirect_to, $doaction, $post_ids ) {
 
 		foreach ( $post_ids as $post_id ) {
+			if ( ! current_user_can( 'edit_post', $post_id ) ) {
+				continue;
+			}
+
 			switch ( $doaction ) {
 				case 'apt_add_images':
 					do_action( 'wapt/upload_and_replace_post_images', $post_id );

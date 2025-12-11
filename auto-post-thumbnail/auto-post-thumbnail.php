@@ -3,7 +3,7 @@
  * Plugin Name: Auto Featured Image (Auto Post Thumbnail)
  * Plugin URI: https://cm-wp.com/apt
  * Description: Automatically generate the Featured Image from the first image in post or any custom post type only if Featured Image is not set manually. Featured Image Generation From Title. Native image search for Elementor, Gutenberg, Classic Editor.
- * Version: 4.2.1
+ * Version: 4.2.2
  * Requires PHP: 7.4
  * Author: Themeisle <contact@themeisle.com>
  * Author URI: https://themeisle.com

@@ -1,3 +1,7 @@
+#####   Version 4.2.2 (2025-12-10)
+
+- Enhanced security
+
 #####   Version 4.2.1 (2025-11-27)
 
 - Fixes issue with post type checkboxes not appearing on the settings page

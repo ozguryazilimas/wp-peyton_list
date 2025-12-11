@@ -2,9 +2,9 @@
 Contributors: themeisle
 Tags: post thumbnails, featured image, elementor, thumbnails, featured image from title
 Requires at least: 5.6
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 4.2.1
+Stable tag: 4.2.2
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,6 +112,13 @@ This section describes how to install the plugin and get it working.
 11. Text settings
 
 == Changelog ==
+
+#####   Version 4.2.2 (2025-12-10)
+
+- Enhanced security
+
+
+
 
 #####   Version 4.2.1 (2025-11-27)
 
