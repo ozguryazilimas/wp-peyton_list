@@ -7,22 +7,22 @@ namespace Composer\Autoload;
 class ComposerStaticInit998b6fd9c25857a5c183b81c7706d47e
 {
     public static $prefixLengthsPsr4 = array (
-        'W' => 
+        'W' =>
         array (
             'WP_Compat_Validation_Tool\\' => 26,
         ),
-        'C' => 
+        'C' =>
         array (
             'Composer\\Installers\\' => 20,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'WP_Compat_Validation_Tool\\' => 
+        'WP_Compat_Validation_Tool\\' =>
         array (
             0 => __DIR__ . '/../..' . '/10up-lib/wp-compat-validation-tool/src',
         ),
-        'Composer\\Installers\\' => 
+        'Composer\\Installers\\' =>
         array (
             0 => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers',
         ),
