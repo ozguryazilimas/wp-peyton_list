@@ -8,6 +8,8 @@ use YahnisElsts\AdminMenuEditor\ContentPermissions\UserInterface\ContentPermissi
  * @var array $editorData Provided by the method that includes this template.
  * @var string $cpeSettingsUrl URL to the content permissions section on the settings page.
  * @var string $cpeModulesUrl URL to the "Modules" section on the settings page.
+ * @var string|null $cpeTermPostType
+ * @var bool $cpeTermIsUniversalPolicy
  */
 
 $basicOptions = [
@@ -23,6 +25,20 @@ $basicOptions = [
 		'<input type="hidden" name="%1$s" id="%1$s" value="" data-bind="value: serializedPolicy">',
 		esc_attr(ContentPermissionsMetaBox::POLICY_FIELD_NAME)
 	);
+
+	if ( !empty($cpeTermPostType) ) {
+		printf(
+			'<input type="hidden" name="%1$s" id="%1$s" value="%2$s">',
+			esc_attr(ContentPermissionsMetaBox::TERM_POST_TYPE_FIELD_NAME),
+			esc_attr($cpeTermPostType)
+		);
+	}
+	if ( $cpeTermIsUniversalPolicy ) {
+		printf(
+			'<input type="hidden" name="%1$s" id="%1$s" value="1">',
+			esc_attr(ContentPermissionsMetaBox::TERM_UNIVERSAL_POLICY_FIELD_NAME)
+		);
+	}
 	?>
 	<div id="ame-cpe-loading-message" data-bind="visible: false">
 		<p><?php
@@ -137,12 +153,20 @@ $basicOptions = [
 
 				<div class="ame-cpe-actor-settings-container">
 					<table class="ame-cpe-actor-settings">
-						<tbody data-bind="foreach: actionSettings">
+						<tbody data-bind="foreach: actionSettingsGroups">
+						<!-- ko if: label -->
+						<tr class="ame-cpe-actor-action-group-label-row" data-bind="visible: isVisible">
+							<th colspan="2" class="ame-cpe-actor-action-group-label">
+								<h3 data-bind="text: label"></h3>
+							</th>
+						</tr>
+						<!-- /ko -->
+						<!-- ko foreach: settings -->
 						<tr data-bind="visible: isVisible">
 							<th scope="row">
 								<label
 									data-bind="text: action.label,
-							attr: { 'for': 'ame-cpe-permission-input-' + $index() }">
+								attr: { 'for': 'ame-cpe-permission-input-' + $index() }">
 								</label>
 							</th>
 							<td>
@@ -158,6 +182,7 @@ $basicOptions = [
 								</div>
 							</td>
 						</tr>
+						<!-- /ko -->
 						</tbody>
 					</table>
 				</div>

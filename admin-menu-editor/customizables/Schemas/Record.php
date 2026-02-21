@@ -14,4 +14,8 @@ class Record extends Collection {
 		parent::__construct($itemSchema, $keySchema, $label);
 		$this->keySchema = $keySchema;
 	}
+
+	public function getSimplifiedDataType() {
+		return 'map'; //Helps ensure that empty records are serialized as {} instead of [].
+	}
 }

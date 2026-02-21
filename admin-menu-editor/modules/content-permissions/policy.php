@@ -227,6 +227,7 @@ class ContentItemPolicy implements \JsonSerializable {
 
 class PolicyStore {
 	const POST_POLICY_META_KEY = '_ame_cpe_post_policy';
+	const TERM_POLICY_META_KEY = '_ame_cpe_term_policy';
 	const HIDDEN_ITEM_LOOKUP_OPTION = 'ame_cpe_restricted_items';
 
 	/**
@@ -249,6 +250,52 @@ class PolicyStore {
 
 		//Remove deleted posts from the lookup.
 		add_action('deleted_post', [$this, 'forgetDeletedPost']);
+	}
+
+	/**
+	 * @param string $objectType
+	 * @param \WP_Post|\WP_Term $nativeObject
+	 * @param string|null $postType For terms, the post type to get the policy for.
+	 * @return ContentItemPolicy|null
+	 */
+	public function getObjectPolicy(string $objectType, $nativeObject, ?string $postType = null): ?ContentItemPolicy {
+		switch ($objectType) {
+			case Action::OBJECT_TYPE_POST:
+				if ( !($nativeObject instanceof \WP_Post) ) {
+					return null;
+				}
+				return $this->getPostPolicy($nativeObject->ID);
+			case Action::OBJECT_TYPE_TERM:
+				if ( !($nativeObject instanceof \WP_Term) ) {
+					return null;
+				}
+				return $this->getTermPolicy($nativeObject->term_id, $postType);
+			default:
+				return null;
+		}
+	}
+
+	public function setObjectPolicy(
+		string            $objectType,
+		                  $nativeObject,
+		ContentItemPolicy $policy,
+		?string           $postType = null
+	): void {
+		switch ($objectType) {
+			case Action::OBJECT_TYPE_POST:
+				if ( !($nativeObject instanceof \WP_Post) ) {
+					return;
+				}
+				$this->setPostPolicy($nativeObject->ID, $policy);
+				break;
+			case Action::OBJECT_TYPE_TERM:
+				if ( !($nativeObject instanceof \WP_Term) ) {
+					return;
+				}
+				$this->setTermPolicy($nativeObject->term_id, $policy, $postType);
+				break;
+		}
+
 	}
 
 	/**
@@ -281,20 +328,76 @@ class PolicyStore {
 		$lookup = $this->getRestrictedPostLookup();
 		$lookup->forgetPost($postId);
 
-		$policy->forEachActionEntry(
-			[
-				$this->actionRegistry->getAction(ActionRegistry::ACTION_READ),
-				$this->actionRegistry->getAction(ActionRegistry::ACTION_VIEW_IN_LISTS),
-			],
-			function ($actorId, $actionName, $isAllowed) use ($lookup, $postId) {
-				$action = $this->actionRegistry->getAction($actionName);
-				$lookup->addEntry($actorId, $action, Action::OBJECT_TYPE_POST, $postId, $isAllowed);
-			}
-		);
+		$postType = get_post_type($postId);
+		if ( $postType ) {
+			$policy->forEachActionEntry(
+				[
+					$this->actionRegistry->getAction(ActionRegistry::ACTION_READ),
+					$this->actionRegistry->getAction(ActionRegistry::ACTION_VIEW_IN_LISTS),
+				],
+				function ($actorId, $actionName, $isAllowed) use ($lookup, $postId, $postType) {
+					$action = $this->actionRegistry->getAction($actionName);
+					$lookup->addEntry($actorId, $action, $postType, $postId, $isAllowed);
+				}
+			);
+		}
 
 		if ( $lookup->isModified() ) {
 			$this->saveRestrictedPostLookup($lookup);
 		}
+	}
+
+	public function getTermPolicy($termId, ?string $postType = null, bool $useUniversalOnMiss = false): ?ContentItemPolicy {
+		$collection = $this->getTermPolicyCollection($termId);
+		if ( $collection === null ) {
+			return null;
+		}
+
+		if ( $postType === null ) {
+			return $collection->getUniversalPolicy();
+		} else {
+			$policyForPostType = $collection->getPolicyForPostType($postType);
+			if ( $policyForPostType ) {
+				return $policyForPostType;
+			} else if ( $useUniversalOnMiss ) {
+				return $collection->getUniversalPolicy();
+			}
+		}
+		return null;
+	}
+
+	private function setTermPolicy($termId, ContentItemPolicy $policy, ?string $postType = null) {
+		//Unlike a post, a term can have multiple policies - one for each associated post type,
+		//and a general one that applies to all post types. So we can't just overwrite the meta
+		//value, we need to merge the new policy into the existing one(s).
+		$collection = $this->getTermPolicyCollection($termId);
+		if ( $collection === null ) {
+			$collection = new TermPolicyCollection();
+		}
+
+		if ( $postType === null ) {
+			$collection->setUniversalPolicy($policy);
+		} else {
+			$collection->setPolicyForPostType($postType, $policy);
+		}
+
+		$this->setTermPolicyCollection($termId, $collection);
+	}
+
+	private function getTermPolicyCollection($termId): ?TermPolicyCollection {
+		$collectionData = get_term_meta($termId, self::TERM_POLICY_META_KEY, true);
+		if ( !empty($collectionData) ) {
+			$properties = json_decode($collectionData, true);
+			if ( is_array($properties) ) {
+				return TermPolicyCollection::deserializeFromArray($properties);
+			}
+		}
+		return null;
+	}
+
+	private function setTermPolicyCollection($termId, TermPolicyCollection $collection) {
+		update_term_meta($termId, self::TERM_POLICY_META_KEY, wp_slash(wp_json_encode($collection)));
+		//todo: Probably need to update caches and lookups here.
 	}
 
 	/**
@@ -420,24 +523,37 @@ class Action implements \JsonSerializable {
 	 * @var string|null
 	 */
 	private $postMetaCap;
+	/**
+	 * @var string|null
+	 */
+	private $termMetaCap;
+	/**
+	 * @var string|null
+	 */
+	private $group;
 
 	/**
 	 * @param string $name
 	 * @param array $supportedObjectTypes
 	 * @param string|callable $label
+	 * @param string|null $group
 	 * @param string|callable $description
 	 * @param string|null $postMetaCap
+	 * @param string|null $termMetaCap
 	 */
 	public function __construct(
-		$name,
-		array $supportedObjectTypes,
-		$label,
-		$description = '',
-		$postMetaCap = null
+		string  $name,
+		array   $supportedObjectTypes,
+		        $label,
+		?string $group = null,
+		        $description = '',
+		?string $postMetaCap = null,
+		?string $termMetaCap = null
 	) {
 		$this->name = $name;
 		$this->supportedObjectTypes = $supportedObjectTypes;
 		$this->postMetaCap = $postMetaCap;
+		$this->termMetaCap = $termMetaCap;
 
 		if ( is_string($label) ) {
 			$this->label = $label;
@@ -450,6 +566,7 @@ class Action implements \JsonSerializable {
 		} else if ( $description !== null ) {
 			$this->descriptionGenerator = $description;
 		}
+		$this->group = $group;
 	}
 
 	/**
@@ -459,14 +576,11 @@ class Action implements \JsonSerializable {
 		return $this->name;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getLabel() {
+	public function getLabel(?\WP_Post_Type $postType = null, ?\WP_Taxonomy $taxonomy = null): string {
 		if ( ($this->label === null) && is_callable($this->labelGenerator) ) {
-			$this->label = call_user_func($this->labelGenerator);
+			return call_user_func($this->labelGenerator, $postType, $taxonomy);
 		}
-		return $this->label;
+		return $this->label ?? '';
 	}
 
 	/**
@@ -498,13 +612,17 @@ class Action implements \JsonSerializable {
 		return $this->postMetaCap;
 	}
 
+	public function getTermMetaCap(): ?string {
+		return $this->termMetaCap;
+	}
+
 	/** @noinspection PhpLanguageLevelInspection */
 	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return [
 			'name'        => $this->name,
-			'label'       => $this->getLabel(),
 			'description' => $this->getDescription(),
+			'group'       => $this->group,
 		];
 	}
 }
@@ -516,6 +634,15 @@ class ActionRegistry {
 	const ACTION_VIEW_IN_LISTS = 'view_in_lists';
 	const ACTION_PUBLISH = 'publish';
 
+	const ACTION_READ_ASSOCIATED_OBJECTS = 'read_associated_objects';
+	const ACTION_EDIT_ASSOCIATED_OBJECTS = 'edit_associated_objects';
+	const ACTION_DELETE_ASSOCIATED_OBJECTS = 'delete_associated_objects';
+	const ACTION_VIEW_ASSOCIATED_OBJECTS_IN_LISTS = 'view_associated_objects_in_lists';
+	const ACTION_ASSIGN_TERM_TO_OBJECTS = 'assign_term_to_objects';
+
+	const GROUP_ASSOCIATED_POSTS = 'associated_posts';
+	const GROUP_THIS_TERM = 'this_term';
+
 	/**
 	 * @var Action[]
 	 */
@@ -524,19 +651,19 @@ class ActionRegistry {
 	public function __construct() {
 		$this->addAction(new Action(
 			self::ACTION_READ,
-			[Action::OBJECT_TYPE_POST, Action::OBJECT_TYPE_TERM,],
+			[Action::OBJECT_TYPE_POST],
 			function () {
 				return _x('Read', 'content permissions: action name', 'admin-menu-editor');
-			},
+			}, null,
 			'',
 			'read_post'
 		));
 		$this->addAction(new Action(
 			self::ACTION_VIEW_IN_LISTS,
-			[Action::OBJECT_TYPE_POST, Action::OBJECT_TYPE_TERM],
+			[Action::OBJECT_TYPE_POST],
 			function () {
 				return _x('View in lists', 'content permissions: action name', 'admin-menu-editor');
-			},
+			}, null,
 			function () {
 				return __(
 					'Applies to places like the post list in the admin dashboard and archive pages on the front end.',
@@ -547,19 +674,19 @@ class ActionRegistry {
 		));
 		$this->addAction(new Action(
 			self::ACTION_EDIT,
-			[Action::OBJECT_TYPE_POST, Action::OBJECT_TYPE_TERM],
+			[Action::OBJECT_TYPE_POST],
 			function () {
 				return _x('Edit', 'content permissions: action name', 'admin-menu-editor');
-			},
+			}, null,
 			'',
 			'edit_post'
 		));
 		$this->addAction(new Action(
 			self::ACTION_DELETE,
-			[Action::OBJECT_TYPE_POST, Action::OBJECT_TYPE_TERM],
+			[Action::OBJECT_TYPE_POST],
 			function () {
 				return _x('Delete', 'content permissions: action name', 'admin-menu-editor');
-			},
+			}, null,
 			'',
 			'delete_post'
 		));
@@ -568,9 +695,70 @@ class ActionRegistry {
 			[Action::OBJECT_TYPE_POST],
 			function () {
 				return _x('Publish', 'content permissions: action name', 'admin-menu-editor');
-			},
+			}, null,
 			'',
 			'publish_post'
+		));
+
+		//Term actions for associated objects
+		$this->addAction(new Action(
+			self::ACTION_READ_ASSOCIATED_OBJECTS,
+			[Action::OBJECT_TYPE_TERM],
+			self::labelHelper(function () {
+				/* translators: %1$s: post type label, %2$s: taxonomy label */
+				return _x('Read %1$s', 'content permissions: action name', 'admin-menu-editor');
+			}),
+			self::GROUP_ASSOCIATED_POSTS,
+			'',
+			'read_post'
+		));
+		//todo: Should disabling this also prevent the term itself from appearing in the term list?
+		// We probably don't want too many granular options here.
+		$this->addAction(new Action(
+			self::ACTION_VIEW_ASSOCIATED_OBJECTS_IN_LISTS,
+			[Action::OBJECT_TYPE_TERM],
+			self::labelHelper(function () {
+				/* translators: %1$s: post type label */
+				return _x('View %1$s in lists', 'content permissions: action name', 'admin-menu-editor');
+			}),
+			self::GROUP_ASSOCIATED_POSTS,
+			'',
+			'read_post'
+		));
+		$this->addAction(new Action(
+			self::ACTION_EDIT_ASSOCIATED_OBJECTS,
+			[Action::OBJECT_TYPE_TERM],
+			self::labelHelper(function () {
+				/* translators: %1$s: post type label, %2$s: taxonomy label */
+				return _x('Edit %1$s', 'content permissions: action name', 'admin-menu-editor');
+			}),
+			self::GROUP_ASSOCIATED_POSTS,
+			'',
+			'edit_post'
+		));
+		$this->addAction(new Action(
+			self::ACTION_DELETE_ASSOCIATED_OBJECTS,
+			[Action::OBJECT_TYPE_TERM],
+			self::labelHelper(function () {
+				/* translators: %1$s: post type label, %2$s: taxonomy label */
+				return _x('Delete %1$s', 'content permissions: action name', 'admin-menu-editor');
+			}),
+			self::GROUP_ASSOCIATED_POSTS,
+			'',
+			'delete_post'
+		));
+
+		$this->addAction(new Action(
+			self::ACTION_ASSIGN_TERM_TO_OBJECTS,
+			[Action::OBJECT_TYPE_TERM],
+			self::labelHelper(function () {
+				/* translators: %1$s: post type label, %2$s: taxonomy label */
+				return _x('Assign this %2$s to %1$s', 'content permissions: action name', 'admin-menu-editor');
+			}),
+			self::GROUP_THIS_TERM,
+			'',
+			null,
+			'assign_term'
 		));
 	}
 
@@ -599,6 +787,16 @@ class ActionRegistry {
 			}
 		}
 		return $actions;
+	}
+
+	private static function labelHelper(callable $templateFn): \Closure {
+		return function (?\WP_Post_Type $postType = null, ?\WP_Taxonomy $taxonomy = null) use ($templateFn) {
+			return sprintf(
+				call_user_func($templateFn),
+				$postType ? $postType->labels->name : __('objects', 'admin-menu-editor'),
+				$taxonomy ? $taxonomy->labels->singular_name : __('term', 'admin-menu-editor')
+			);
+		};
 	}
 }
 
@@ -1168,5 +1366,89 @@ class RestrictedPostLookup implements \JsonSerializable {
 	#[\ReturnTypeWillChange]
 	public function jsonSerialize() {
 		return $this->toArray();
+	}
+}
+
+class TermPolicyCollection implements \JsonSerializable {
+	/**
+	 * @var array<string,ContentItemPolicy> Keyed by post type
+	 */
+	private array $policies = [];
+	/**
+	 * @var ContentItemPolicy|null Universal policy that applies to all post types, if any.
+	 */
+	private ?ContentItemPolicy $universalPolicy = null;
+
+	/**
+	 * @param string $postType
+	 * @return ContentItemPolicy|null
+	 */
+	public function getPolicyForPostType(string $postType): ?ContentItemPolicy {
+		if ( isset($this->policies[$postType]) ) {
+			return $this->policies[$postType];
+		}
+		return null;
+	}
+
+	/**
+	 * @return ContentItemPolicy|null
+	 */
+	public function getUniversalPolicy(): ?ContentItemPolicy {
+		return $this->universalPolicy;
+	}
+
+	/**
+	 * @param string $postType
+	 * @param ContentItemPolicy|null $policy
+	 * @return void
+	 */
+	public function setPolicyForPostType(string $postType, ?ContentItemPolicy $policy): void {
+		if ( $policy ) {
+			$this->policies[$postType] = $policy;
+		} else {
+			unset($this->policies[$postType]);
+		}
+	}
+
+	/**
+	 * @param ContentItemPolicy|null $policy
+	 * @return void
+	 */
+	public function setUniversalPolicy(?ContentItemPolicy $policy): void {
+		$this->universalPolicy = $policy;
+	}
+
+	/** @noinspection PhpLanguageLevelInspection
+	 * @noinspection PhpMissingReturnTypeInspection
+	 */
+	#[\ReturnTypeWillChange]
+	public function jsonSerialize() {
+		$data = [];
+		if ( $this->universalPolicy !== null ) {
+			$data['universal'] = $this->universalPolicy;
+		}
+		if ( !empty($this->policies) ) {
+			$data['byPostType'] = $this->policies;
+		}
+		return $data;
+	}
+
+	public static function deserializeFromArray(array $data): TermPolicyCollection {
+		$collection = new TermPolicyCollection();
+
+		if ( isset($data['universal']) && is_array($data['universal']) ) {
+			$collection->setUniversalPolicy(ContentItemPolicy::fromArray($data['universal']));
+		}
+
+		if ( isset($data['byPostType']) && is_array($data['byPostType']) ) {
+			foreach ($data['byPostType'] as $postType => $policyData) {
+				if ( is_array($policyData) ) {
+					$policy = ContentItemPolicy::fromArray($policyData);
+					$collection->setPolicyForPostType($postType, $policy);
+				}
+			}
+		}
+
+		return $collection;
 	}
 }

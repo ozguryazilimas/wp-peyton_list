@@ -1188,6 +1188,8 @@ $colorFieldRightMargin: 5px;
     z-index: 10000;
 }
 
+@import 'dialogs';
+
 .settings_page_menu_editor {
 	.ui-dialog {
 		background: white;
@@ -2188,6 +2190,10 @@ $userSelectionPanelPadding: 10px;
 /*********************************************
       Miscellaneous
 **********************************************/
+
+#ws_ame_general_vis_box input[type="checkbox"] {
+	@include ame-indeterminate-checkbox();
+}
 
 #ws_sidebar_pro_ad {
     min-width: 225px;

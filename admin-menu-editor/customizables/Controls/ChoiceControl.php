@@ -13,15 +13,15 @@ abstract class ChoiceControl extends ClassicControl {
 	/**
 	 * @var Setting
 	 */
-	protected $mainSetting;
+	protected $mainBinding;
 
 	/**
 	 * @var ChoiceControlOption[]
 	 */
 	protected $options = [];
 
-	public function __construct($settings = [], $params = []) {
-		parent::__construct($settings, $params);
+	public function __construct($settings = [], $params = [], $children = []) {
+		parent::__construct($settings, $params, $children);
 
 		if ( isset($params['choices']) ) {
 			if ( is_callable($params['choices']) ) {
@@ -48,17 +48,17 @@ abstract class ChoiceControl extends ClassicControl {
 					throw new \InvalidArgumentException("Invalid option: $item");
 				}
 			}
-		} else if ( $this->mainSetting instanceof EnumSetting ) {
-			$this->options = $this->mainSetting->generateChoiceOptions();
-		} else if ( $this->mainSetting instanceof SettingWithSchema ) {
-			$schema = $this->mainSetting->getSchema();
+		} else if ( $this->mainBinding instanceof EnumSetting ) {
+			$this->options = $this->mainBinding->generateChoiceOptions();
+		} else if ( $this->mainBinding instanceof SettingWithSchema ) {
+			$schema = $this->mainBinding->getSchema();
 			if ( $schema instanceof Enum ) {
 				$this->options = ChoiceControlOption::fromEnumSchema($schema);
 			}
 		}
 	}
 
-	protected function getKoComponentParams() {
+	protected function getKoComponentParams(): array {
 		$params = parent::getKoComponentParams();
 		$params['options'] = array_map(
 			function ($option) {

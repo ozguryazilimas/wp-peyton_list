@@ -38,6 +38,24 @@ class SchemaFactory {
 		return new Record($keySchema, $itemSchema, $label);
 	}
 
+	public function actorId($label = null): StringSchema {
+		return $this->string($label ?? 'Actor ID')
+			->min(1)->max(250)
+			->regex('/^(?:user|role|special):/', 'Actor ID must start with "user:", "role:", or "special:".');
+	}
+
+	public function actorFeatureMap($label = null): Record {
+		return $this->record(
+			$this->actorId(),
+			$this->boolean(),
+			$label
+		);
+	}
+
+	public function actorAccess($label = null): Record {
+		return $this->actorFeatureMap($label);
+	}
+
 	/**
 	 * Indexed array schema.
 	 *

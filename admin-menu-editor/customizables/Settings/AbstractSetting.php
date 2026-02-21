@@ -3,10 +3,12 @@
 namespace YahnisElsts\AdminMenuEditor\Customizable\Settings;
 
 use WP_Error;
+use YahnisElsts\AdminMenuEditor\Customizable\Controls\Binding;
 use YahnisElsts\AdminMenuEditor\Customizable\Customizable;
+use YahnisElsts\AdminMenuEditor\Customizable\Rendering\Context;
 use YahnisElsts\AdminMenuEditor\Customizable\Storage\StorageInterface;
 
-abstract class AbstractSetting extends Customizable implements UpdateNotificationSender {
+abstract class AbstractSetting extends Customizable implements UpdateNotificationSender, Binding {
 	const SERIALIZE_INCLUDE_VALUE = 1;
 	const SERIALIZE_INCLUDE_DEFAULT = 2;
 	const SERIALIZE_INCLUDE_ID = 4;
@@ -205,11 +207,12 @@ abstract class AbstractSetting extends Customizable implements UpdateNotificatio
 	/**
 	 * Is the current user allowed to change this setting?
 	 *
+	 * @param Context|null $context
 	 * @return bool
 	 */
-	public function isEditableByUser() {
+	public function isEditableByUser(?Context $context = null): bool {
 		if ( isset($this->isEditableCallback) ) {
-			return call_user_func($this->isEditableCallback);
+			return (bool)call_user_func($this->isEditableCallback);
 		}
 		return true;
 	}
@@ -417,7 +420,7 @@ abstract class AbstractSetting extends Customizable implements UpdateNotificatio
 	 * the children of regular structs.
 	 *
 	 * @param iterable $settings
-	 * @param bool $leavesOnly           When encountering a struct setting, only return its
+	 * @param bool $leavesOnly When encountering a struct setting, only return its
 	 *                                   children and not the struct itself. Does not apply
 	 *                                   to composite settings.
 	 * @param string|int|null $parentKey The key of the parent setting. Used to generate
@@ -434,7 +437,6 @@ abstract class AbstractSetting extends Customizable implements UpdateNotificatio
 
 			//Descend into structs and arrays, except composite settings.
 			//WP 4.9.6+ includes a polyfill for is_iterable().
-			/** @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
 			$isContainer = is_iterable($setting) && !($setting instanceof CompositeSetting);
 
 			if ( ($setting instanceof AbstractSetting) && (!$isContainer || !$leavesOnly) ) {
@@ -565,5 +567,17 @@ abstract class AbstractSetting extends Customizable implements UpdateNotificatio
 	public function decodeSubmittedValue($value) {
 		//The default implementation is a no-op. Subclasses can override this.
 		return $value;
+	}
+
+	public function resolveLabel(?Context $context = null): string {
+		return $this->getLabel();
+	}
+
+	public function resolveDescription(?Context $context = null): string {
+		return $this->getDescription();
+	}
+
+	public function getBindingString(): string {
+		return $this->getId();
 	}
 }

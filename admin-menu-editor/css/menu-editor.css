@@ -1084,6 +1084,27 @@ select.ws_dropdown optgroup option {
   z-index: 10000;
 }
 
+/*
+Standard WordPress admin colors.
+
+Announcement post:
+https://make.wordpress.org/core/2021/02/23/standardization-of-wp-admin-colors-in-wordpress-5-7/
+
+Source:
+https://codepen.io/ryelle/pen/WNGVEjw
+
+A "wp" prefix has been added to avoid name conflicts with other code in this plugin.
+ */
+.ui-dialog .ui-dialog-buttonpane {
+  background-color: #fcfcfc;
+  border-top: 1px solid #dcdcde;
+  padding: 8px;
+  text-align: right;
+}
+.ui-dialog .ui-dialog-buttonpane .button-primary, .ui-dialog .ui-dialog-buttonpane .ame-dialog-confirm-button {
+  float: left;
+}
+
 .settings_page_menu_editor .ui-dialog {
   background: white;
   border: 1px solid #c0c0c0;
@@ -1882,6 +1903,29 @@ select.ws_dropdown optgroup option {
 /*********************************************
       Miscellaneous
 **********************************************/
+#ws_ame_general_vis_box input[type=checkbox]:indeterminate:before {
+  content: "■";
+  color: #1e8cbe;
+  margin: -3px 0 0 -1px;
+  font: 400 14px/1 dashicons;
+  float: left;
+  display: inline-block;
+  vertical-align: middle;
+  width: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+@media screen and (max-width: 782px) {
+  #ws_ame_general_vis_box input[type=checkbox]:indeterminate:before {
+    height: 1.5625rem;
+    width: 1.5625rem;
+    line-height: 1.5625rem;
+    margin: -1px;
+    font-size: 18px;
+    font-family: unset;
+    font-weight: normal;
+  }
+}
+
 #ws_sidebar_pro_ad {
   min-width: 225px;
   max-width: 300px;

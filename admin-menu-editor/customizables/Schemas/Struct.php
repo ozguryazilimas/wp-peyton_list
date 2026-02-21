@@ -103,6 +103,10 @@ class Struct extends Schema {
 		return $this->fieldSchemas;
 	}
 
+	public function getFieldShema($fieldName): ?Schema {
+		return $this->fieldSchemas[$fieldName] ?? null;
+	}
+
 	public function getSimplifiedDataType() {
 		return 'map';
 	}

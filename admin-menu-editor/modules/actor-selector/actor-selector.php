@@ -33,7 +33,7 @@ class ameActorSelector extends ameModule {
 			function() use ($isProVersion) {
 				$currentUser = wp_get_current_user();
 				return array(
-					'visibleUsers' => $this->menuEditor->get_plugin_option('visible_users'),
+					'visibleUsers' => $this->getFilteredVisibleUsers(),
 					'currentUserLogin' => $currentUser->get('user_login'),
 					'isProVersion' => $isProVersion,
 
@@ -66,10 +66,18 @@ class ameActorSelector extends ameModule {
 	}
 
 	public function addVisibleUsersToLoginList($userLogins) {
-		$visibleUsers = $this->menuEditor->get_plugin_option('visible_users');
+		$visibleUsers = $this->getFilteredVisibleUsers();
 		if ( is_array($visibleUsers) ) {
 			$userLogins = array_merge($userLogins, $visibleUsers);
 		}
 		return $userLogins;
+	}
+
+	private function getFilteredVisibleUsers() {
+		$visibleUsers = $this->menuEditor->get_plugin_option('visible_users');
+		if ( !is_array($visibleUsers) ) {
+			$visibleUsers = [];
+		}
+		return apply_filters('admin_menu_editor-visible_users', $visibleUsers);
 	}
 }

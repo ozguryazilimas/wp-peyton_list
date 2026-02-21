@@ -7,6 +7,7 @@ use YahnisElsts\AdminMenuEditor\Customizable\Controls\UiElement;
 use YahnisElsts\AdminMenuEditor\Customizable\Settings;
 use YahnisElsts\AdminMenuEditor\Customizable\Settings\Setting;
 use YahnisElsts\AdminMenuEditor\Customizable\Storage\AbstractSettingsDictionary;
+use YahnisElsts\AdminMenuEditor\ProCustomizable\Controls\ActorFeatureCheckbox;
 use YahnisElsts\AdminMenuEditor\ProCustomizable\Controls\BackgroundPositionSelector;
 use YahnisElsts\AdminMenuEditor\ProCustomizable\Controls\BackgroundRepeat;
 use YahnisElsts\AdminMenuEditor\ProCustomizable\Controls\BoxDimensions;
@@ -194,6 +195,10 @@ class ElementBuilderFactory {
 		return $this->initControlBuilder(BoxDimensions::class, $idOrSetting);
 	}
 
+	public function actorFeatureCheckbox($idOrSetting = null): ControlBuilder {
+		return $this->initControlBuilder(ActorFeatureCheckbox::class, $idOrSetting);
+	}
+
 	/**
 	 * Automatically choose a suitable control or container for the given setting.
 	 *
@@ -334,6 +339,9 @@ class ElementBuilderFactory {
 				$settings[$key] = !empty($found) ? reset($found) : null;
 			}
 			return $settings;
+		} else if ( $idOrSetting instanceof Controls\Binding ) {
+			//This can be a reference that will be resolved later.
+			return [$idOrSetting];
 		}
 		throw new \InvalidArgumentException(sprintf(
 			'Invalid setting query (type: "%s"). Input must be a Setting, a string, or NULL.',

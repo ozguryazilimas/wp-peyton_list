@@ -90,6 +90,9 @@ class amePluginVisibility extends amePersistentModule {
 			->method('post')
 			->register();
 
+		//Enqueue our stylesheet in the tab.
+		$this->localTabStyles['ame-plugin-visibility-css'] = 'plugin-visibility.css';
+
 		//On save, let the feature toggle know that so it can display a notice if customization
 		//is disabled for the current user.
 		$params = $this->menuEditor->get_query_params();
@@ -569,13 +572,6 @@ class amePluginVisibility extends amePersistentModule {
 			'canManagePlugins' => $canManagePlugins,
 			'isMultisite'      => is_multisite(),
 			'isProVersion'     => $this->menuEditor->is_pro_version(),
-		);
-	}
-
-	public function enqueueTabStyles() {
-		wp_enqueue_auto_versioned_style(
-			'ame-plugin-visibility-css',
-			plugins_url('plugin-visibility.css', __FILE__)
 		);
 	}
 

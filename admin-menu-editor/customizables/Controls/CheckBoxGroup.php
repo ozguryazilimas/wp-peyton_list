@@ -3,19 +3,22 @@
 namespace YahnisElsts\AdminMenuEditor\Customizable\Controls;
 
 use YahnisElsts\AdminMenuEditor\Customizable\HtmlHelper;
+use YahnisElsts\AdminMenuEditor\Customizable\Rendering\Context;
 use YahnisElsts\AdminMenuEditor\Customizable\Rendering\Renderer;
 use YahnisElsts\AdminMenuEditor\Customizable\Schemas\Enum;
 use YahnisElsts\AdminMenuEditor\Customizable\Schemas\Record;
 use YahnisElsts\AdminMenuEditor\Customizable\Settings\WithSchema\SingularSetting;
 
 class CheckBoxGroup extends ClassicControl {
+	protected $declinesExternalLineBreaks = true;
+
 	/**
 	 * @var CollectionControlOption[]|null
 	 */
 	protected $cachedOptions = null;
 
-	public function renderContent(Renderer $renderer) {
-		$currentValue = $this->mainSetting->getValue();
+	public function renderContent(Renderer $renderer, Context $context) {
+		$currentValue = $this->mainBinding->getValue();
 		if ( !is_array($currentValue) ) {
 			$currentValue = [];
 		}
@@ -32,7 +35,7 @@ class CheckBoxGroup extends ClassicControl {
 			[
 				'class'     => $classes,
 				'style'     => $this->styles,
-				'disabled'  => !$this->isEnabled(),
+				'disabled'  => !$this->isEnabled($context),
 				'data-bind' => $this->makeKoDataBind($this->getKoEnableBinding()),
 			]
 		);
@@ -42,7 +45,7 @@ class CheckBoxGroup extends ClassicControl {
 			} else {
 				$isChecked = $defaultState;
 			}
-			$fieldName = $this->getFieldName(strval($option->value));
+			$fieldName = $this->getFieldName($context, strval($option->value));
 
 			echo $beforeOption;
 
@@ -66,7 +69,7 @@ class CheckBoxGroup extends ClassicControl {
 					'type'     => 'checkbox',
 					'name'     => $fieldName,
 					'value'    => '1',
-					'class'    => $this->inputClasses,
+					'class'    => $this->getInputClasses($context),
 					'checked'  => $isChecked,
 					'disabled' => !$option->enabled,
 				], $this->inputAttributes)
@@ -89,8 +92,8 @@ class CheckBoxGroup extends ClassicControl {
 
 		$options = [];
 
-		if ( $this->mainSetting instanceof SingularSetting ) {
-			$schema = $this->mainSetting->getSchema();
+		if ( $this->mainBinding instanceof SingularSetting ) {
+			$schema = $this->mainBinding->getSchema();
 			if ( $schema instanceof Record ) {
 				$keySchema = $schema->getKeySchema();
 				if ( $keySchema instanceof Enum ) {
@@ -104,8 +107,8 @@ class CheckBoxGroup extends ClassicControl {
 	}
 
 	protected function getDefaultOptionState(): bool {
-		if ( $this->mainSetting instanceof SingularSetting ) {
-			$schema = $this->mainSetting->getSchema();
+		if ( $this->mainBinding instanceof SingularSetting ) {
+			$schema = $this->mainBinding->getSchema();
 			if ( $schema instanceof Record ) {
 				$itemSchema = $schema->getItemSchema();
 				return (bool)$itemSchema->getDefaultValue(false);

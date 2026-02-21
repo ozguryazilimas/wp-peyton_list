@@ -5,10 +5,17 @@ var AmeContentPermissionsUi;
     const $ = jQuery;
     const _ = wsAmeLodash;
     const translations = wsAmeCpeScriptData.translations || {};
+    const possibleReadActionNames = new Set([
+        'read',
+        'view_in_lists',
+        'read_associated_objects',
+        'view_associated_objects_in_lists'
+    ]);
     class ContentPermissionsEditor {
         constructor(editorData) {
             this.tabs = [];
             this.actionSettings = [];
+            this.actionSettingsGroups = [];
             this.actions = [];
             this.readActions = [];
             this.otherActions = [];
@@ -51,7 +58,7 @@ var AmeContentPermissionsUi;
             }
             this.actions = (editorData.applicableActions || []).map(Action.fromJSON);
             for (const action of this.actions) {
-                if ((action.name === 'read') || (action.name === 'view_in_lists')) {
+                if (possibleReadActionNames.has(action.name)) {
                     this.readActions.push(action);
                 }
                 else {
@@ -83,6 +90,13 @@ var AmeContentPermissionsUi;
             //Initialize action settings and preview grids.
             //This needs to happen *after* the policy and actions have been loaded because the selected
             //option for each setting and the color of each grid cell depend on the policy.
+            //Prepare groups for action settings.
+            const defaultGroup = new ActionSettingsGroup();
+            const groupsByName = {};
+            for (const [groupKey, groupLabel] of Object.entries(editorData.groupLabels)) {
+                groupsByName[groupKey] = new ActionSettingsGroup(groupLabel);
+                this.actionSettingsGroups.push(groupsByName[groupKey]);
+            }
             //When the user changes a setting in the "Advanced" tab, make "Advanced" the preferred tab.
             const settingChangeListenerForAdvancedTab = () => {
                 if (this.activeTab().id === 'advanced') {
@@ -90,7 +104,18 @@ var AmeContentPermissionsUi;
                 }
             };
             for (const action of this.actions) {
-                this.actionSettings.push(new ActionPermissionSetting(action, this.policy, this.selectedActor, settingChangeListenerForAdvancedTab));
+                const setting = new ActionPermissionSetting(action, this.policy, this.selectedActor, settingChangeListenerForAdvancedTab);
+                this.actionSettings.push(setting);
+                if (action.group && groupsByName[action.group]) {
+                    groupsByName[action.group].settings.push(setting);
+                }
+                else {
+                    defaultGroup.settings.push(setting);
+                }
+            }
+            //Show the default group only if it has any actions.
+            if (defaultGroup.settings.length > 0) {
+                this.actionSettingsGroups.unshift(defaultGroup);
             }
             for (const actor of this.advancedTabActors()) {
                 this.gridsByActorId[actor.getId()] = this.actions
@@ -154,9 +179,9 @@ var AmeContentPermissionsUi;
                         }
                     }
                     //"Logged In Users" = the preset matches, and all the roles are in one of their
-                    //predefined states.
+                    //predefined states or their default state.
                     if (this.policy.matchesMultiplePermissions(presets.loggedIn)) {
-                        if (this.basicActorSettings.every(s => s.isPredefinedState())) {
+                        if (this.basicActorSettings.every(s => s.isPredefinedState() || s.isAllDefaultState())) {
                             return 'loggedIn';
                         }
                     }
@@ -304,9 +329,10 @@ var AmeContentPermissionsUi;
         }
     }
     class Action {
-        constructor(name, label, description = '') {
+        constructor(name, label, group = null, description = '') {
             this.name = name;
             this.label = label;
+            this.group = group;
             this.description = description;
         }
         isVisibleFor(actor) {
@@ -315,12 +341,12 @@ var AmeContentPermissionsUi;
             }
             //The special logged-in and anonymous actors only have settings for reading permissions.
             if ((actor === AmeActors.getGenericLoggedInUser()) || (actor === AmeActors.getAnonymousUser())) {
-                return (this.name === 'read') || (this.name === 'view_in_lists');
+                return possibleReadActionNames.has(this.name);
             }
             return true;
         }
         static fromJSON(data) {
-            const instance = new Action(data.name, data.label, data.description || '');
+            const instance = new Action(data.name, data.label, data.group || null, data.description || '');
             return instance;
         }
     }
@@ -670,6 +696,13 @@ var AmeContentPermissionsUi;
             this.isVisible = ko.pureComputed(() => action.isVisibleFor(selectedActorObservable()));
         }
     }
+    class ActionSettingsGroup {
+        constructor(label = '') {
+            this.settings = [];
+            this.label = label;
+            this.isVisible = ko.pureComputed(() => this.settings.some(s => s.isVisible()));
+        }
+    }
     class PermissionOptionsComponent {
         constructor(params) {
             this.setting = ko.unwrap(params.setting);
@@ -706,10 +739,12 @@ var AmeContentPermissionsUi;
                     }
                 }
             });
+            //todo: Maybe an indeterminate state if all read actions have null permissions.
             this.isPredefinedState = ko.pureComputed(() => {
                 const expectedState = this.isChecked() ? checkedState : uncheckedState;
                 return policy.matchesMultiplePermissions(expectedState);
             });
+            this.isAllDefaultState = ko.pureComputed(() => !policy.actorHasAnyCustomPermissions(this.actor));
         }
     }
     class MiniGridItem {
@@ -869,9 +904,12 @@ var AmeContentPermissionsUi;
     //endregion
     jQuery(function () {
         const $metaBox = $('#ame-cpe-content-permissions');
-        const $editor = $metaBox.find('.inside #ame-cpe-permissions-editor-root').first();
+        const $tagEditor = $('.wrap #edittag');
+        const $editor = ($metaBox.length > 0)
+            ? $metaBox.find('.inside #ame-cpe-permissions-editor-root').first()
+            : $tagEditor.find('#ame-cpe-permissions-editor-root').first();
         const editorData = $editor.data('cpe-editor-data');
-        if (($metaBox.length !== 1) || (!editorData)) {
+        if (($editor.length !== 1) || (!editorData)) {
             return;
         }
         ko.components.register('ame-cpe-permission-options-dropdown', {

@@ -394,12 +394,10 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 			'admin.php?page=afrsm-page-add-ons'          => true,
 			'admin.php?page=afrsm-pro-dashboard'         => true,
 			'admin.php?page=dots_store'                  => 'submenu',
-		);
-
-		//Let other plugins add their own blacklisted URLs.
-		$this->menu_url_blacklist = apply_filters(
-			'admin_menu_editor-menu_url_blacklist',
-			$this->menu_url_blacklist
+			//WooCommerce Product Options 2.6.2
+			'admin.php?page=woocommerce-product-options-setup-wizard'  => true,
+			//WooCommerce Quantity Manager 2.4.3
+			'admin.php?page=woocommerce-quantity-manager-setup-wizard' => true,
 		);
 
 		//AJAXify hints and warnings
@@ -626,12 +624,6 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 			return;
 		}
 
-		//Menu reset (for emergencies). Executed by accessing http://example.com/wp-admin/?reset_admin_menu=1
-		$reset_requested = isset($this->get['reset_admin_menu']) && $this->get['reset_admin_menu'];
-		if ( $reset_requested && $this->current_user_can_edit_menu() ){
-			$this->set_custom_menu(null);
-		}
-
 		//The menu editor is only visible to users with the manage_options privilege.
 		//Or, if the plugin is installed in mu-plugins, only to the site administrator(s).
 		if ( $this->current_user_can_edit_menu() ){
@@ -707,7 +699,7 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 		$this->item_templates = $templateBuilder->build(
 			$this->default_wp_menu,
 			$this->default_wp_submenu,
-			$this->menu_url_blacklist
+			$this->get_menu_url_black_list()
 		);
 
 		//Store the default order for later. It will be used when (re)inserting unused items into the menu.
@@ -825,6 +817,21 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 			10,
 			2
 		);
+	}
+
+	private $is_menu_url_blacklist_filtered = false;
+
+	private function get_menu_url_black_list() {
+		if ( !$this->is_menu_url_blacklist_filtered ) {
+			$this->is_menu_url_blacklist_filtered = true; //Set early in case or unexpected recursion.
+
+			//Let other plugins add their own blacklisted URLs.
+			$this->menu_url_blacklist = apply_filters(
+				'admin_menu_editor-menu_url_blacklist',
+				$this->menu_url_blacklist
+			);
+		}
+		return $this->menu_url_blacklist;
 	}
 
 	/**
@@ -1072,9 +1079,9 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 	}
 
 	/**
-	 * @return array<string,ScriptDependency>
+	 * @return ameBaseScriptDependencies
 	 */
-	public function get_base_dependencies() {
+	public function get_base_dependencies(): ameBaseScriptDependencies {
 		static $deps = null;
 		if ( $deps !== null ) {
 			return $deps;
@@ -1171,6 +1178,7 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 		$deps[$settingsPageUtils->getHandle()] = $settingsPageUtils;
 
 		$deps = apply_filters('admin_menu_editor-base_scripts', $deps);
+		$deps = new ameBaseScriptDependencies($deps);
 
 		return $deps;
 	}
@@ -1405,7 +1413,7 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 		$script_data = array(
 			'imagesUrl' => plugins_url('images', $this->plugin_file),
 			'adminAjaxUrl' => admin_url('admin-ajax.php'),
-			'hideAdvancedSettings' => (boolean)$this->options['hide_advanced_settings'],
+			'hideAdvancedSettings' => (bool)$this->options['hide_advanced_settings'],
 			'showExtraIcons' => true, //No longer used.
 			'submenuIconsEnabled' => $this->options['submenu_icons_enabled'],
 
@@ -1562,6 +1570,11 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 	  */
 	function enqueue_styles(){
 		wp_enqueue_auto_versioned_style('jquery-qtip-syle', plugins_url('css/jquery.qtip.min.css', $this->plugin_file));
+
+		//Register 'menu-editor-base-style', which is a dependency of all colour schemes.
+		//We need this call here and not just in enqueue_scripts() because "admin_print_styles-$page"
+		//runs before "admin_print_scripts-$page".
+		$this->register_base_dependencies();
 
 		wp_register_auto_versioned_style(
 			'menu-editor-colours-classic',
@@ -3301,7 +3314,11 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 	 * @return array
 	 */
 	private function get_default_menu() {
-		$default_tree = ameMenu::wp2tree($this->default_wp_menu, $this->default_wp_submenu, $this->menu_url_blacklist);
+		$default_tree = ameMenu::wp2tree(
+			$this->default_wp_menu,
+			$this->default_wp_submenu,
+			$this->get_menu_url_black_list()
+		);
 		try {
 			$default_menu = ameMenu::load_array($default_tree);
 		} catch (InvalidMenuException $e) {
@@ -3334,7 +3351,7 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 	/**
 	 * Display the header of the "Menu Editor" page.
 	 * This includes the page heading and tab list.
-	 * 
+	 *
 	 * @param array $extra_wrap_classes Additional CSS classes to add to the page wrapper.
 	 */
 	public function display_settings_page_header($extra_wrap_classes = []) {
@@ -4195,6 +4212,10 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 		return null;
 	}
 
+	public function can_find_items_by_url() {
+		return !empty($this->reverse_item_lookup);
+	}
+
 	public function castValuesToBool($capabilities) {
 		if ( !is_array($capabilities) ) {
 			if ( empty($capabilities) ) {
@@ -4889,6 +4910,13 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 			return $capabilities;
 		}
 
+		//Compatibility fix for ActivityPub 7.8.5.
+		//ActivityPub incorrectly returns false from its "user_has_cap" filter when checking
+		//for the 'edit_post' capability at least in some situations.
+		if ( !is_array($capabilities) ) {
+			return $capabilities;
+		}
+
 		//The second entry of the $args array should be the user ID
 		if ( count($args) < 2 ) {
 			return $capabilities;
@@ -4917,6 +4945,11 @@ class WPMenuEditor extends MenuEd_ShadowPluginFramework {
 	 * @return array
 	 */
 	public function regrant_virtual_caps_to_user($capabilities) {
+		//Compatibility fix for ActivityPub.
+		if ( !is_array($capabilities) ) {
+			return $capabilities;
+		}
+
 		if ( !empty($this->virtual_caps_for_this_call) ) {
 			$capabilities = array_merge($capabilities, $this->virtual_caps_for_this_call);
 			$this->virtual_caps_for_this_call = array();

@@ -281,7 +281,10 @@ abstract class ameMenuItem {
 		if ( ($inverse_parent_map === null) && !empty($_wp_real_parent_file) && is_array($_wp_real_parent_file) ) {
 			$inverse_parent_map = array_flip($_wp_real_parent_file);
 		}
-		if ( isset($inverse_parent_map[$parent_file]) && (preg_match(self::$mappable_parent_whitelist, $parent_file) === 1) ) {
+		if (
+			isset($parent_file, $inverse_parent_map[$parent_file])
+			&& (preg_match(self::$mappable_parent_whitelist, $parent_file) === 1)
+		) {
 			$parent_file = $inverse_parent_map[$parent_file];
 		}
 
@@ -708,7 +711,6 @@ abstract class ameMenuItem {
 		$dom = new DOMDocument();
 		$uniqueId = 'ame-rex-title-wrapper-' . time();
 		if ( @$dom->loadHTML('<div id="' . $uniqueId . '">' . $menuTitle . '</div>') ) {
-			/** @noinspection PhpComposerExtensionStubsInspection */
 			$xpath = new DOMXpath($dom);
 			$result = $xpath->query('//span[contains(@class,"update-plugins") or contains(@class,"awaiting-mod")]');
 			if ( $result->length > 0 ) {

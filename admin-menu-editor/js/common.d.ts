@@ -22,6 +22,7 @@ type AmeRecursiveObservablePropertiesOf<T> = {
 }
 
 type Constructor<T> = new (...args: any[]) => T;
+type AbstractConstructor<T> = abstract new (...args: any[]) => T;
 
 type WithRequiredKey<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 
@@ -101,6 +102,10 @@ interface AmePartialWpGlobal {
 		applyFilters: (filterName: string, value: unknown, ...args: unknown[]) => unknown;
 		doAction: (actionName: string, ...args: unknown[]) => void;
 	};
+	i18n: {
+		_n: (single: string, plural: string, number: number, domain?: string) => string;
+		sprintf: (format: string, ...args: (string | number)[]) => string;
+	}
 }
 
 declare const wp: AmePartialWpGlobal;

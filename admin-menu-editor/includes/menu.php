@@ -10,6 +10,7 @@ abstract class ameMenu {
 	const EF_DEF_PAGE_TITLE_MATCHES_TITLE = 't';
 
 	protected static $custom_loaders = array();
+	protected static $components_with_visibility = array();
 
 	/**
 	 * Load an admin menu from a JSON string.
@@ -163,7 +164,7 @@ abstract class ameMenu {
 		if ( isset($arr['component_visibility']) ) {
 			$visibility = array();
 
-			foreach(array('toolbar', 'adminMenu') as $component) {
+			foreach(self::$components_with_visibility as $component) {
 				if (
 					isset($arr['component_visibility'][$component])
 					&& is_array($arr['component_visibility'][$component])
@@ -692,6 +693,14 @@ abstract class ameMenu {
 	 */
 	public static function add_custom_loader($callback) {
 		self::$custom_loaders[] = $callback;
+	}
+
+	public static function add_components_with_visibility($components) {
+		foreach ($components as $component) {
+			if ( !in_array($component, self::$components_with_visibility, true) ) {
+				self::$components_with_visibility[] = $component;
+			}
+		}
 	}
 }
 

@@ -113,27 +113,7 @@ class AmeActorSelectorCore {
 			actors.push(role);
 		});
 
-		//Sort the default roles in a fixed order, the rest alphabetically.
-		const defaultRoleOrder: Record<string, number> = {
-			'role:administrator': 1,
-			'role:editor': 2,
-			'role:author': 3,
-			'role:contributor': 4,
-			'role:subscriber': 5
-		};
-		actors.sort(function (a, b) {
-			const aId = a.getId();
-			const bId = b.getId();
-			if (defaultRoleOrder.hasOwnProperty(aId) && defaultRoleOrder.hasOwnProperty(bId)) {
-				return defaultRoleOrder[aId] - defaultRoleOrder[bId];
-			} else if (defaultRoleOrder.hasOwnProperty(aId)) {
-				return -1;
-			} else if (defaultRoleOrder.hasOwnProperty(bId)) {
-				return 1;
-			} else {
-				return a.getDisplayName().localeCompare(b.getDisplayName());
-			}
-		});
+		actors.sort((a, b) => this.actorManager.compareRolesForSorting(a, b));
 
 		//Include the Super Admin (multisite only).
 		const user = this.actorManager.getUser(this.currentUserLogin);
@@ -266,8 +246,24 @@ class AmeActorSelectorCore {
 		return publicObservable;
 	}
 
+	protected cachedActorObservable: KnockoutComputed<IAmeActor | null> | null = null;
+	protected cachedActorObservableKo: KnockoutStatic | null = null;
+
 	/**
-	 * Select an actor based on the "selected_actor" URL parameter.
+	 * Like createActorObservable(), but caches the result so that multiple calls with the same
+	 * Knockout instance return the same observable.
+	 */
+	getActorObservable(ko: KnockoutStatic): KnockoutComputed<IAmeActor | null> {
+		if (this.cachedActorObservable && this.cachedActorObservableKo === ko) {
+			return this.cachedActorObservable;
+		}
+		this.cachedActorObservableKo = ko;
+		this.cachedActorObservable = this.createActorObservable(ko);
+		return this.cachedActorObservable;
+	}
+
+	/**
+	 * Select an actor based on one of these URL parameters: "selectedActor" or "selected_actor".
 	 *
 	 * Does nothing if the parameter is not set or the actor ID is invalid.
 	 */
@@ -275,12 +271,15 @@ class AmeActorSelectorCore {
 		if (!URLSearchParams) {
 			return;
 		}
+		const potentialParams = ['selectedActor', 'selected_actor'];
 
-		//Select an actor based on the "selected_actor" URL parameter.
 		const urlParams = new URLSearchParams(window.location.search);
-		const selectedActor = urlParams.get('selected_actor');
-		if (selectedActor !== null) {
-			this.setSelectedActor(selectedActor);
+		for (const item of potentialParams) {
+			const selectedActor = urlParams.get(item);
+			if (selectedActor !== null) {
+				this.setSelectedActor(selectedActor);
+				return;
+			}
 		}
 	}
 
@@ -305,6 +304,10 @@ class AmeActorSelectorCore {
 				this.saveVisibleUsers();
 			}
 		});
+	}
+
+	getVisibleUsers(): string[] {
+		return this.visibleUsers;
 	}
 }
 

@@ -3,9 +3,9 @@ Contributors: whiteshadow
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=A6P9S6CE3SRSW
 Tags: admin, dashboard, menu, security, wpmu
 License: GPLv3
-Requires at least: 5.4
-Tested up to: 6.8.2
-Stable tag: 1.14.1
+Requires at least: 5.9
+Tested up to: 6.9.1
+Stable tag: 1.15
 
 Lets you edit the WordPress admin menu. You can re-order, hide or rename menus, add custom menus and more. 
 
@@ -83,6 +83,20 @@ Plugins installed in the `mu-plugins` directory are treated as "always on", so y
 3. Re-ordering menu items via drag and drop
 
 == Changelog ==
+
+= 1.15 =
+* Increased the minimum required PHP version to 7.4.
+* Increased the minimum required WordPress version to 5.9.
+* Fixed the "admin_menu_editor-menu_url_blacklist" filter being called too early, before most other plugins have been loaded. Now other plugins should be able to actually use this filter to modify the menu blacklist.
+* Fixed some users showing as "missing" in the "Redirects" tab when the site has more than 50 users.
+* Added a workaround for a bug in ActivityPub 7.8.5 that could cause a PHP fatal error by returning an invalid value from the "user_has_cap" filter.
+* Fixed a PHP notice about enqueueing a style before registering the "menu-editor-base-style" dependency.
+* Fixed a PHP compatibility issue where using PHP versions older than 8.1 could lead to errors like "Fatal error: Uncaught Error: Cannot unpack Traversable with string keys".
+* Fixed conflicts with "WooCommerce Product Options" and "WooCommerce Quantity Manager" where menu items that link to setup wizards would become visible when AME is active.
+* Fixed a PHP 8.5 deprecation notice: "Using null as an array offset is deprecated, use an empty string instead".
+* Fixed a PHP 8.5 deprecation notice: "Non-canonical cast (boolean) is deprecated, use the (bool) cast instead".
+* Removed the special URL parameter that let admins manually reset the admin menu configuration.
+* Tested with WP 6.9.1 abd 7.0-alpha.
 
 = 1.14.1 =
 * Fixed the position of the dropdown button for the "Extra capability" field. Now the button should be vertically aligned with the field.

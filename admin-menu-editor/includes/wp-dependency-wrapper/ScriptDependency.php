@@ -210,12 +210,36 @@ class ScriptDependency {
 	}
 
 	/**
-	 * @param string|self|null ...$scriptHandles
+	 * @param string|self|null|string[]|self[]|\ameBaseDependencyCollection ...$scriptHandles
 	 * @return $this
 	 */
-	public function addDependencies(...$scriptHandles) {
-		$this->dependencies = array_merge($this->dependencies, $scriptHandles);
+	public function addDependencies(...$scriptHandles): self {
+		foreach ($scriptHandles as $scriptHandle) {
+			if ( $scriptHandle === null ) {
+				continue;
+			}
+
+			//Support nested collections of handles or dependency objects.
+			//This can simplify syntax in some cases, e.g. because PHP 7.1 doesn't support spread
+			//operators inside array definitions, or when using ameBaseDependencyCollection.
+			if ( is_iterable($scriptHandle) ) {
+				$this->addDependencies(...$scriptHandle);
+			} else {
+				$this->dependencies[] = $scriptHandle;
+			}
+		}
+
 		return $this;
+	}
+
+	/**
+	 * Short for addDependencies().
+	 *
+	 * @param string|self|null|string[]|self[]|\ameBaseDependencyCollection ...$scriptHandles
+	 * @return $this
+	 */
+	public function deps(...$scriptHandles): self {
+		return $this->addDependencies(...$scriptHandles);
 	}
 
 	/**
@@ -483,6 +507,7 @@ class ScriptDependency {
 				$preparedDependencies[] = $dependency;
 			}
 		}
+		$preparedDependencies = array_unique($preparedDependencies, SORT_REGULAR);
 
 		wp_register_script(
 			$this->handle,

@@ -56,6 +56,7 @@ namespace AmeRedirectorUi {
 		users: MinimalUserProperties[];
 		hasMoreUsers: boolean;
 		selectedTrigger?: RedirectTrigger;
+		saveFormConfig: AmeKoFreeExtensions.SaveFormConfigFromServer;
 	}
 
 	const DefaultActorId = 'special:default';
@@ -70,6 +71,10 @@ namespace AmeRedirectorUi {
 			return false;
 		}
 		hasOwnCap(_: string): boolean | null {
+			return null;
+		}
+
+		getOwnCapabilities(): CapabilityMap | null {
 			return null;
 		}
 	}();
@@ -154,6 +159,10 @@ namespace AmeRedirectorUi {
 						}
 
 						hasOwnCap(_: string): boolean | null {
+							return null;
+						}
+
+						getOwnCapabilities(): CapabilityMap | null {
 							return null;
 						}
 					}();
@@ -427,7 +436,7 @@ namespace AmeRedirectorUi {
 				return this.placeholders[actorId];
 			}
 
-			//If the actor hasn't been loaded or created by now, that means it has been deleted
+			//If the actor hasn't been loaded or created by now, that means it has been deleted,
 			//or it was invalid to begin with. Let's use a placeholder object to represent it.
 			let missingActor;
 			if (_.startsWith(actorId, 'user:')) {
@@ -497,6 +506,10 @@ namespace AmeRedirectorUi {
 		hasOwnCap(_: string): boolean | null {
 			return null;
 		}
+
+		getOwnCapabilities(): CapabilityMap | null {
+			return null;
+		}
 	}
 
 	class MissingRolePlaceholder extends MissingActorPlaceholder {
@@ -564,8 +577,7 @@ namespace AmeRedirectorUi {
 
 		actorProvider: ActorProviderProxy;
 
-		isSaving: KnockoutObservable<boolean>;
-		settingsData: KnockoutObservable<string>;
+		readonly saveSettingsForm: AmeKoFreeExtensions.SaveSettingsForm;
 
 		constructor(settings: ScriptData) {
 			const self = this;
@@ -722,8 +734,11 @@ namespace AmeRedirectorUi {
 				this.userSelectionUi = 'search';
 			}
 
-			this.isSaving = ko.observable(false);
-			this.settingsData = ko.observable('');
+			this.saveSettingsForm = new AmeKoFreeExtensions.SaveSettingsForm({
+				...settings.saveFormConfig,
+				settingsGetter: () => this.getSettings(),
+				extraFields: [['selectedTrigger', this.selectedTrigger]]
+			});
 
 			this.isLoaded(true);
 		}
@@ -879,12 +894,6 @@ namespace AmeRedirectorUi {
 
 		isMissingActor(actor: IAmeActor): boolean {
 			return (actor instanceof MissingActorPlaceholder);
-		}
-
-		saveChanges() {
-			this.isSaving(true);
-			this.settingsData(ko.toJSON(this.getSettings()));
-			return true;
 		}
 
 		private addTestData() {

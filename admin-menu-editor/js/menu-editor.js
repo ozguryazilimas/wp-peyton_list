@@ -5122,12 +5122,11 @@ function ameOnDomReady() {
 	});
 
 	/******************************************************************
-	                 Component visibility settings
+                 Component visibility settings
 	 ******************************************************************/
-
-	var $generalVisBox = $('#ws_ame_general_vis_box'),
-		$showAdminMenu = $('#ws_ame_show_admin_menu'),
-		$showWpToolbar = $('#ws_ame_show_toolbar');
+	const $generalVisBox = $('#ws_ame_general_vis_box');
+	const componentCheckboxes = {},
+		parsedComponentsDataKey = 'ameParsedComponents';
 
 	AmeEditorApi.actorCanSeeComponent = function(component, actorId) {
 		if (actorId === null) {
@@ -5175,40 +5174,73 @@ function ameOnDomReady() {
 		return true;
 	};
 
-	AmeEditorApi.refreshComponentVisibility = function() {
+	function refreshComponentCheckbox($checkbox) {
+		const components = $checkbox.data(parsedComponentsDataKey) || [];
+		if (components.length < 1) {
+			return;
+		}
+
+		const actorId = actorSelectorWidget.selectedActor;
+		let totalVisible = 0;
+		for (let i = 0; i < components.length; i++) {
+			if (AmeEditorApi.actorCanSeeComponent(components[i], actorId)) {
+				totalVisible++;
+			}
+		}
+
+		$checkbox.prop('checked', totalVisible === components.length);
+		$checkbox.prop('indeterminate', (totalVisible > 0) && (totalVisible < components.length));
+	}
+
+	AmeEditorApi.refreshComponentVisibility = function(updatedComponents = null) {
 		if ($generalVisBox.length < 1) {
 			return;
 		}
 
-		var actorId = actorSelectorWidget.selectedActor;
-		$showAdminMenu.prop('checked', AmeEditorApi.actorCanSeeComponent('adminMenu', actorId));
-		$showWpToolbar.prop('checked', AmeEditorApi.actorCanSeeComponent('toolbar', actorId));
+		if (updatedComponents === null) {
+			updatedComponents = Object.keys(componentCheckboxes);
+		}
+
+		_.forEach(updatedComponents, function (componentId) {
+			const checkboxes = componentCheckboxes[componentId] || [];
+			_.forEach(checkboxes, $checkbox => refreshComponentCheckbox($checkbox));
+		});
 	};
 
 	AmeEditorApi.setComponentVisibility = function(section, actorId, enabled) {
 		if (actorId === null) {
 			_.forEach(actorSelectorWidget.getVisibleActors(), function(actor) {
-				_.set(generalComponentVisibility, [section, actor.id], enabled);
+				_.set(generalComponentVisibility, [section, actor.getId()], enabled);
 			});
 		} else {
 			_.set(generalComponentVisibility, [section, actorId], enabled);
 		}
+
+		AmeEditorApi.refreshComponentVisibility([section]);
 	};
 
 	if ($generalVisBox.length > 0) {
-		$showAdminMenu.on('click', function() {
-			AmeEditorApi.setComponentVisibility(
-				'adminMenu',
-				actorSelectorWidget.selectedActor,
-				$(this).is(':checked')
-			);
-		});
-		$showWpToolbar.on('click', function () {
-			AmeEditorApi.setComponentVisibility(
-				'toolbar',
-				actorSelectorWidget.selectedActor,
-				$(this).is(':checked')
-			);
+		$generalVisBox.find('input[type="checkbox"][data-vis-components]').each(function() {
+			const $checkbox = $(this);
+			const components = $checkbox.data('vis-components');
+			if (!Array.isArray(components)) {
+				return;
+			}
+
+			$checkbox.data(parsedComponentsDataKey, components);
+			components.forEach(function(componentId) {
+				if (!componentCheckboxes.hasOwnProperty(componentId)) {
+					componentCheckboxes[componentId] = [];
+				}
+				componentCheckboxes[componentId].push($checkbox);
+			});
+
+			$checkbox.on('change', function() {
+				const isChecked = $(this).is(':checked');
+				components.forEach(function(componentId) {
+					AmeEditorApi.setComponentVisibility(componentId, actorSelectorWidget.selectedActor, isChecked);
+				});
+			});
 		});
 
 		$generalVisBox.find('.handlediv').on('click', function() {

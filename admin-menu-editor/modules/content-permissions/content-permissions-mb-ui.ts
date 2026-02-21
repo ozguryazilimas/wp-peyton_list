@@ -18,7 +18,15 @@ namespace AmeContentPermissionsUi {
 		requiredCapabilities: Record<string, string[]>;
 		enforcementDisabled: boolean;
 		adminLikeRoles: string[];
+		groupLabels: Record<string, string>;
 	}
+
+	const possibleReadActionNames = new Set([
+		'read',
+		'view_in_lists',
+		'read_associated_objects',
+		'view_associated_objects_in_lists'
+	]);
 
 	type SelectedActorObservable = ReturnType<AmeActorSelector['createActorObservable']>;
 
@@ -36,6 +44,8 @@ namespace AmeContentPermissionsUi {
 		private readonly policy: Policy;
 
 		public readonly actionSettings: ActionPermissionSetting[] = [];
+		public readonly actionSettingsGroups: ActionSettingsGroup[] = [];
+
 		private readonly actions: Action[] = [];
 		private readonly readActions: Action[] = [];
 		private readonly otherActions: Action[] = [];
@@ -93,7 +103,7 @@ namespace AmeContentPermissionsUi {
 
 			this.actions = (editorData.applicableActions || []).map(Action.fromJSON);
 			for (const action of this.actions) {
-				if ((action.name === 'read') || (action.name === 'view_in_lists')) {
+				if (possibleReadActionNames.has(action.name)) {
 					this.readActions.push(action);
 				} else {
 					this.otherActions.push(action);
@@ -138,6 +148,14 @@ namespace AmeContentPermissionsUi {
 			//This needs to happen *after* the policy and actions have been loaded because the selected
 			//option for each setting and the color of each grid cell depend on the policy.
 
+			//Prepare groups for action settings.
+			const defaultGroup = new ActionSettingsGroup();
+			const groupsByName: Record<string, ActionSettingsGroup> = {};
+			for (const [groupKey, groupLabel] of Object.entries(editorData.groupLabels)) {
+				groupsByName[groupKey] = new ActionSettingsGroup(groupLabel);
+				this.actionSettingsGroups.push(groupsByName[groupKey]);
+			}
+
 			//When the user changes a setting in the "Advanced" tab, make "Advanced" the preferred tab.
 			const settingChangeListenerForAdvancedTab = () => {
 				if (this.activeTab().id === 'advanced') {
@@ -145,12 +163,24 @@ namespace AmeContentPermissionsUi {
 				}
 			}
 			for (const action of this.actions) {
-				this.actionSettings.push(new ActionPermissionSetting(
+				const setting = new ActionPermissionSetting(
 					action,
 					this.policy,
 					this.selectedActor,
 					settingChangeListenerForAdvancedTab
-				));
+				);
+				this.actionSettings.push(setting);
+
+				if (action.group && groupsByName[action.group]) {
+					groupsByName[action.group].settings.push(setting);
+				} else {
+					defaultGroup.settings.push(setting);
+				}
+			}
+
+			//Show the default group only if it has any actions.
+			if (defaultGroup.settings.length > 0) {
+				this.actionSettingsGroups.unshift(defaultGroup);
 			}
 
 			for (const actor of this.advancedTabActors()) {
@@ -232,9 +262,11 @@ namespace AmeContentPermissionsUi {
 					}
 
 					//"Logged In Users" = the preset matches, and all the roles are in one of their
-					//predefined states.
+					//predefined states or their default state.
 					if (this.policy.matchesMultiplePermissions(presets.loggedIn)) {
-						if (this.basicActorSettings.every(s => s.isPredefinedState())) {
+						if (this.basicActorSettings.every(
+							s => s.isPredefinedState() || s.isAllDefaultState())
+						) {
 							return 'loggedIn';
 						}
 					}
@@ -410,6 +442,7 @@ namespace AmeContentPermissionsUi {
 	interface SerializedAction {
 		name: string;
 		label: string;
+		group?: string | null;
 		description?: string;
 	}
 
@@ -417,6 +450,7 @@ namespace AmeContentPermissionsUi {
 		constructor(
 			public readonly name: string,
 			public readonly label: string,
+			public readonly group: string | null = null,
 			public readonly description: string = ''
 		) {
 		}
@@ -428,14 +462,14 @@ namespace AmeContentPermissionsUi {
 
 			//The special logged-in and anonymous actors only have settings for reading permissions.
 			if ((actor === AmeActors.getGenericLoggedInUser()) || (actor === AmeActors.getAnonymousUser())) {
-				return (this.name === 'read') || (this.name === 'view_in_lists');
+				return possibleReadActionNames.has(this.name);
 			}
 
 			return true;
 		}
 
 		static fromJSON(data: SerializedAction): Action {
-			const instance = new Action(data.name, data.label, data.description || '');
+			const instance = new Action(data.name, data.label, data.group || null, data.description || '');
 			return instance;
 		}
 	}
@@ -954,6 +988,17 @@ namespace AmeContentPermissionsUi {
 		}
 	}
 
+	class ActionSettingsGroup {
+		public readonly label: string;
+		public readonly settings: ActionPermissionSetting[] = [];
+		public readonly isVisible: KnockoutObservable<boolean>;
+
+		constructor(label: string = '') {
+			this.label = label;
+			this.isVisible = ko.pureComputed(() => this.settings.some(s => s.isVisible()));
+		}
+	}
+
 	class PermissionOptionsComponent {
 		public readonly setting: ActionPermissionSetting;
 
@@ -986,6 +1031,7 @@ namespace AmeContentPermissionsUi {
 	class BasicActorSetting {
 		public readonly isChecked: KnockoutObservable<boolean>;
 		public readonly isPredefinedState: KnockoutComputed<boolean>;
+		public readonly isAllDefaultState: KnockoutComputed<boolean>;
 
 		constructor(
 			public readonly actor: IAmeActor,
@@ -1008,11 +1054,16 @@ namespace AmeContentPermissionsUi {
 					}
 				}
 			});
+			//todo: Maybe an indeterminate state if all read actions have null permissions.
 
 			this.isPredefinedState = ko.pureComputed(() => {
 				const expectedState = this.isChecked() ? checkedState : uncheckedState;
 				return policy.matchesMultiplePermissions(expectedState);
 			});
+
+			this.isAllDefaultState = ko.pureComputed(
+				() => !policy.actorHasAnyCustomPermissions(this.actor)
+			);
 		}
 	}
 
@@ -1223,10 +1274,14 @@ namespace AmeContentPermissionsUi {
 
 	jQuery(function () {
 		const $metaBox = $('#ame-cpe-content-permissions');
-		const $editor = $metaBox.find('.inside #ame-cpe-permissions-editor-root').first();
+		const $tagEditor = $('.wrap #edittag');
+		const $editor = ($metaBox.length > 0)
+			? $metaBox.find('.inside #ame-cpe-permissions-editor-root').first()
+			: $tagEditor.find('#ame-cpe-permissions-editor-root').first();
+
 		const editorData = $editor.data('cpe-editor-data');
 
-		if (($metaBox.length !== 1) || (!editorData)) {
+		if (($editor.length !== 1) || (!editorData)) {
 			return;
 		}
 

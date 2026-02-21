@@ -18,6 +18,8 @@ class ContentPermissionsModule extends \amePersistentModule {
 
 	private $metaBoxUiScript = null;
 
+	private bool $termPermissionsEnabled = false; //Disabled because the feature is not finished.
+
 	public function __construct($menuEditor) {
 		$this->settingsWrapperEnabled = true;
 		parent::__construct($menuEditor);
@@ -94,6 +96,13 @@ class ContentPermissionsModule extends \amePersistentModule {
 		);
 	}
 
+	public function userCanEditPolicyForTerm($termId): bool {
+		return (
+			$this->menuEditor->current_user_can_edit_menu()
+			&& current_user_can('edit_term', $termId)
+		);
+	}
+
 	/**
 	 * @var null|array<string, mixed>
 	 */
@@ -137,6 +146,30 @@ class ContentPermissionsModule extends \amePersistentModule {
 
 		$enabledPostTypes = $this->getEnabledPostTypes();
 		return !empty($enabledPostTypes[$postType]);
+	}
+
+	private ?array $cachedEnabledTaxonomies = null;
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	public function getEnabledTaxonomies(): array {
+		if ( $this->cachedEnabledTaxonomies !== null ) {
+			return $this->cachedEnabledTaxonomies;
+		}
+
+		//Currently, all taxonomies associated with enabled post types are considered enabled.
+		$enabledPostTypes = $this->getEnabledPostTypes();
+		$enabledTaxonomies = [];
+		foreach (array_keys($enabledPostTypes) as $postType) {
+			$taxonomies = get_object_taxonomies($postType, 'objects');
+			foreach ($taxonomies as $taxonomy) {
+				$enabledTaxonomies[$taxonomy->name] = $taxonomy->name;
+			}
+		}
+
+		$this->cachedEnabledTaxonomies = $enabledTaxonomies;
+		return $enabledTaxonomies;
 	}
 
 	public function createSettingInstances(ModuleSettings $settings) {
@@ -223,6 +256,10 @@ class ContentPermissionsModule extends \amePersistentModule {
 		$settings->save();
 	}
 
+	public function areTermPermissionsEnabled(): bool {
+		return $this->termPermissionsEnabled;
+	}
+
 	public function isSuitableForExport() {
 		return false;
 	}
@@ -230,6 +267,13 @@ class ContentPermissionsModule extends \amePersistentModule {
 
 class ContentPermissionsEnforcer {
 	const CONTENT_FILTER_PRIORITY = 96;
+
+	const POST_TO_TERM_ACTION_MAP = [
+		ActionRegistry::ACTION_READ          => ActionRegistry::ACTION_READ_ASSOCIATED_OBJECTS,
+		ActionRegistry::ACTION_VIEW_IN_LISTS => ActionRegistry::ACTION_VIEW_ASSOCIATED_OBJECTS_IN_LISTS,
+		ActionRegistry::ACTION_EDIT          => ActionRegistry::ACTION_EDIT_ASSOCIATED_OBJECTS,
+		ActionRegistry::ACTION_DELETE        => ActionRegistry::ACTION_DELETE_ASSOCIATED_OBJECTS,
+	];
 
 	/**
 	 * @var ActorManager
@@ -593,15 +637,28 @@ class ContentPermissionsEnforcer {
 			return null;
 		}
 
-		if ( $userId !== null ) {
-			$userActor = $this->actorManager->getUserActorByUserId($userId);
+		$userActor = $this->getEvaluationActor($userId);
+		if ( !$userActor ) {
+			return null;
+		}
+
+		return $this->recursivelyEvaluatePostPolicy($postId, $postObject, $action, $userActor, $postId);
+	}
+
+	private function getEvaluationActor($user): ?Actor {
+		if ( $user !== null ) {
+			if ( $user instanceof Actor ) {
+				return $user;
+			}
+
+			$userActor = $this->actorManager->getUserActorByUserId($user);
 			if ( !$userActor ) {
 				//This probably shouldn't happen - as far as I can tell by looking at the code,
 				//WordPress always passes the real user ID to filters like "map_meta_cap". But
 				//there is at least one plugin (PublishPress Permissions) that calls map_meta_cap()
 				//with the user ID set to 0 in a certain context. In that case, we'll fall back to
 				//the current user as a reasonable default.
-				if ( is_numeric($userId) && (intval($userId) === 0) && is_user_logged_in() ) {
+				if ( is_numeric($user) && (intval($user) === 0) && is_user_logged_in() ) {
 					$userActor = $this->actorManager->getCurrentUserActor();
 				} else {
 					//If the user ID is not NULL and also not 0, it's probably an actually invalid
@@ -613,11 +670,7 @@ class ContentPermissionsEnforcer {
 			$userActor = $this->actorManager->getCurrentActor();
 		}
 
-		if ( !$userActor ) {
-			return null;
-		}
-
-		return $this->recursivelyEvaluatePostPolicy($postId, $postObject, $action, $userActor, $postId);
+		return $userActor;
 	}
 
 	/**
@@ -635,6 +688,7 @@ class ContentPermissionsEnforcer {
 		$postId, $postObject, Action $action, Actor $userActor, $originalPostId,
 		$objectPolicy = null, $depth = 0
 	) {
+		//todo: This whole thing could probably be cached for performance.
 		//Avoid infinite recursion in case of a circular post hierarchy (which shouldn't happen).
 		if ( $depth > 10 ) {
 			return null;
@@ -677,10 +731,53 @@ class ContentPermissionsEnforcer {
 		//let's try the parent post.
 		$parentPostId = $this->getParentPostId($postId, $postObject);
 		if ( $parentPostId ) {
-			return $this->recursivelyEvaluatePostPolicy(
+			$parentResult = $this->recursivelyEvaluatePostPolicy(
 				$parentPostId, null, $action, $userActor, $originalPostId,
 				$objectPolicy, $depth + 1
 			);
+			if ( $parentResult ) {
+				return $parentResult;
+			}
+		}
+
+		//Check the term policies for the post's terms.
+		//For performance, we only do this for the original post (depth 0), not for any parent posts.
+		if (
+			($depth === 0)
+			&& $this->module->areTermPermissionsEnabled()
+			&& !empty(self::POST_TO_TERM_ACTION_MAP[$action->getName()])
+		) {
+			$termAction = $this->actionRegistry->getAction(self::POST_TO_TERM_ACTION_MAP[$action->getName()]);
+			if ( !$termAction ) {
+				return null;
+			}
+
+			$terms = $this->getPostTermsForEvaluation($postId);
+			if ( !empty($terms) ) {
+				$postType = get_post_type($postId);
+				$finalTermResult = null;
+
+				foreach ($terms as $term) {
+					$termResult = $this->evaluateTermPolicy(
+						$term,
+						$termAction,
+						$postType,
+						$userActor,
+						$originalPostId
+					);
+
+					if ( $termResult ) {
+						if ( $termResult->isAllowed() ) { //Allow overrides deny.
+							return $termResult;
+						}
+						$finalTermResult = $termResult;
+					}
+				}
+
+				if ( $finalTermResult ) {
+					return $finalTermResult;
+				}
+			}
 		}
 
 		return null;
@@ -702,6 +799,84 @@ class ContentPermissionsEnforcer {
 				return $parentPostId;
 			}
 		}
+		return null;
+	}
+
+	/**
+	 * Get post terms for policy evaluation.
+	 *
+	 * This method should, where possible, optimize performance by caching, including only terms
+	 * from enabled taxonomies, and terms that have policies defined (or that have parent terms with
+	 * policies).
+	 *
+	 * @param int $postId
+	 * @return array<\WP_Term>
+	 */
+	private function getPostTermsForEvaluation(int $postId): array {
+		//TODO: Consider if "update_term_meta_cache" should be used here for performance.
+		//TODO: Maybe there's a way to only get terms that have our metadata set? But we also need
+		// to consider parent terms somehow.
+
+		//Basic implementation: Get all terms from enabled taxonomies.
+		$terms = wp_get_object_terms(
+			$postId,
+			array_keys($this->module->getEnabledTaxonomies())
+		);
+
+		if ( is_array($terms) ) {
+			return $terms;
+		} else {
+			return [];
+		}
+	}
+
+	/**
+	 * @param int|\WP_Term|mixed $term
+	 * @param Action|null $action
+	 * @param string|null $postTypeName
+	 * @param int|null|Actor $user
+	 * @param int|null $originalObjectId
+	 * @return EvaluationResult|null
+	 */
+	private function evaluateTermPolicy(
+		$term,
+		?Action $action,
+		?string $postTypeName = null,
+		$user = null,
+		?int $originalObjectId = null
+	): ?EvaluationResult {
+		if ( $action === null ) {
+			return null;
+		}
+
+		//Get the term ID.
+		if ( is_numeric($term) ) {
+			$termId = intval($term);
+		} else if ( $term instanceof \WP_Term ) {
+			/** @noinspection PhpCastIsUnnecessaryInspection */
+			$termId = intval($term->term_id);
+		} else {
+			return null;
+		}
+
+		if ( $termId <= 0 ) {
+			return null;
+		}
+		$userActor = $this->getEvaluationActor($user);
+		if ( !$userActor ) {
+			return null;
+		}
+
+		$termPolicy = $this->policyStore->getTermPolicy($termId, $postTypeName, true);
+		if ( $termPolicy ) {
+			return $termPolicy->evaluate(
+				$userActor,
+				$action,
+				null,
+				$originalObjectId ?? $termId
+			);
+		}
+
 		return null;
 	}
 
@@ -948,6 +1123,11 @@ class ContentPermissionsEnforcer {
 	 */
 	public function filterUserCapabilities($userCaps, $requiredCaps = [], $args = [], $user = null) {
 		if ( !$this->enforcementActive || !($user instanceof \WP_User) ) {
+			return $userCaps;
+		}
+
+		//Compatibility fix for ActivityPub 7.8.5.
+		if ( !is_array($userCaps) ) {
 			return $userCaps;
 		}
 

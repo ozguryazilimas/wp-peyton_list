@@ -275,6 +275,19 @@ ame-cpe-permission-options-dropdown {
   display: block;
 }
 
+.ame-cpe-actor-action-group-label h3 {
+  margin-top: 1em;
+  margin-bottom: 0;
+  font-size: 1.0769230769em;
+  background: #f0f0f1;
+  padding: 4px 8px;
+  margin-left: -8px;
+}
+
+.ame-cpe-actor-action-group-label-row:first-of-type h3 {
+  margin-top: 0;
+}
+
 .ame-cpe-tooltip-trigger {
   color: #646970;
   display: inline-block;
@@ -460,6 +473,96 @@ fieldset[disabled] #ame-cpe-basic-actor-shortcuts a {
 .ame-cpe-about-tab ul {
   list-style: disc inside;
   margin: 0;
+}
+
+.ame-cpe-term-box {
+  position: relative;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+  background: #fff;
+  margin-bottom: 20px;
+  border: 1px solid #ccd0d4;
+  clear: both;
+}
+.ame-cpe-term-box .ws-ame-postbox-header {
+  position: relative;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.4;
+  border-bottom: 1px solid #ccd0d4;
+  border-top-right-radius: inherit;
+  border-top-left-radius: inherit;
+}
+.ame-cpe-term-box .ws-ame-postbox-header h3 {
+  padding: 10px 12px;
+  margin: 0;
+  font-size: 1em;
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.ame-cpe-term-box .ws-ame-postbox-header .ws_tooltip_trigger .dashicons {
+  height: 14px;
+  line-height: 14px;
+}
+.ame-cpe-term-box .ws-ame-postbox-toggle {
+  color: #72777c;
+  background: transparent;
+  display: block;
+  font: normal 20px/1 dashicons;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 36px;
+  height: 100%;
+  padding: 0;
+}
+.ame-cpe-term-box .ws-ame-postbox-toggle:hover {
+  color: #23282d;
+}
+.ame-cpe-term-box .ws-ame-postbox-toggle:active, .ame-cpe-term-box .ws-ame-postbox-toggle:focus {
+  outline: none;
+  padding: 0;
+}
+.ame-cpe-term-box .ws-ame-postbox-toggle:before {
+  content: "\f142";
+  display: inline-block;
+  vertical-align: middle;
+}
+.ame-cpe-term-box .ws-ame-postbox-toggle:after {
+  display: inline-block;
+  content: "";
+  vertical-align: middle;
+  height: 100%;
+}
+.ame-cpe-term-box .ws-ame-postbox-content {
+  border-top: none;
+  padding: 12px;
+  border-bottom-right-radius: inherit;
+  border-bottom-left-radius: inherit;
+}
+.ame-cpe-term-box.ws-ame-closed-postbox .ws-ame-postbox-content {
+  display: none;
+}
+.ame-cpe-term-box.ws-ame-closed-postbox .ws-ame-postbox-toggle:before {
+  content: "\f140";
+}
+.ame-cpe-term-box.ws-ame-closed-postbox .ws-ame-postbox-header {
+  border-bottom: none;
+}
+.ame-cpe-term-box .ws-ame-postbox-content {
+  padding: 0;
+}
+
+#edittag #ame-cpe-permissions-editor-root {
+  background: #fff;
+}
+#edittag .ame-cpe-actor-nav-container {
+  flex-basis: 30%;
 }
 
 #ame-cpe-enforcement-disabled-notice {

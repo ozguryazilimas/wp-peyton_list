@@ -2,6 +2,7 @@
 @use "sass:math";
 @import "../../css/wp-admin-colors";
 @import "../../css/tooltips";
+@import "../../css/boxes";
 @import "../../customizables/assets/radio-button-bar";
 
 $cpeEdgeSpacing: 12px;
@@ -12,6 +13,8 @@ $cpeExpectedGutenbergLeftMargin: 24px;
 $cpeActorHorizontalPadding: 10px;
 $cpeActorVerticalPadding: 8px;
 $permissionSettingMinWidth: 140px;
+
+$legendFontSize: (14/13)*1em;
 
 $allowTextColor: wpColor(green-60);
 $denyTextColor: wpColor(red-60);
@@ -277,6 +280,29 @@ ame-cpe-permission-options-bar,
 ame-cpe-permission-options-dropdown {
 	display: block;
 }
+
+.ame-cpe-actor-action-group-label h3 {
+	//Not happy with the heading styles here. With the default styles, there's too much bold
+	//text in this area, and the headings don't stand out enough. But inverting the font weights
+	//looks strange and inconsistent with our UIs.
+
+	margin-top: 1.0em;
+	margin-bottom: 0;
+	font-size: $legendFontSize;
+
+	//A light gray background somewhat helps separate these labels from the settings.
+	background: wpColor(gray-2);
+	padding: 4px 8px;
+	margin-left: -8px;
+}
+
+//No top margin on the first group label (at the top of the tab content).
+.ame-cpe-actor-action-group-label-row:first-of-type {
+	h3 {
+		margin-top: 0;
+	}
+}
+
 //endregion
 
 //region Tooltips
@@ -284,6 +310,7 @@ ame-cpe-permission-options-dropdown {
 	color: wpColor(gray-50);
 	display: inline-block;
 }
+
 //endregion
 
 //region Permissions radio button bar
@@ -364,6 +391,7 @@ ame-cpe-permission-options-dropdown {
 		}
 	}
 }
+
 //endregion
 
 //region Mini-grid
@@ -449,7 +477,7 @@ ame-cpe-permission-options-dropdown {
 
 		legend {
 			font-weight: 600;
-			font-size: (14/13)*1em;
+			font-size: $legendFontSize;
 
 			padding: 0;
 			margin-bottom: 8px;
@@ -537,6 +565,34 @@ $basicRoleListMarginLeft: 10px;
 		margin: 0;
 	}
 }
+
+//endregion
+
+//region Edit Term page
+
+.ame-cpe-term-box {
+	@include ame-emulated-postbox();
+
+	.ws-ame-postbox-content {
+		padding: 0;
+	}
+
+	//For compatibility with PublishPress Permissions, which adds a floating container
+	//with multiple metaboxes before this box.
+	clear: both;
+}
+
+#edittag {
+	#ame-cpe-permissions-editor-root {
+		background: #fff;
+	}
+
+	//The box is narrower here, so increase the actor panel width to avoid wrapping.
+	.ame-cpe-actor-nav-container {
+		flex-basis: 30%;
+	}
+}
+
 //endregion
 
 #ame-cpe-enforcement-disabled-notice {
