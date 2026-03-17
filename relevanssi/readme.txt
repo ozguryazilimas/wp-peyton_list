@@ -5,7 +5,7 @@ Tags: search, relevance, better search, product search, woocommerce search
 Requires at least: 4.9
 Tested up to: 6.9
 Requires PHP: 7.1
-Stable tag: 4.26.0
+Stable tag: 4.26.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -128,6 +128,13 @@ Each document database is full of useless words. All the little words that appea
 * John Calahan for extensive 4.0 beta testing.
 
 == Changelog ==
+= 4.26.1 =
+* Changed behaviour: The `relevanssi_results` filter hook gets the search query as a second parameter.
+* Changed behaviour: Exact match bonus was added to posts once per search term. Now it's applied once per post.
+* Minor fix: Exact match bonus is now significantly faster when processing large posts.
+* Minor fix: Post part targeting with phrases is now more precise and doesn't include false matches. New post part tag 'media' is available to target attachment content.
+
+
 = 4.26.0 =
 * Security: Fixes a vulnerability where a contributor-level user could make a SQL injection.
 * Minor fix: Relevanssi now ignores the contents of SVG tags.
@@ -136,5 +143,5 @@ Each document database is full of useless words. All the little words that appea
 * Minor fix: Synced pattern contents are now indexed recursively so that, for example, the `relevanssi_noindex` class works.
 
 == Upgrade notice ==
-= 4.26.0 =
-* SQL injection safety, many bug fixes.
+= 4.26.1 =
+* Minor updates and improvements.
