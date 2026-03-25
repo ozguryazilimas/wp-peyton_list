@@ -39,6 +39,11 @@
   margin-bottom:20px;
 }
 
+body.dark-mode #oy-arama-container {
+  background-color: #333;
+  color: #fff;
+}
+
 #oy-arama-container input {
   padding-left:5px;
   padding-right:5px;
