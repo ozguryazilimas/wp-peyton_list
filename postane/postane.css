@@ -4,8 +4,18 @@
   border: 3px solid #44749d;
   padding: 10px;
   min-height: 560px;
-  background-color: #F2F7FC;
+  // background-color: #F2F7FC;
   border-radius: 10px;
+}
+
+body.dark-mode #postane {
+  background-color: #2F516E;
+  border: 3px solid #5897CC;
+}
+
+body:not(.dark-mode) #postane {
+  background-color: #F2F7FC;
+  border: 3px solid #44749d;
 }
 
 #postane_thread_container {
