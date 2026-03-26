@@ -59,13 +59,25 @@ table#daisy_fortune_main_list {
   margin-top: 20px;
 }
 
-table#daisy_fortune_main_list > tbody > tr.odd {
-  background-color: #F3F3F3;
+body:not(.dark-mode) table#daisy_fortune_main_list > tbody > tr.odd {
+    background-color: #F3F3F3;
 }
 
-table#daisy_fortune_main_list thead tr {
+body.dark-mode table#daisy_fortune_main_list > tbody > tr.odd {
+  background-color: #212121;
+}
+
+body.dark-mode table.dataTable tbody tr {
+  background-color: #000000;
+}
+
+body:not(.dark-mode) table#daisy_fortune_main_list thead tr {
   background: linear-gradient(#FF950E, #FFDBAF) repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
   color: #3D3D3D;
+}
+
+body.dark-mode table#daisy_fortune_main_list thead tr {
+  background: linear-gradient(#9C4300, #FFA12A) repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
 }
 
 input[name=daisy_fortune_inner_update_delete],
@@ -86,13 +98,22 @@ input[name=daisy_fortune_inner_update_update] {
   display: block;
   border-radius: 5px;
   font-size: 14px;
-  color: #3D3D3D;
   padding: 5px 10px;
   margin: 0 20px 0 auto;
-  border: 1px solid #A2A2A2;
-  background: linear-gradient(#FFDBAF, #FF950E) repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
   width: 150px;
   text-align: center;
+}
+
+body:not(.dark-mode) #daisy_fortune_toggle_link_form {
+  background: linear-gradient(#FFDBAF, #FF950E) repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
+  color: #3D3D3D;
+  border: 1px solid #A2A2A2;
+}
+
+body.dark-mode #daisy_fortune_toggle_link_form {
+  background: linear-gradient(#9C4300, #FFA12A) repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
+  color: #FFFFFF !important;
+  // border: 1px solid #A2A2A2;
 }
 
 input[name=daisy_fortune_submit] {
@@ -105,10 +126,13 @@ input[name=daisy_fortune_submit] {
 #daisy_fortune_add_entry_wrapper {
   padding: 5px 10px;
   margin: 0 10px;
+  background: linear-gradient(#FFF, #DCDCDC) repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
+}
+
+body:not(.dark-mode) #daisy_fortune_add_entry_wrapper {
   border: 2px solid #A2A2A2;
   border-radius: 5px;
   box-shadow: 3px 3px #E2E2E2;
-  background: linear-gradient(#FFF, #DCDCDC) repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
 }
 
 form#daisy_fortune_add_entry table#daisy_fortune_submit td {
