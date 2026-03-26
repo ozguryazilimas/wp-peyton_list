@@ -135,6 +135,10 @@ body:not(.dark-mode) #daisy_fortune_add_entry_wrapper {
   box-shadow: 3px 3px #E2E2E2;
 }
 
+body.dark-mode #daisy_fortune_add_entry_wrapper * {
+  color: #000000 !important;
+}
+
 form#daisy_fortune_add_entry table#daisy_fortune_submit td {
   padding: 5px 10px;
 }
