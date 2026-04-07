@@ -3,7 +3,7 @@
 Plugin Name: Peyton List
 Plugin URI: http://www.ozguryazilim.com.tr
 Description: This plugin lists whatever you like with ability to make a list with catgories and links. This is dedicated to the lovely Peyton List (the more beautiful one, with black hair).
-Version: 1.2.1
+Version: 1.2.2
 Author: Onur Küçük
 Author URI: http://www.delipenguen.net
 License: GPL2
@@ -25,7 +25,7 @@ License: GPL2
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-$peyton_list_db_version = '1.2';
+$peyton_list_db_version = '1.3';
 global $peyton_list_db_version;
 
 $peyton_list_version = '1.1.2';
@@ -173,6 +173,8 @@ function peyton_list_init_db() {
       title TEXT NOT NULL,
       background_color_1 VARCHAR(255) NOT NULL DEFAULT '#F9FFEE',
       background_color_2 VARCHAR(255) NOT NULL DEFAULT '#EEFFF9',
+      background_dark_color_1 VARCHAR(255) NOT NULL DEFAULT '#060011',
+      background_dark_color_2 VARCHAR(255) NOT NULL DEFAULT '#201B1F',
       created_by BIGINT(20) UNSIGNED NOT NULL,
       updated_by BIGINT(20) UNSIGNED NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,

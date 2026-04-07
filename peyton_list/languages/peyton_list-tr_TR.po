@@ -202,3 +202,8 @@ msgstr "Durum"
 #: includes/daisy_fortune_common.php:366
 msgid "Comment"
 msgstr "Bilgi"
+
+#: includes/mantar_common.php:734 includes/mantar_common.php:772
+msgid "Night Mode"
+msgstr "Gece Modu"
+
