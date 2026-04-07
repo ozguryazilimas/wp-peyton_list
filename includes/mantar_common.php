@@ -176,6 +176,8 @@ function mantar_category_insert_entry($data) {
   $title = stripslashes_deep($data['title']);
   $background_color_1 = stripslashes_deep($data['background_color_1']);
   $background_color_2 = stripslashes_deep($data['background_color_2']);
+  $background_dark_color_1 = stripslashes_deep($data['background_dark_color_1']);
+  $background_dark_color_2 = stripslashes_deep($data['background_dark_color_2']);
   $current_time = mantar_get_time();
 
   $success = $wpdb->insert(
@@ -184,6 +186,8 @@ function mantar_category_insert_entry($data) {
       'title' => $title,
       'background_color_1' => $background_color_1,
       'background_color_2' => $background_color_2,
+      'background_dark_color_1' => $background_dark_color_1,
+      'background_dark_color_2' => $background_dark_color_2,
       'created_by' => $user_ID,
       'created_at' => $current_time,
       'updated_by' => $user_ID,
@@ -201,6 +205,8 @@ function mantar_category_update_entry($data) {
   $title = stripslashes_deep($data['title']);
   $background_color_1 = stripslashes_deep($data['background_color_1']);
   $background_color_2 = stripslashes_deep($data['background_color_2']);
+  $background_dark_color_1 = stripslashes_deep($data['background_dark_color_1']);
+  $background_dark_color_2 = stripslashes_deep($data['background_dark_color_2']);
   $current_time = mantar_get_time();
 
   $success = $wpdb->update(
@@ -209,6 +215,8 @@ function mantar_category_update_entry($data) {
       'title' => $title,
       'background_color_1' => $background_color_1,
       'background_color_2' => $background_color_2,
+      'background_dark_color_1' => $background_dark_color_1,
+      'background_dark_color_2' => $background_dark_color_2,
       'updated_by' => $user_ID,
       'updated_at' => $current_time
     ),
@@ -269,6 +277,8 @@ function mantar_get_entries_raw($mantar_category_id = null, $mantar_id = null) {
               M.mantar_category_id AS category_id,
               MC.background_color_1 AS background_color_1,
               MC.background_color_2 AS background_color_2,
+              MC.background_dark_color_1 AS background_dark_color_1,
+              MC.background_dark_color_2 AS background_dark_color_2,
               M.link AS link,
               M.date AS date,
               M.without_day AS without_day,
@@ -594,10 +604,11 @@ function mantar_entries_toggle_button($year, $month) {
             '</a><br><br>';
 }
 
-function mantar_display_container($color, $year, $month, $now_year, $now_month) {
+function mantar_display_container($color_is_even, $year, $month, $now_year, $now_month) {
   $output = '';
   $hiding_style = '';
   $show_button = ($year * 12 + $month + 1) < ($now_year * 12 + $now_month);
+  $color_odd_even_class = $color_is_even ? 'mantar_even' : 'mantar_odd';
 
   if ($show_button) {
     $output .= mantar_entries_toggle_button($year, $month);
@@ -605,12 +616,12 @@ function mantar_display_container($color, $year, $month, $now_year, $now_month) 
   }
 
   $output .= '<div id="mantar_display_container_' . $year . '_' . $month .
-    '" class="mantar_display_container" style="padding: 4px; background-color: ' . $color . '; ' . $hiding_style . '" >';
+    '" class="mantar_display_container ' . $color_odd_even_class . '" style="padding: 4px; ' . $hiding_style . '" >';
 
   return $output;
 }
 
-function mantar_format_entries_for_display($entries, $color_1, $color_2) {
+function mantar_format_entries_for_display($entries, $color_1, $color_2, $dark_color_1, $dark_color_2) {
   $output = '';
   $color_toggle = 0;
   $current_month = -1;
@@ -619,27 +630,49 @@ function mantar_format_entries_for_display($entries, $color_1, $color_2) {
   $now_year = intval($now_is[0]);
   $now_month = intval($now_is[1]);
 
+  $output .= '<style type="text/css">
+
+    body:not(.dark-mode) .mantar_display_container.mantar_odd {
+       background-color: ' . $color_1 . ';
+    }
+
+    body:not(.dark-mode) .mantar_display_container.mantar_even {
+       background-color: ' . $color_2 . ';
+    }
+
+    body.dark-mode .mantar_display_container.mantar_odd {
+       background-color: ' . $dark_color_1 . ' !important;
+    }
+
+    body.dark-mode .mantar_display_container.mantar_even {
+       background-color: ' . $dark_color_2 . ' !important;
+    }
+
+  </style>';
+
+
   foreach($entries as $ix => $entry) {
     $entry_date = explode('-', $entry['date'], 3);
     $year = intval($entry_date[0]);
     $month = intval($entry_date[1]);
     $day = intval($entry_date[2]);
+    $color_is_even = $ix % 2 != 0;
 
     if ($current_month === -1) {
-      $output .= mantar_display_container($color_1, $year, $month, $now_year, $now_month);
+      $output .= mantar_display_container($color_is_even, $year, $month, $now_year, $now_month);
     }
 
     if ($current_year !== $year || $current_month !== $month) {
       if ($color_toggle === 0) {
         $color_toggle = 1;
-        $color_to_use = $color_1;
+        $color_is_even = false;
       } else {
         $color_toggle = 0;
-        $color_to_use = $color_2;
+        $color_is_even = true;
       }
 
       if ($current_month !== -1) {
-        $output .= '</div>' . "\n" . mantar_display_container($color_to_use, $year, $month, $now_year, $now_month);
+        $output .= '</div>' . "\n" . mantar_display_container($color_is_even, $year, $month, $now_year, $now_month);
       }
 
       $current_month = $month;
@@ -670,13 +703,15 @@ function mantar_category_form() {
       <a href="#" id="mantar_category_toggle_link_form">' . __('Category', 'peyton_list') . '</a>
     </div>
     <div id="mantar_category_entry_wrapper">
-    <table id="mantar_category_entry_table">';
+    <table id="mantar_category_entry_table" style="width: 100%;">';
 
   foreach($categories as $category) {
     $id = $category->id;
     $title = $category->title;
     $color_1 = $category->background_color_1;
     $color_2 = $category->background_color_2;
+    $dark_color_1 = $category->background_dark_color_1;
+    $dark_color_2 = $category->background_dark_color_2;
 
     $output .= '
       <form id="mantar_category_update_entry_' . $id . '" name="mantar_category_update_entry" method="post">
@@ -687,10 +722,22 @@ function mantar_category_form() {
             <input type="text" size="40" name="mantar_category_update_entry[title]" value="' . $title . '" required="required" />
           </td>
           <td>
-            <input type="text" size="5" name="mantar_category_update_entry[background_color_1]" value="' . $color_1 . '" required="required" />
+            <input type="text" size="6" name="mantar_category_update_entry[background_color_1]" value="' . $color_1 . '" required="required" />
           </td>
           <td>
-            <input type="text" size="5" name="mantar_category_update_entry[background_color_2]" value="' . $color_2 . '" required="required" />
+            <input type="text" size="6" name="mantar_category_update_entry[background_color_2]" value="' . $color_2 . '" required="required" />
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+             ' . __('Night Mode', 'peyton_list') . '
+          </td>
+          <td>
+            <input type="text" size="6" name="mantar_category_update_entry[background_dark_color_1]" value="' . $dark_color_1 . '" required="required" />
+          </td>
+          <td>
+            <input type="text" size="6" name="mantar_category_update_entry[background_dark_color_2]" value="' . $dark_color_2 . '" required="required" />
           </td>
         </tr>
 
@@ -713,10 +760,22 @@ function mantar_category_form() {
               <input type="text" size="40" name="mantar_category_add_entry[title]" value="" required="required" />
             </td>
             <td>
-              <input type="text" size="5" name="mantar_category_add_entry[background_color_1]" value="#F9FFEE" required="required" />
+              <input type="text" size="6" name="mantar_category_add_entry[background_color_1]" value="#F9FFEE" required="required" />
             </td>
             <td>
-              <input type="text" size="5" name="mantar_category_add_entry[background_color_2]" value="#EEFFF9" required="required" />
+              <input type="text" size="6" name="mantar_category_add_entry[background_color_2]" value="#EEFFF9" required="required" />
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+             ' . __('Night Mode', 'peyton_list') . '
+            </td>
+            <td>
+              <input type="text" size="6" name="mantar_category_add_entry[background_dark_color_1]" value="#060011" required="required" />
+            </td>
+            <td>
+              <input type="text" size="6" name="mantar_category_add_entry[background_dark_color_2]" value="#201B1F" required="required" />
             </td>
           </tr>
 
@@ -766,12 +825,15 @@ function mantar_page_display($atts = [], $content = null, $tag = '') {
   $output = '';
   $mantar_category = $wpdb->get_row($wpdb->prepare("SELECT * FROM $mantar_db_categories WHERE title = %s", $content));
   $mantar_category_id = $mantar_category->id;
-  $color_1 = $mantar_category->background_color_1;
-  $color_2 = $mantar_category->background_color_2;
 
   if ($mantar_category_id) {
+    $color_1 = $mantar_category->background_color_1;
+    $color_2 = $mantar_category->background_color_2;
+    $dark_color_1 = $mantar_category->background_dark_color_1;
+    $dark_color_2 = $mantar_category->background_dark_color_2;
+
     $entries = mantar_get_entries($mantar_category_id);
-    $output = mantar_format_entries_for_display($entries, $color_1, $color_2);
+    $output = mantar_format_entries_for_display($entries, $color_1, $color_2, $dark_color_1, $dark_color_2);
   }
 
   return $output;
