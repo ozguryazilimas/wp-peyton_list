@@ -407,9 +407,12 @@ body:not(.dark-mode) #postane {
 }
 
 .postane_message {
-  background-color: white;
   padding: 5px 10px;
   margin-bottom: 10px;
+}
+
+body:not(.dark-mode) .postane_message {
+  background-color: white;
 }
 
 .postane_message_date {
