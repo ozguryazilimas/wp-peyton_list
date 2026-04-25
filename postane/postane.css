@@ -440,9 +440,14 @@ body:not(.dark-mode) .postane_message {
   border: 1px solid #44749d;
 }
 
-.postane_message_marked_read,
-.postane_message_not_read {
+body:not(.dark-mode) .postane_message_marked_read,
+body:not(.dark-mode) .postane_message_not_read {
   background-color: #eee;
+}
+
+body.dark-mode .postane_message_marked_read,
+body.dark-mode .postane_message_not_read {
+  background-color: #44749d;
 }
 
 .postane_participant_new_array_element,
