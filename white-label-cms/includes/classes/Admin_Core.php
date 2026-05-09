@@ -86,7 +86,7 @@ class WLCMS_Admin_Core
             $this->asset_version($setting_js)
         );
 
-        $jquery_validate = 'js/jquery.validate.min.js';
+        $jquery_validate = 'js/jquery.validatev1.19.5.min.js';
 
         wp_register_script(
             'jquery-validate',
