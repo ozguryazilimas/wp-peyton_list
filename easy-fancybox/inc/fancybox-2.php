@@ -319,8 +319,8 @@ fb_'.$key.'_sections.each(function(){jQuery(this).find(fb_'.$key.'_select).attr(
 	// Replace PDF embed shortcodes.
 	if ( ! empty( get_option('fancybox_enablePDF') ) && ! empty( get_option('fancybox_PDFonStart', '{{object}}') ) ) {
 		$replaces = array(
-			'"{{object}}"'       => 'function(){this.type=\'html\';this.content=\'<object data="\'+this.href+\'" type="application/pdf" height="\'+this.width+\'" width="\'+this.height+\'" aria-label="\'+this.title+\'" />\'}',
-			'"{{embed}}"'        => 'function(){this.type=\'html\';this.autoSize=false;this.content=\'<embed src="\'+this.href+\'" type="application/pdf" height="\'+this.width+\'" width="\'+this.height+\'" aria-label="\'+this.title+\'" />\'}',
+			'"{{object}}"'       => 'function(){this.type="html";var href=(this.href||"");var label=(this.title||"");if(typeof DOMPurify!=="undefined"){label=DOMPurify.sanitize(label,{ALLOWED_TAGS:[],ALLOWED_ATTR:[]});}var o=jQuery("<object/>",{type:"application/pdf",height:this.width,width:this.height,"aria-label":label});o.attr("data",href);this.content=jQuery("<div/>").append(o).html();}',
+			'"{{embed}}"'        => 'function(){this.type="html";this.autoSize=false;var href=(this.href||"");var label=(this.title||"");if(typeof DOMPurify!=="undefined"){label=DOMPurify.sanitize(label,{ALLOWED_TAGS:[],ALLOWED_ATTR:[]});}var e=jQuery("<embed/>",{type:"application/pdf",height:this.width,width:this.height,"aria-label":label});e.attr("src",href);this.content=jQuery("<div/>").append(e).html();}',
 			'"{{googleviewer}}"' => 'function(){this.href=\'https://docs.google.com/viewer?embedded=true&url=\'+this.href;}'
 		);
 		foreach ($replaces as $short => $replace) {
