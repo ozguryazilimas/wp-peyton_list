@@ -56,10 +56,13 @@
   display: flex;
   flex-wrap: wrap;
 }
+.ame-tp-section .ame-tp-control-group-children {
+  flex-grow: 1;
+}
 .ame-tp-section .ame-tp-control-group-children .wp-color-result {
   margin-bottom: 0;
 }
-.ame-tp-section .ame-tp-control-group-children fieldset > p {
+.ame-tp-section .ame-tp-control-group-children fieldset > p, .ame-tp-section .ame-tp-control-group-children > p {
   margin: 0 0 4px 0;
 }
 .ame-tp-section .ame-tp-section {
@@ -96,12 +99,14 @@
   box-sizing: border-box;
   height: 100%;
   padding-right: 0;
+  padding-left: 10px;
 }
 .ame-tp-height-100 .ame-tp-content > .ui-tabs-panel {
   box-sizing: border-box;
   height: 100%;
   overflow-y: auto;
   padding-right: 12px;
+  padding-left: 2px;
 }
 .ame-tp-height-100 .ame-tp-tabs {
   box-sizing: border-box;
@@ -115,6 +120,10 @@
    */
   overflow-y: visible;
   overflow-x: visible;
+}
+
+.ame-tp-control-group-medium .ame-tp-control-group-children {
+  flex-basis: 15rem;
 }
 
 /*# sourceMappingURL=tabbed-panels.css.map */

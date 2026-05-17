@@ -37,6 +37,9 @@ class ParsedFormSubmission {
 	 * @return array
 	 */
 	public function getSelectedActorParams(): array {
+		if ( $this->selectedActorFieldName === null ) {
+			return [];
+		}
 		return [$this->selectedActorFieldName => $this->selectedActorId];
 	}
 

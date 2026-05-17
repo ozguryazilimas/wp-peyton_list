@@ -27,7 +27,7 @@ $amePostboxShadow: 0 1px 1px rgba(0, 0, 0, 0.04);
 		border-top-left-radius: inherit;
 
 		h3 {
-			padding: 10px $horizontalPadding;
+			padding: 10px $toggleWidth 10px $horizontalPadding;
 			margin: 0;
 			font-size: 1em;
 			line-height: 1;

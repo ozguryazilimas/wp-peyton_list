@@ -10,7 +10,7 @@ interface IterableOps {
 	public function toArray(): array;
 }
 
-class ArrayWrapper implements \IteratorAggregate, IterableOps {
+class ArrayWrapper implements \IteratorAggregate, \Countable, IterableOps {
 	private array $array;
 
 	public function __construct(array $array) {
@@ -76,9 +76,9 @@ class ArrayWrapper implements \IteratorAggregate, IterableOps {
 	/**
 	 * @template R
 	 * @param callable(mixed $value):IterableOps<R> $callback
-	 * @return IterableOps<R>
+	 * @return ArrayWrapper
 	 */
-	public function flatMap($callback): IterableOps {
+	public function flatMap($callback = [self::class, 'identity']): ArrayWrapper {
 		$results = [];
 		foreach ($this->array as $value) {
 			$mapped = $callback($value);
@@ -91,6 +91,32 @@ class ArrayWrapper implements \IteratorAggregate, IterableOps {
 			}
 		}
 		return new ArrayWrapper($results);
+	}
+
+	/**
+	 * Similar to flatMap(), but preserves keys, and the callback receives both the value and
+	 * the key as arguments.
+	 *
+	 * If the callback returns multiple items, only the last one will be kept, and it will be
+	 * associated with the original key.
+	 *
+	 * @param callable(mixed $value, int|string $key):IterableOps<mixed> $callback
+	 * @return ArrayWrapper
+	 */
+	public function flatMapWithKeys(callable $callback): ArrayWrapper {
+		$results = [];
+		foreach ($this->array as $key => $value) {
+			$mapped = $callback($value, $key);
+			if ( is_iterable($mapped) ) {
+				foreach ($mapped as $item) {
+					$results[$key] = $item;
+				}
+			} else {
+				throw new \InvalidArgumentException('Callback must return an iterable.');
+			}
+		}
+		return new ArrayWrapper($results);
+
 	}
 
 	public function intersect($other): self {
@@ -220,6 +246,23 @@ class ArrayWrapper implements \IteratorAggregate, IterableOps {
 		return in_array($value, $this->array, true);
 	}
 
+	public function containsKey($key): bool {
+		return array_key_exists($key, $this->array);
+	}
+
+	/**
+	 * @param iterable $keys
+	 * @return bool
+	 */
+	public function containsAllKeys(iterable $keys): bool {
+		foreach ($keys as $key) {
+			if ( !array_key_exists($key, $this->array) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public function headOption() {
 		if ( empty($this->array) ) {
 			return Option::none();
@@ -271,6 +314,29 @@ class ArrayWrapper implements \IteratorAggregate, IterableOps {
 		}
 		return new ArrayWrapper($result);
 	}
+
+	public function isEmpty(): bool {
+		return empty($this->array);
+	}
+
+	public function count(): int {
+		return count($this->array);
+	}
+
+	//region Mutating methods
+	public function push(...$items): self {
+		foreach ($items as $item) {
+			$this->array[] = $item;
+		}
+		return $this;
+	}
+
+	public function pop() {
+		return array_pop($this->array);
+	}
+	//endregion
+
+
 }
 
 function w($value): ArrayWrapper {

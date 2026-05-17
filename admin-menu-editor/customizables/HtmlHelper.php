@@ -11,7 +11,7 @@ abstract class HtmlHelper {
 	 * @param string|null $content
 	 * @return string
 	 */
-	public static function tag($tagName, $attributes = array(), $content = null) {
+	public static function tag($tagName, $attributes = array(), $content = null): string {
 		$html = '<' . $tagName;
 		$charset = self::getCharset();
 
@@ -77,5 +77,17 @@ abstract class HtmlHelper {
 			}
 		}
 		return $charset;
+	}
+
+	/**
+	 * Output a HTML tag with the specified name, attributes and content.
+	 *
+	 * @param string $tagName
+	 * @param array<string,mixed> $attributes
+	 * @param string|null $content
+	 */
+	public static function outputTag(string $tagName, array $attributes = array(), ?string $content = null) {
+		//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- The tag() method handles escaping.
+		echo self::tag($tagName, $attributes, $content);
 	}
 }

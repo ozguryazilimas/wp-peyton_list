@@ -154,22 +154,6 @@ function ame_output_toolbar_row($buttons, $icons, $classes = array()) {
 	echo '</div>';
 }
 
-//Output the "Upgrade to Pro" message
-if ( !apply_filters('admin_menu_editor_is_pro', false) ){
-	?>
-	<script type="text/javascript">
-	(function($){
-		var screenLinks = $('#screen-meta-links');
-		screenLinks.append(
-			'<div id="ws-pro-version-notice" class="custom-screen-meta-link-wrap">' +
-				'<a href="https://adminmenueditor.com/upgrade-to-pro/?utm_source=Admin%2BMenu%2BEditor%2Bfree&utm_medium=text_link&utm_content=top_upgrade_link&utm_campaign=Plugins" id="ws-pro-version-notice-link" class="show-settings custom-screen-meta-link" target="_blank" title="View Pro version details">Upgrade to Pro</a>' +
-			'</div>'
-		);
-	})(jQuery);
-	</script>
-	<?php
-}
-
 ?>
 
 <?php do_action('admin_menu_editor-display_header'); ?>
@@ -441,8 +425,8 @@ function ame_register_sort_buttons($toolbar) {
 
 			//Pick one option proportionally to the weights. Weights should add up to 100.
 			$sidebar_ad_weights = [
-				'pro'                 => 80,
-				'adminNoticesBoss'    => 18,
+				'pro'                 => 85,
+				'adminNoticesBoss'    => 13,
 				'adminThemeGenerator' => 2,
 			];
 			$chosen_ad = array_keys($sidebar_ad_weights)[0];
@@ -585,7 +569,10 @@ function ame_register_sort_buttons($toolbar) {
 		<?php
 		$iconSelectorTabs = apply_filters(
 			'admin_menu_editor-icon_selector_tabs',
-			array('ws_core_icons_tab' => 'Dashicons')
+			new ameOrderedMap([
+				'ws_core_icons_tab' => 'Dashicons',
+				'ws_svg_icon_tab'   => 'SVG',
+			])
 		);
 		foreach($iconSelectorTabs as $tabId => $caption) {
 			/** @noinspection HtmlUnknownAnchorTarget -- It's a printf placeholder. */
@@ -961,7 +948,7 @@ function ame_register_sort_buttons($toolbar) {
 					<div class="ws_icon_image dashicons dashicons-%2$s"></div>
 				</div>',
 				esc_attr(ucwords(str_replace('-', ' ', $icon))),
-				$icon,
+				esc_attr($icon),
 				$isExtraIcon ? ' ws_icon_extra' : ''
 			);
 		}
@@ -995,6 +982,16 @@ function ame_register_sort_buttons($toolbar) {
 		<div class="ws_no_matching_icons" style="display: none">No results found</div>
 		<div class="clear"></div>
 	</div>
+
+		<div class="ws_tool_tab" id="ws_svg_icon_tab">
+			<label for="ws_menu_svg_icon_code">Paste SVG code here:</label>
+			<textarea name="ws_menu_svg_icon_code" id="ws_menu_svg_icon_code"
+			          class="code" cols="30" rows="5"></textarea>
+			<input type="button" class="button"
+			       id="ws_apply_svg_icon"
+			       title="Apply the SVG code as menu icon"
+			       value="Apply">
+		</div>
 
 		<?php do_action('admin_menu_editor-icon_selector'); ?>
 

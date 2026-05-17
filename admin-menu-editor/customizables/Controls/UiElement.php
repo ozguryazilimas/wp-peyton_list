@@ -15,7 +15,7 @@ abstract class UiElement {
 	/**
 	 * @var string|callable|null
 	 */
-	protected $description = '';
+	protected $description = null;
 
 	/**
 	 * @var array List of CSS classes to apply to the outermost DOM node of the element.
@@ -109,7 +109,7 @@ abstract class UiElement {
 		} elseif ( isset($this->description) ) {
 			return strval($this->description);
 		} else if ( !empty($this->mainBinding) ) {
-			$this->description = $this->mainBinding->resolveDescription($context);
+			return $this->mainBinding->resolveDescription($context);
 		}
 		return '';
 	}
@@ -168,7 +168,7 @@ abstract class UiElement {
 		if ( !empty($this->styles) ) {
 			$params['styles'] = $this->styles;
 		}
-		$description = $this->getDescription();
+		$description = $this->getDescription($context);
 		if ( !empty($description) ) {
 			$params['description'] = $description;
 		}

@@ -40,12 +40,16 @@ $dropdownTriggerWidth: 30px;
 }
 
 .ame-rui-actor {
+	display: flex;
+	align-items: center;
+
 	margin-right: $redirectInputSpacing;
 
 	font-size: 14px;
 	line-height: 27px;
 }
 
+//noinspection CssInvalidHtmlTagReference -- "ame-redirect-url-input" is a custom element used for a Knockout component.
 .ame-rui-url-template, ame-redirect-url-input {
 	flex-grow: 1;
 	display: block; //Only needed when outside a flex container.
@@ -67,17 +71,24 @@ $dropdownTriggerWidth: 30px;
 }
 
 .ame-rui-url-dropdown-trigger {
-	$triggerHeight: $inputHeight - 2 * $inputBorderWidth;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-end;
 
-	display: block;
-	position: absolute;
+	box-sizing: border-box;
 	width: $dropdownTriggerWidth;
-	height: $triggerHeight;
+	height: 100%;
 
-	top: $inputBorderWidth;
-	right: $inputBorderWidth;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0;
 	border-top-right-radius: 4px;
 	border-bottom-right-radius: 4px;
+
+	//Offset the dropdown triangle a bit from the right edge.
+	padding-right: 6px;
 
 	cursor: pointer;
 	text-align: center;
@@ -89,33 +100,40 @@ $dropdownTriggerWidth: 30px;
 	}
 
 	.am-rui-trigger-icon {
+		height: 20px; //Match icon height.
+
 		&:before {
 			content: "\f140";
 			font: normal 20px dashicons;
-			line-height: $triggerHeight;
-			vertical-align: middle;
+			line-height: 20px;
+			vertical-align: top;
 		}
 	}
 }
 
 .ame-rui-shortcodes-enabled {
-	margin: 0 $redirectInputSpacing 0 0;
+	display: inline-flex;
+	align-items: center;
 
-	display: inline-block;
 	box-sizing: border-box;
 	min-height: $inputHeight;
+	margin: 0 $redirectInputSpacing 0 0;
 	padding: 0 10px;
-
-	$lineHeight: $inputHeight - 2 * $inputBorderWidth;
-	line-height: $lineHeight;
 
 	border: $inputBorderWidth solid #dcdcde;
 	border-radius: 3px;
 	background: #f6f7f7;
 
 	.dashicons {
-		vertical-align: top;
-		line-height: $lineHeight;
+		line-height: 1;
+		//Hand-adjusted to look right visually.
+		margin-right: 3px;
+		margin-top: 2px;
+	}
+
+	input[type="checkbox"] {
+		margin-top: 0;
+		margin-right: 7px; //Also empirically chosen.
 	}
 
 	&:hover, &:active {

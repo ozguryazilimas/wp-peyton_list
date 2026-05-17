@@ -544,7 +544,7 @@ class ameFileLock {
 	}
 }
 
-class ameOrderedMap implements Iterator, Countable {
+class ameOrderedMap implements Iterator, Countable, ArrayAccess {
 	/**
 	 * @var ameLinkedListNode[]
 	 */
@@ -562,6 +562,10 @@ class ameOrderedMap implements Iterator, Countable {
 	 * @var ameLinkedListNode|null
 	 */
 	private $currentNode = null;
+
+	public function __construct($initialItems = array()) {
+		$this->addAll($initialItems);
+	}
 
 	/**
 	 * @param array $items
@@ -586,12 +590,13 @@ class ameOrderedMap implements Iterator, Countable {
 
 		$previousNode = $this->nodesByKey[$previousKey];
 		foreach ($items as $key => $value) {
-			if ( isset($this->nodesByKey[$key]) ) {
-				$node = $this->nodesByKey[$key];
+			$node = $this->extract($key);
+			if ( $node !== null ) {
+				$node->value = $value;
 			} else {
 				$node = new ameLinkedListNode($value, $key);
-				$this->nodesByKey[$key] = $node;
 			}
+			$this->nodesByKey[$key] = $node;
 
 			$this->insertNodeAfter($previousNode, $node);
 			$previousNode = $node;
@@ -638,12 +643,13 @@ class ameOrderedMap implements Iterator, Countable {
 		$nextNode = $this->nodesByKey[$nextKey];
 		$previousNode = $nextNode->previous;
 
-		if ( isset($this->nodesByKey[$key]) ) {
-			$node = $this->nodesByKey[$key];
+		$node = $this->extract($key);
+		if ( $node !== null ) {
+			$node->value = $item;
 		} else {
 			$node = new ameLinkedListNode($item, $key);
-			$this->nodesByKey[$key] = $node;
 		}
+		$this->nodesByKey[$key] = $node;
 
 		$node->next = $nextNode;
 		$node->previous = $previousNode;
@@ -682,6 +688,33 @@ class ameOrderedMap implements Iterator, Countable {
 		}
 
 		return $this;
+	}
+
+	/**
+	 * Remove an item from the map and return its node. Returns null if the key is not found.
+	 *
+	 * @param string|int $key
+	 * @return ameLinkedListNode|null
+	 */
+	private function extract($key): ?ameLinkedListNode {
+		if ( isset($this->nodesByKey[$key]) ) {
+			$node = $this->nodesByKey[$key];
+			if ( $node->previous !== null ) {
+				$node->previous->next = $node->next;
+			} else {
+				$this->head = $node->next;
+			}
+
+			if ( $node->next !== null ) {
+				$node->next->previous = $node->previous;
+			} else {
+				$this->tail = $node->previous;
+			}
+
+			unset($this->nodesByKey[$key]);
+			return $node;
+		}
+		return null;
 	}
 
 	#[\ReturnTypeWillChange]
@@ -731,6 +764,29 @@ class ameOrderedMap implements Iterator, Countable {
 			}
 		}
 		return $result;
+	}
+
+	public function offsetExists($offset): bool {
+		return isset($this->nodesByKey[$offset]);
+	}
+
+	//Return type should be `mixed`, but PHP 7.4 doesn't support that.
+	//So we add the annotation to suppress the deprecation notice.
+	/** @noinspection PhpLanguageLevelInspection */
+	#[\ReturnTypeWillChange]
+	public function offsetGet($offset) {
+		if ( isset($this->nodesByKey[$offset]) ) {
+			return $this->nodesByKey[$offset]->value;
+		}
+		return null;
+	}
+
+	public function offsetSet($offset, $value): void {
+		$this->set($offset, $value);
+	}
+
+	public function offsetUnset($offset): void {
+		$this->extract($offset);
 	}
 }
 

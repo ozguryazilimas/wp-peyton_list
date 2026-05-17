@@ -6,6 +6,7 @@ use YahnisElsts\AdminMenuEditor\Customizable\Controls\Section;
 use YahnisElsts\AdminMenuEditor\Customizable\Controls\Tooltip;
 
 abstract class ClassicRenderer extends Renderer {
+	public const IS_STACKED_ATTRIBUTE = 'controlGroupIsStacked';
 	protected $needsTooltipDependencies = false;
 
 	public function renderTooltipTrigger(Tooltip $tooltip) {

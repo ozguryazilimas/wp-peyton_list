@@ -120,6 +120,14 @@ class ElementBuilderFactory {
 
 	/**
 	 * @param Setting|null|string $idOrSetting
+	 * @return RadioGroupBuilder<Controls\RadioCardGroup>
+	 */
+	public function radioCardGroup($idOrSetting = null): RadioGroupBuilder {
+		return new RadioGroupBuilder($this->findSettings($idOrSetting), [], Controls\RadioCardGroup::class);
+	}
+
+	/**
+	 * @param Setting|null|string $idOrSetting
 	 * @return ControlBuilder
 	 */
 	public function checkBoxGroup($idOrSetting = null): ControlBuilder {
@@ -216,8 +224,18 @@ class ElementBuilderFactory {
 			return $this->imageSelector($setting);
 		} else if ( $setting instanceof Settings\NumericSetting ) {
 			return $this->number($setting);
-		} else if ( $setting instanceof Settings\PredefinedSet ) {
-			return $this->autoSection($setting);
+		} else if ( $setting instanceof Settings\ControlGenerator ) {
+
+			$controls = $setting->createControls($this);
+			if ( count($controls) === 1 ) {
+				//If there's only one control, just return it directly. We don't need a new section.
+				return reset($controls);
+			} else {
+				//Create a section that contains the controls.
+				return $this->section($setting->getLabel(), ...$controls)
+					->params(['preferredRole' => Controls\Section::CONTENT_ROLE]);
+			}
+
 		} else if ( $setting instanceof Settings\WithSchema\SingularSetting ) {
 
 			//Decide based on the schema.
@@ -234,11 +252,19 @@ class ElementBuilderFactory {
 				return $this->textBox($setting);
 			} else if ( $schema instanceof Schemas\Number ) {
 				return $this->number($setting);
-			} else {
-				return $this->textBox($setting);
 			}
+		}
 
-		} else if ( $setting instanceof Settings\AbstractSetting ) {
+		//Turn general structs into sections. (Composite settings are excluded because they usually
+		//need custom handling; their children don't make sense as independent controls.)
+		if (
+			($setting instanceof Settings\AbstractStructSetting)
+			&& !($setting instanceof Settings\CompositeSetting)
+		) {
+			return $this->autoSection($setting);
+		}
+
+		if ( $setting instanceof Settings\AbstractSetting ) {
 			switch ($setting->getDataType()) {
 				case 'color':
 					return $this->colorPicker($setting);
@@ -275,12 +301,25 @@ class ElementBuilderFactory {
 		}
 
 		$firstSetting = reset($settings);
-		if ( $firstSetting instanceof Settings\PredefinedSet ) {
+		if ( $firstSetting instanceof Settings\ControlGenerator ) {
 			$controls = $firstSetting->createControls($this);
 			return $this->section(
 				$title ?: $firstSetting->getLabel(),
 				...$controls
 			)->params(['preferredRole' => $role]);
+		}
+
+		//Handle simple structs.
+		if (
+			(count($settings) === 1)
+			&& ($firstSetting instanceof Settings\AbstractStructSetting)
+			&& !($firstSetting instanceof Settings\CompositeSetting)
+		) {
+			$section = $this->section($title ?: $firstSetting->getLabel())->params(['preferredRole' => $role]);
+			foreach ($firstSetting as $setting) {
+				$section->add($this->auto($setting));
+			}
+			return $section;
 		}
 
 		if ( !empty($settings) ) {

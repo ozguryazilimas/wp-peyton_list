@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, dashboard, menu, security, wpmu
 License: GPLv3
 Requires at least: 5.9
-Tested up to: 6.9.1
-Stable tag: 1.15
+Tested up to: 7.0
+Stable tag: 1.15.1
 
 Lets you edit the WordPress admin menu. You can re-order, hide or rename menus, add custom menus and more. 
 
@@ -83,6 +83,12 @@ Plugins installed in the `mu-plugins` directory are treated as "always on", so y
 3. Re-ordering menu items via drag and drop
 
 == Changelog ==
+
+= 1.15.1 =
+* Added improved SVG menu icon support. It was already possible to use SVG icons for admin menu items, but you had to manually encode them in the format that WordPress expects. Now the icon selector has a new "SVG" tab, and you can just paste the SVG code in the text box and click "Apply".
+* Fixed a number of layout issues and visual bugs in WordPress 7.0.
+* Fixed several PHP deprecation notices about "Using null as an array offset is deprecated, use an empty string instead".
+* Tested with WP 7.0-RC4 and WP 7.1-alpha.
 
 = 1.15 =
 * Increased the minimum required PHP version to 7.4.

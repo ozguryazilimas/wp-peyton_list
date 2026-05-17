@@ -7,8 +7,6 @@ use YahnisElsts\AdminMenuEditor\Customizable\Controls\ControlGroup;
 use YahnisElsts\AdminMenuEditor\Customizable\Controls\Section;
 
 class FormTableRenderer extends ClassicRenderer {
-	const IS_STACKED_ATRIBUTE = 'controlGroupIsStacked';
-
 	protected $isInsideRow = false;
 
 	protected $sectionNestingLevel = 0;
@@ -26,7 +24,7 @@ class FormTableRenderer extends ClassicRenderer {
 		echo '<div>';
 		$this->renderSectionHeading($section);
 
-		$description = $section->getDescription();
+		$description = $section->getDescription($context);
 		if ( !empty($description) ) {
 			//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML intentionally allowed.
 			echo "\n", '<p>', $description, '</p>';
@@ -99,7 +97,7 @@ class FormTableRenderer extends ClassicRenderer {
 		}
 
 		$childContext = $context->withAttributes([
-			self::IS_STACKED_ATRIBUTE => $isStacked,
+			self::IS_STACKED_ATTRIBUTE => $isStacked,
 		]);
 		$this->renderGroupChildren($group, $childContext);
 
@@ -120,7 +118,7 @@ class FormTableRenderer extends ClassicRenderer {
 			return;
 		}
 
-		$addLineBreaks = ($context->getAttribute(self::IS_STACKED_ATRIBUTE) && !$control->declinesExternalLineBreaks());
+		$addLineBreaks = ($context->getAttribute(self::IS_STACKED_ATTRIBUTE) && !$control->declinesExternalLineBreaks());
 		if ( $addLineBreaks ) {
 			echo '<p>';
 		}

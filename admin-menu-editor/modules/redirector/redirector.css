@@ -24,6 +24,8 @@
 }
 
 .ame-rui-actor {
+  display: flex;
+  align-items: center;
   margin-right: 10px;
   font-size: 14px;
   line-height: 27px;
@@ -46,14 +48,20 @@
 }
 
 .ame-rui-url-dropdown-trigger {
-  display: block;
-  position: absolute;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  box-sizing: border-box;
   width: 30px;
-  height: 28px;
-  top: 1px;
-  right: 1px;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
+  padding-right: 6px;
   cursor: pointer;
   text-align: center;
   color: #787c82;
@@ -61,27 +69,35 @@
 .ame-rui-url-dropdown-trigger:hover {
   color: #1d2327;
 }
+.ame-rui-url-dropdown-trigger .am-rui-trigger-icon {
+  height: 20px;
+}
 .ame-rui-url-dropdown-trigger .am-rui-trigger-icon:before {
   content: "\f140";
   font: normal 20px dashicons;
-  line-height: 28px;
-  vertical-align: middle;
+  line-height: 20px;
+  vertical-align: top;
 }
 
 .ame-rui-shortcodes-enabled {
-  margin: 0 10px 0 0;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   box-sizing: border-box;
   min-height: 30px;
+  margin: 0 10px 0 0;
   padding: 0 10px;
-  line-height: 28px;
   border: 1px solid #dcdcde;
   border-radius: 3px;
   background: #f6f7f7;
 }
 .ame-rui-shortcodes-enabled .dashicons {
-  vertical-align: top;
-  line-height: 28px;
+  line-height: 1;
+  margin-right: 3px;
+  margin-top: 2px;
+}
+.ame-rui-shortcodes-enabled input[type=checkbox] {
+  margin-top: 0;
+  margin-right: 7px;
 }
 .ame-rui-shortcodes-enabled:hover, .ame-rui-shortcodes-enabled:active {
   background: #f0f0f1;
@@ -311,7 +327,7 @@
   border-top-left-radius: inherit;
 }
 #ame-rui-main-actions .ws-ame-postbox-header h3 {
-  padding: 10px 12px;
+  padding: 10px 36px 10px 12px;
   margin: 0;
   font-size: 1em;
   line-height: 1;

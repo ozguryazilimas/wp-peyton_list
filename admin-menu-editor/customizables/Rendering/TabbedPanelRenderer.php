@@ -2,6 +2,7 @@
 
 namespace YahnisElsts\AdminMenuEditor\Customizable\Rendering;
 
+use YahnisElsts\AdminMenuEditor\Customizable\Controls\Control;
 use YahnisElsts\AdminMenuEditor\Customizable\Controls\ControlGroup;
 use YahnisElsts\AdminMenuEditor\Customizable\Controls\InterfaceStructure;
 use YahnisElsts\AdminMenuEditor\Customizable\HtmlHelper;
@@ -89,7 +90,10 @@ class TabbedPanelRenderer extends ClassicRenderer {
 			echo HtmlHelper::tag('fieldset', ['disabled' => !$group->isEnabled($context)]);
 		}
 
-		$this->renderGroupChildren($group, $context);
+		$childContext = $context->withAttributes([
+			self::IS_STACKED_ATTRIBUTE => $group->isStacked(),
+		]);
+		$this->renderGroupChildren($group, $childContext);
 
 		if ( $isFieldset ) {
 			echo '</fieldset>';
@@ -98,6 +102,20 @@ class TabbedPanelRenderer extends ClassicRenderer {
 
 		echo '</div>';
 	}
+
+	public function renderControl(Control $control, Context $context) {
+		$addLineBreaks = ($context->getAttribute(self::IS_STACKED_ATTRIBUTE) && !$control->declinesExternalLineBreaks());
+		if ( $addLineBreaks ) {
+			echo '<p>';
+		}
+
+		parent::renderControl($control, $context);
+
+		if ( $addLineBreaks ) {
+			echo '</p>';
+		}
+	}
+
 
 	protected function getSectionElementId(Section $section, ?Context $context = null) {
 		$suffix = $section->getHtmlIdBase($context);

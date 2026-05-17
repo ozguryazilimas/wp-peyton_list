@@ -239,6 +239,8 @@ namespace AmeMiniFunc {
 	//endregion
 
 	//region Misc
+	type SetPropertyType<T, K extends keyof T, NewType> = { [P in K]: NewType } & Omit<T, K>;
+
 	export function sanitizeNumericString(str: string): string {
 		if (str === '') {
 			return ''
@@ -262,13 +264,35 @@ namespace AmeMiniFunc {
 		return sanitizedString;
 	}
 
-	export function forEachObjectKey<T extends object>(collection: T, callback: (key: keyof T, value: T[keyof T]) => void) {
+	export function forEachObjectKey<T extends object>(
+		collection: T,
+		callback: (key: keyof T, value: T[keyof T]) => void
+	) {
 		for (const k in collection) {
 			if (!collection.hasOwnProperty(k)) {
 				continue;
 			}
 			callback(k, collection[k]);
 		}
+	}
+
+	/**
+	 * Creates an object composed of the items in the given array, indexed by the specified property.
+	 *
+	 * Like _.keyBy() in lodash, but with stricter types.
+	 */
+	export function indexByProperty<
+		T extends SetPropertyType<Record<PropertyKey, unknown>, K, PropertyKey>,
+		K extends keyof T
+	>(
+		items: T[],
+		key: K
+	): Record<T[K], T> {
+		const result: Record<T[K], T> = {} as Record<T[K], T>;
+		items.forEach(item => {
+			result[item[key]] = item;
+		});
+		return result;
 	}
 	//endregion
 }

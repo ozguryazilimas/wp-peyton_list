@@ -5,6 +5,7 @@ declare namespace AmeEditorApi {
 		setPath(path: string | string[], value: any): void;
 		mapSettingIdToPath(settingId: string): string | string[] | null;
 		getKnownPrefixes(): string[];
+		getSettingValue<D>(settingId: string, defaultValue?: D): D | null | any;
 	};
 
 	function updateItemEditor(containerNode: JQuery): void;

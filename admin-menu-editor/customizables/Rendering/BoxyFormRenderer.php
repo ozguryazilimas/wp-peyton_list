@@ -58,7 +58,7 @@ class BoxyFormRenderer extends ClassicRenderer {
 			echo '</h2></div>';
 		}
 
-		$description = $section->getDescription();
+		$description = $section->getDescription($context);
 		if ( !empty($description) ) {
 			//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML intentionally allowed.
 			echo "\n", '<p>', $description, '</p>';

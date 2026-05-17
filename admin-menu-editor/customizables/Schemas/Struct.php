@@ -53,6 +53,22 @@ class Struct extends Schema {
 		return !empty($this->requiredFields[$fieldName]);
 	}
 
+	/**
+	 * Create a new struct schema that includes all fields from this schema except the specified ones.
+	 *
+	 * @param string ...$fieldNames
+	 * @return Struct
+	 */
+	public function withoutFields(...$fieldNames): Struct {
+		$newFieldSchemas = array_diff_key($this->fieldSchemas, array_flip($fieldNames));
+		return new Struct($newFieldSchemas);
+	}
+
+	public function withFields(array $additionalFieldSchemas): Struct {
+		$newFieldSchemas = array_merge($this->fieldSchemas, $additionalFieldSchemas);
+		return new Struct($newFieldSchemas);
+	}
+
 	public function parse($value, $errors = null, $stopOnFirstError = false) {
 		$value = $this->checkForNull($value, $errors);
 		if ( ($value === null) || is_wp_error($value) ) {

@@ -171,6 +171,8 @@ $editFieldBottomMargin: 5px;
 	clear: both;
 	display: block;
 	margin: 4px;
+	padding-left: 8px;
+	padding-right: 8px;
 	width: 130px;
 }
 
@@ -586,6 +588,21 @@ to accommodate the drop-down button.
 	height: 30px;
 }
 
+//Flex-based container that supersedes a lot of the #ws_menu_access_editor dropdown styles above.
+#ws_menu_access_editor .ws_combo_box_container {
+	display: flex;
+	flex-direction: row;
+	gap: 0;
+
+	input {
+		margin-top: 1px;
+	}
+
+	.ws_dropdown_button {
+		height: unset; //Stretch to match the height of the input.
+	}
+}
+
 #ws_menu_editor .ws_has_dropdown input.ws_field_value {
 	width: $basicInputWidth - $dropdownButtonWidth;
 }
@@ -823,7 +840,7 @@ $toolTabLeftMargin: 6px;
 		border: 1px solid transparent;
 		border-bottom-width: 0;
 		padding: 3px 5px 5px;
-		line-height: 1.35em;
+		line-height: ((17/13) * 1em);
 
 		margin-bottom: 0;
 	}
@@ -857,6 +874,7 @@ $toolTabLeftMargin: 6px;
 
 $iconFontColor: #85888c;
 $iconSelectorZIndex: $toolbarZIndex + 1;
+$iconSelectorOptionMargin: 2px;
 
 #ws_icon_selector {
 	border: 1px solid silver;
@@ -887,7 +905,7 @@ $iconSelectorZIndex: $toolbarZIndex + 1;
 	float: left;
 	height: 30px;
 
-	margin: 2px;
+	margin: $iconSelectorOptionMargin;
 	cursor: pointer;
 	border: 1px solid #bbb;
 	border-radius: 3px;
@@ -953,11 +971,12 @@ $iconSelectorZIndex: $toolbarZIndex + 1;
 	.ame-is-wp53-plus & {
 		height: $basicInputWp53Height;
 		min-height: $basicInputWp53Height;
+		line-height: $basicInputWp53Height;
 		margin-top: 2px;
 	}
 }
 
-.ws_select_icon .ws_icon_image {
+button.ws_select_icon .ws_icon_image {
 	color: $iconFontColor;
 	padding: 3px;
 
@@ -967,6 +986,12 @@ $iconSelectorZIndex: $toolbarZIndex + 1;
 		&:before {
 			width: 20px;
 		}
+	}
+
+	//Override WP 7 dashicon-in-button styles to keep the icons properly aligned within the button.
+	&.dashicons.dashicons {
+		vertical-align: baseline;
+		line-height: 20px;
 	}
 }
 
@@ -981,6 +1006,12 @@ $iconSelectorZIndex: $toolbarZIndex + 1;
 #ws_icon_selector {
 	$innerTopPadding: 4px;
 	$tabHorizontalPadding: 4px;
+	$tabBottomPadding: 2px;
+
+	//Max tab height is a combination of very old legacy value + empirically chosen threshold
+	//that ensures the last row before scrolling is not cut off. (That might not work in WP 7.x
+	//since it has larger text fields and buttons, which throws off the layout).
+	$maxTabHeight: 327px;
 
 	.ws_tool_tab_nav {
 		display: inline-block;
@@ -994,8 +1025,9 @@ $iconSelectorZIndex: $toolbarZIndex + 1;
 	}
 
 	.ws_tool_tab {
-		padding: 0 $tabHorizontalPadding 2px;
-		max-height: 324px;
+		box-sizing: border-box;
+		padding: 0 $tabHorizontalPadding $tabBottomPadding;
+		max-height: $maxTabHeight;
 		overflow-y: auto;
 	}
 
@@ -1012,10 +1044,46 @@ $iconSelectorZIndex: $toolbarZIndex + 1;
 		margin-left: ($toolTabLeftMargin - $tabHorizontalPadding);
 		padding: $innerTopPadding 0;
 	}
+
+	#ws_svg_icon_tab {
+		//The effective spacing for other tabs is larger because icon options have their own margins,
+		//but this tab doesn't have that, so we add some extra padding to keep the layout consistent.
+		padding: $innerTopPadding ($tabHorizontalPadding + $iconSelectorOptionMargin) ($tabBottomPadding + $iconSelectorOptionMargin);
+		height: $maxTabHeight;
+	}
+}
+
+#ws_svg_icon_tab {
+	display: flex;
+	flex-direction: column;
+
+	label {
+		display: block;
+		margin-top: 0;
+		margin-bottom: ($iconSelectorOptionMargin + 2px);
+	}
+}
+
+#ws_menu_svg_icon_code {
+	width: 100%;
+	flex-grow: 1;
+}
+
+#ws_apply_svg_icon {
+	margin-top: ($iconSelectorOptionMargin + 2px);
+	//Move to the right edge of the tab.
+	align-self: flex-end;
+	//Extra width for easier clicking.
+	min-width: 100px;
 }
 
 #ws_choose_icon_from_media {
 	margin: 2px;
+
+	//Smaller button, like in WP 6.9.x. The tab layout is designed for that,
+	//and the larger buttons in WP 7.x would introduce a gap.
+	min-height: 30px;
+	line-height: 28px;
 }
 
 /************************************
@@ -2138,6 +2206,10 @@ $userSelectionPanelPadding: 10px;
 
 .ame-is-wp53-plus .ws_edit_field input[type="button"] {
 	margin-top: 2px;
+
+	//Pre-WP 7.x buttons were smaller, and the menu editor layout was designed for that.
+	min-height: 30px;
+	line-height: 28px;
 }
 
 /*********************************************

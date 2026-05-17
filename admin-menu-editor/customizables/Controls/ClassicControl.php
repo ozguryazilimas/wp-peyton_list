@@ -2,12 +2,14 @@
 
 namespace YahnisElsts\AdminMenuEditor\Customizable\Controls;
 
+use YahnisElsts\AdminMenuEditor\Customizable\Rendering\Context;
+
 abstract class ClassicControl extends Control {
 	/**
 	 * Output description before or after the control.
 	 */
-	protected function outputSiblingDescription() {
-		$description = $this->getDescription();
+	protected function outputSiblingDescription(?Context $context = null) {
+		$description = $this->getDescription($context);
 		if ( !empty($description) ) {
 			//HTML is intentionally allowed. The description should never contain user input.
 			//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -19,8 +21,8 @@ abstract class ClassicControl extends Control {
 	 * Output description inside the control. This is primarily intended
 	 * for controls that are wrapped in a label element.
 	 */
-	protected function outputNestedDescription() {
-		$description = $this->getDescription();
+	protected function outputNestedDescription(?Context $context = null) {
+		$description = $this->getDescription($context);
 		if ( !empty($description) ) {
 			//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo self::formatNestedDescription($description);

@@ -3684,9 +3684,16 @@ function ameOnDomReady() {
 	var iconSelectorTabs = iconSelector.find('#ws_icon_source_tabs');
 	iconSelectorTabs.tabs();
 
+	const svgIconPrefix = 'data:image/svg+xml;base64,';
+	const svgIconField = $('#ws_menu_svg_icon_code');
+
 	//When the user clicks one of the available icons, update the menu item.
 	iconSelector.on('click', '.ws_icon_option', function() {
-		var selectedIcon = $(this).addClass('ws_selected_icon');
+		const selectedIcon = $(this).addClass('ws_selected_icon');
+		applyIconFromSelector(selectedIcon.data('icon-class'), selectedIcon.data('icon-url'));
+	});
+
+	function applyIconFromSelector(newCssClass, newIconUrl, clear) {
 		iconSelector.hide();
 
 		//Assign the selected icon to the menu.
@@ -3698,13 +3705,15 @@ function ameOnDomReady() {
 			var cssClass = getFieldValue(item, 'css_class', '');
 			cssClass = jsTrim( cssClass.replace(/\b(ame-)?menu-icon-[^\s]+\b/, '') );
 
-			if (selectedIcon.data('icon-class')) {
+			if (newCssClass) {
 				//Add the new class.
-				cssClass = selectedIcon.data('icon-class') + ' ' + cssClass;
+				cssClass = newCssClass + ' ' + cssClass;
 				//Can't have both a class and an image or we'll get two overlapping icons.
 				item.icon_url = '';
-			} else if (selectedIcon.data('icon-url')) {
-				item.icon_url = selectedIcon.data('icon-url');
+			} else if (newIconUrl) {
+				item.icon_url = newIconUrl;
+			} else if (clear) {
+				item.icon_url = '';
 			}
 			item.css_class = cssClass;
 
@@ -3712,7 +3721,7 @@ function ameOnDomReady() {
 		}
 
 		currentIconButton = null;
-	});
+	}
 
 	//Show/hide the icon selector when the user clicks the icon button.
 	menuEditorNode.on('click', '.ws_select_icon', function() {
@@ -3747,6 +3756,9 @@ function ameOnDomReady() {
 		var customImageOption = iconSelector.find('.ws_custom_image_icon').hide();
 		iconSelector.data('ame-item-has-custom-image', false);
 
+		svgIconField.val('');
+		let hasValidSvgIconCode = false;
+
 		//Highlight the currently selected icon.
 		iconSelector.find('.ws_selected_icon').removeClass('ws_selected_icon');
 
@@ -3754,6 +3766,8 @@ function ameOnDomReady() {
 		var classMatches = cssClass.match(/\b(ame-)?menu-icon-([^\s]+)\b/);
 		//Dashicons and FontAwesome icons are set via the icon URL field, but they are actually CSS-based.
 		var iconFontMatches = iconUrl && iconUrl.match('^\s*((?:dashicons|ame-fa)-[a-z0-9\-]+)\s*$');
+		//Is it an SVG icon?
+		const svgIconMatches = iconUrl && iconUrl.trimStart().startsWith(svgIconPrefix);
 
 		if ( iconUrl && iconUrl !== 'none' && iconUrl !== 'div' && !iconFontMatches ) {
 			var currentIcon = iconSelector.find('.ws_icon_option img[src="' + iconUrl + '"]').first().closest('.ws_icon_option');
@@ -3766,6 +3780,17 @@ function ameOnDomReady() {
 				iconSelector.data('ame-item-has-custom-image', true);
 				selectedIcon = customImageOption;
 			}
+
+			if (svgIconMatches) {
+				//Decode the base64-encoded icon and put it in the SVG code field for editing.
+				try {
+					const svgCode = atob(iconUrl.trim().substring(svgIconPrefix.length));
+					svgIconField.val(svgCode);
+					hasValidSvgIconCode = true;
+				} catch (e) {
+					//If the icon is invalid, just leave the SVG code field empty.
+				}
+			}
 		} else if ( classMatches || iconFontMatches ) {
 			//Highlight the icon that corresponds to the current CSS class or Dashicon/FontAwesome icon.
 			var iconClass = iconFontMatches ? iconFontMatches[1] : ((classMatches[1] ? classMatches[1] : '') + 'icon-' + classMatches[2]);
@@ -3773,10 +3798,19 @@ function ameOnDomReady() {
 		}
 
 		//Activate the tab that contains the icon.
-		var activeTabId = ((selectedIcon !== null)
-				? selectedIcon.closest('.ws_tool_tab').prop('id')
-				: 'ws_core_icons_tab'),
-			activeTabItem = iconSelectorTabs.find('a[href="#' + activeTabId + '"]').closest('li');
+		let activeTabId = 'ws_core_icons_tab';
+
+		const hasCustomSvgIcon = hasValidSvgIconCode && (typeof menuItem['icon_url'] === 'string');
+		if (hasCustomSvgIcon) {
+			activeTabId = 'ws_svg_icon_tab';
+		} else if (selectedIcon !== null) {
+			const selectedIconTabId = selectedIcon.closest('.ws_tool_tab').prop('id');
+			if (selectedIconTabId) {
+				activeTabId = selectedIconTabId;
+			}
+		}
+
+		const activeTabItem = iconSelectorTabs.find('a[href="#' + activeTabId + '"]').closest('li');
 		if (activeTabItem.length > 0) {
 			iconSelectorTabs.tabs('option', 'active', activeTabItem.index());
 		}
@@ -3918,6 +3952,14 @@ function ameOnDomReady() {
 		},
 		250
 	));
+
+	$('#ws_apply_svg_icon').on('click', function() {
+		//Encode the SVG code and set it as the new icon URL, then close the icon selector.
+		//If the code is empty, just clear the icon URL to remove the icon.
+		const svgCode = svgIconField.val().trim();
+		const newIconUrl = svgCode ? (svgIconPrefix + btoa(svgCode)) : '';
+		applyIconFromSelector(null, newIconUrl, svgCode === '');
+	});
 
 	/*************************************************************************
 	                        Embedded page selector

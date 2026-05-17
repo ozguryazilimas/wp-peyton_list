@@ -259,6 +259,48 @@ abstract class Control extends UiElement implements ControlContainer {
 		return $this->buildTag($tagName, $attributes, $content);
 	}
 
+	/**
+	 * Generate an HTML tag that will serve as the outer container for this control.
+	 *
+	 * This is intended to be used for fieldset or div tags that wrap the entire control, and it
+	 * will include classes and styles from the control's properties.
+	 *
+	 * @param array $prependClasses
+	 * @param array $attributes
+	 * @param string $tagName
+	 * @return string
+	 */
+	protected function buildContainerElement(
+		array   $prependClasses = [],
+		array   $attributes = [],
+		string  $tagName = 'div'
+	): string {
+		$mergedAttributes = array_merge(
+			[
+				'class' => array_merge($prependClasses, $this->classes),
+				'style' => $this->styles,
+			],
+			$attributes
+		);
+
+		return $this->buildTag($tagName, $mergedAttributes);
+	}
+
+	/**
+	 * As buildContainerElement(), but specifically for fieldset tags. Adds the enabled/disabled state
+	 * if applicable.
+	 *
+	 * @param Context $context
+	 * @param array $prependClasses
+	 * @param array $attributes
+	 * @return string
+	 */
+	protected function buildFieldsetContainer(Context $context, array $prependClasses = [], array $attributes = []): string {
+		$attributes['disabled'] = !$this->isEnabled($context);
+		$attributes['data-bind'] = $this->makeKoDataBind($this->getKoEnableBinding());
+		return $this->buildContainerElement($prependClasses, $attributes, 'fieldset');
+	}
+
 	protected function getMainSettingValue($default = null, ?Context $context = null) {
 		if ( $this->mainBinding instanceof Setting ) {
 			return $this->mainBinding->getValue($default);

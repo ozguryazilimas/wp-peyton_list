@@ -1,4 +1,3 @@
-@charset "UTF-8";
 /* Admin Menu Editor CSS file */
 .ame-input-group {
   display: flex;
@@ -169,26 +168,28 @@ A "wp" prefix has been added to avoid name conflicts with other code in this plu
   margin-top: 1px;
   float: none;
 }
+#ws_menu_editor .ws_actor_access_checkbox:indeterminate,
+#ws_menu_editor input[type=checkbox].ws_actor_access_checkbox:indeterminate {
+  background: #fff;
+}
 #ws_menu_editor .ws_actor_access_checkbox:indeterminate:before,
 #ws_menu_editor input[type=checkbox].ws_actor_access_checkbox:indeterminate:before {
-  content: "■";
-  color: #1e8cbe;
-  margin: -3px 0 0 -1px;
-  font: 400 14px/1 dashicons;
+  content: "";
+  display: block;
   float: left;
-  display: inline-block;
-  vertical-align: middle;
-  width: 16px;
-  -webkit-font-smoothing: antialiased;
+  margin: 0.125rem 0 0 0.125rem;
+  width: 0.625rem;
+  height: 0.625rem;
+  line-height: 0.625rem;
+  background: var(--wp-admin-theme-color, #1e8cbe);
 }
 @media screen and (max-width: 782px) {
   #ws_menu_editor .ws_actor_access_checkbox:indeterminate:before,
   #ws_menu_editor input[type=checkbox].ws_actor_access_checkbox:indeterminate:before {
-    height: 1.5625rem;
-    width: 1.5625rem;
-    line-height: 1.5625rem;
-    margin: -1px;
-    font-size: 18px;
+    height: 0.9375rem;
+    width: 0.9375rem;
+    line-height: 0.9375rem;
+    margin: 0.25rem 0 0 0.25rem;
     font-family: unset;
     font-weight: normal;
   }
@@ -230,6 +231,8 @@ A "wp" prefix has been added to avoid name conflicts with other code in this plu
   clear: both;
   display: block;
   margin: 4px;
+  padding-left: 8px;
+  padding-right: 8px;
   width: 130px;
 }
 
@@ -573,6 +576,18 @@ to accommodate the drop-down button.
   height: 30px;
 }
 
+#ws_menu_access_editor .ws_combo_box_container {
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+}
+#ws_menu_access_editor .ws_combo_box_container input {
+  margin-top: 1px;
+}
+#ws_menu_access_editor .ws_combo_box_container .ws_dropdown_button {
+  height: unset;
+}
+
 #ws_menu_editor .ws_has_dropdown input.ws_field_value {
   width: 229px;
 }
@@ -776,7 +791,7 @@ select.ws_dropdown optgroup option {
   border: 1px solid transparent;
   border-bottom-width: 0;
   padding: 3px 5px 5px;
-  line-height: 1.35em;
+  line-height: 1.3076923077em;
   margin-bottom: 0;
 }
 .ws_tool_tab_nav li.ui-tabs-active {
@@ -887,18 +902,23 @@ select.ws_dropdown optgroup option {
 .ame-is-wp53-plus #ws_menu_editor .ws_select_icon {
   height: 28px;
   min-height: 28px;
+  line-height: 28px;
   margin-top: 2px;
 }
 
-.ws_select_icon .ws_icon_image {
+button.ws_select_icon .ws_icon_image {
   color: #85888c;
   padding: 3px;
 }
-.ws_select_icon .ws_icon_image.dashicons {
+button.ws_select_icon .ws_icon_image.dashicons {
   padding: 3px 2px;
 }
-.ws_select_icon .ws_icon_image.dashicons:before {
+button.ws_select_icon .ws_icon_image.dashicons:before {
   width: 20px;
+}
+button.ws_select_icon .ws_icon_image.dashicons.dashicons {
+  vertical-align: baseline;
+  line-height: 20px;
 }
 
 /* Current icon node (image version) */
@@ -918,8 +938,9 @@ select.ws_dropdown optgroup option {
   padding: 4px 10px 11px;
 }
 #ws_icon_selector .ws_tool_tab {
+  box-sizing: border-box;
   padding: 0 4px 2px;
-  max-height: 324px;
+  max-height: 327px;
   overflow-y: auto;
 }
 #ws_icon_selector .ws_icon_search_bar {
@@ -933,9 +954,36 @@ select.ws_dropdown optgroup option {
   margin-left: 2px;
   padding: 4px 0;
 }
+#ws_icon_selector #ws_svg_icon_tab {
+  padding: 4px 6px 4px;
+  height: 327px;
+}
+
+#ws_svg_icon_tab {
+  display: flex;
+  flex-direction: column;
+}
+#ws_svg_icon_tab label {
+  display: block;
+  margin-top: 0;
+  margin-bottom: 4px;
+}
+
+#ws_menu_svg_icon_code {
+  width: 100%;
+  flex-grow: 1;
+}
+
+#ws_apply_svg_icon {
+  margin-top: 4px;
+  align-self: flex-end;
+  min-width: 100px;
+}
 
 #ws_choose_icon_from_media {
   margin: 2px;
+  min-height: 30px;
+  line-height: 28px;
 }
 
 /************************************
@@ -1865,6 +1913,8 @@ A "wp" prefix has been added to avoid name conflicts with other code in this plu
 **********************************************/
 .ame-is-wp53-plus .ws_edit_field input[type=button] {
   margin-top: 2px;
+  min-height: 30px;
+  line-height: 28px;
 }
 
 /*********************************************
@@ -1903,24 +1953,25 @@ A "wp" prefix has been added to avoid name conflicts with other code in this plu
 /*********************************************
       Miscellaneous
 **********************************************/
+#ws_ame_general_vis_box input[type=checkbox]:indeterminate {
+  background: #fff;
+}
 #ws_ame_general_vis_box input[type=checkbox]:indeterminate:before {
-  content: "■";
-  color: #1e8cbe;
-  margin: -3px 0 0 -1px;
-  font: 400 14px/1 dashicons;
+  content: "";
+  display: block;
   float: left;
-  display: inline-block;
-  vertical-align: middle;
-  width: 16px;
-  -webkit-font-smoothing: antialiased;
+  margin: 0.125rem 0 0 0.125rem;
+  width: 0.625rem;
+  height: 0.625rem;
+  line-height: 0.625rem;
+  background: var(--wp-admin-theme-color, #1e8cbe);
 }
 @media screen and (max-width: 782px) {
   #ws_ame_general_vis_box input[type=checkbox]:indeterminate:before {
-    height: 1.5625rem;
-    width: 1.5625rem;
-    line-height: 1.5625rem;
-    margin: -1px;
-    font-size: 18px;
+    height: 0.9375rem;
+    width: 0.9375rem;
+    line-height: 0.9375rem;
+    margin: 0.25rem 0 0 0.25rem;
     font-family: unset;
     font-weight: normal;
   }

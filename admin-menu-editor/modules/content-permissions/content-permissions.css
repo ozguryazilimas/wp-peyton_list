@@ -62,8 +62,21 @@ A "wp" prefix has been added to avoid name conflicts with other code in this plu
   cursor: default;
 }
 .ame-radio-button-bar-control .ame-radio-bar-button {
+  box-sizing: border-box;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 10px;
+  line-height: 30px;
+  user-select: none;
+  text-align: center;
   display: flex;
   align-items: center;
+}
+.ame-radio-button-bar-control .ame-radio-bar-button .dashicons {
+  line-height: 30px;
+}
+.ame-radio-button-bar-control .ame-radio-bar-button .dashicons {
+  line-height: 1;
 }
 .ame-radio-button-bar-control .ame-radio-bar-button.ame-rb-has-label .dashicons {
   margin-right: 0.2em;
@@ -493,7 +506,7 @@ fieldset[disabled] #ame-cpe-basic-actor-shortcuts a {
   border-top-left-radius: inherit;
 }
 .ame-cpe-term-box .ws-ame-postbox-header h3 {
-  padding: 10px 12px;
+  padding: 10px 36px 10px 12px;
   margin: 0;
   font-size: 1em;
   line-height: 1;

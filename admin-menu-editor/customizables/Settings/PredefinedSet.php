@@ -1,9 +1,6 @@
 <?php
 namespace YahnisElsts\AdminMenuEditor\Customizable\Settings;
 
-use YahnisElsts\AdminMenuEditor\Customizable\Builders;
-use YahnisElsts\AdminMenuEditor\Customizable\Controls;
-
 /**
  * A PredefinedSet defines a reusable collection of settings that are typically
  * used together.
@@ -15,10 +12,6 @@ use YahnisElsts\AdminMenuEditor\Customizable\Controls;
  * Each PredefinedSet creates settings. It can also create controls for editing
  * those settings.
  */
-interface PredefinedSet extends SettingGeneratorInterface {
-	/**
-	 * @param \YahnisElsts\AdminMenuEditor\Customizable\Builders\ElementBuilderFactory $b
-	 * @return array<\YahnisElsts\AdminMenuEditor\Customizable\Builders\ElementBuilder|\YahnisElsts\AdminMenuEditor\Customizable\Controls\UiElement>
-	 */
-	public function createControls(Builders\ElementBuilderFactory $b);
+interface PredefinedSet extends SettingGeneratorInterface, ControlGenerator {
+
 }

@@ -1,3 +1,4 @@
+@use 'button-group';
 @import "../../css/forms";
 
 .ame-radio-button-bar-control {
@@ -43,8 +44,14 @@
 	}
 
 	.ame-radio-bar-button {
+		@include button-group.ame-button-group-button;
+
 		display: flex;
 		align-items: center;
+
+		.dashicons {
+			line-height: 1;
+		}
 
 		&.ame-rb-has-label {
 			.dashicons {

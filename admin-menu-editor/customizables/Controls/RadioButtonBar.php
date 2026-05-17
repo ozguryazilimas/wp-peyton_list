@@ -11,22 +11,14 @@ class RadioButtonBar extends ChoiceControl {
 
 	protected $declinesExternalLineBreaks = true;
 
-	protected $controlClass = 'ame-radio-button-bar-control';
+	protected string $controlClass = 'ame-radio-button-bar-control';
 
 	public function renderContent(Renderer $renderer, Context $context) {
 		$fieldName = $this->getFieldName($context);
 		$currentValue = $this->mainBinding->getValue();
 
 		//phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo $this->buildTag(
-			'fieldset',
-			[
-				'class'     => array_merge([$this->controlClass], $this->classes),
-				'style'     => $this->styles,
-				'disabled'  => !$this->isEnabled($context),
-				'data-bind' => $this->makeKoDataBind($this->getKoEnableBinding()),
-			]
-		);
+		echo $this->buildFieldsetContainer($context, [$this->controlClass]);
 		foreach ($this->options as $option) {
 			$isChecked = ($currentValue === $option->value);
 
@@ -35,22 +27,7 @@ class RadioButtonBar extends ChoiceControl {
 				'title' => $option->description,
 			));
 
-			echo $this->buildTag(
-				'input',
-				array_merge(array(
-					'type'      => 'radio',
-					'name'      => $fieldName,
-					'value'     => $this->mainBinding->encodeForForm($option->value),
-					'class'     => $this->getInputClasses($context),
-					'checked'   => $isChecked,
-					'disabled'  => !$option->enabled,
-					'data-bind' => $this->makeKoDataBind([
-						'checked'                   => $this->getKoObservableExpression($option->value),
-						'checkedValue'              => wp_json_encode($option->value),
-						'ameObservableChangeEvents' => 'true',
-					]),
-				), $this->inputAttributes)
-			);
+			echo $this->generateRadioInputFor($option, $fieldName, $isChecked, $context);
 
 			$buttonContent = esc_html($option->label);
 			if ( is_string($option->icon) && (strpos($option->icon, 'dashicons-') !== false) ) {

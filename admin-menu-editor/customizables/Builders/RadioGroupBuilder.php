@@ -5,11 +5,11 @@ namespace YahnisElsts\AdminMenuEditor\Customizable\Builders;
 use YahnisElsts\AdminMenuEditor\Customizable\Controls\RadioGroup;
 
 class RadioGroupBuilder extends ControlBuilder {
-	public function __construct($settings = [], $params = []) {
-		parent::__construct(RadioGroup::class, $settings, $params);
+	public function __construct($settings = [], $params = [], string $className = RadioGroup::class) {
+		parent::__construct($className, $settings, $params);
 	}
 
-	public function choiceChild($value, $childControl) {
+	public function choiceChild($value, $childControl): self {
 		if ( !is_string($value) ) {
 			//Because we use the value as an array key, it must be a string
 			//to avoid potential collisions (1 vs 1.3 vs '1') and other problems.

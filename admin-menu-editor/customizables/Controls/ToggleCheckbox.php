@@ -87,7 +87,7 @@ class ToggleCheckbox extends ClassicControl {
 		echo ' ', $this->getLabel($context);
 		//phpcs:enable
 
-		$this->outputNestedDescription();
+		$this->outputNestedDescription($context);
 		echo '</label>';
 
 		self::enqueueDependencies();
